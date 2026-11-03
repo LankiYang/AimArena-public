@@ -14,7 +14,7 @@ export function openTouchLayoutEditor(opener?: HTMLElement, onSave?: () => void)
   let active = true;
   let ready = false;
   const stage = h('div', { class: 'touch-layout-stage', 'data-testid': 'touch-layout-stage' });
-  const status = h('div', { class: 'field-hint', role: 'status', 'data-testid': 'touch-layout-status' }, '读取玩家云存档…');
+  const status = h('div', { class: 'field-hint', role: 'status', 'data-testid': 'touch-layout-status' }, '读取本机布局…');
   const handles = new Map<TouchControlId, HTMLButtonElement>();
   for (const id of TOUCH_CONTROL_IDS) {
     const handle = h('button', {
@@ -70,7 +70,7 @@ export function openTouchLayoutEditor(opener?: HTMLElement, onSave?: () => void)
     h('div', { class: 'touch-layout-tools' }, reset, status),
   );
   modal({
-    title: '自定义触控布局', sub: 'B站 Toy 可云同步；普通网页保存到本机', body, wide: true,
+    title: '自定义触控布局', sub: '布局保存在本机', body, wide: true,
     testid: 'touch-layout-editor', cancelText: '取消', okText: '保存布局', okTestid: 'touch-layout-save',
     onOk: async () => {
       const result = await saveTouchLayout(layout);

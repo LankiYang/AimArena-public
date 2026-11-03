@@ -10,9 +10,7 @@ import { loadMap } from '../world/load.ts';
 import { Engine } from './engine.ts';
 import { Input, PITCH_LIMIT, TOUCH_YAW_PER_PX, YAW_PER_COUNT_DEG } from './input.ts';
 import { TouchUi } from './touch-ui.ts';
-import { dataPath } from '../paths.ts';
-
-interface Spawn { x: number; y: number; z: number; yaw?: number }
+import { getPublicMapData } from '../../shared/public-map.ts';
 
 export async function runSandbox(root: HTMLElement, mapArg: string) {
   const map: MapId = isMapId(mapArg) ? mapArg : 'ascent';
@@ -24,8 +22,7 @@ export async function runSandbox(root: HTMLElement, mapArg: string) {
   engine.setFov(profile.fov);
   const loaded = await loadMap(map, engine.renderer, (p, t) => lv.progress(p, t));
   engine.scene.add(loaded.render.root);
-  const data = await (await fetch(dataPath('pvp-maps.json'))).json();
-  const sp: Spawn = data.maps[map].tdm.BL[0];
+  const sp = getPublicMapData(map).tdm.BL[0];
   const s = newMoveState(sp.x, sp.y, sp.z);
   let yaw = sp.yaw ?? 0, pitch = 0;
   await engine.renderer.compileAsync(engine.scene, engine.camera);

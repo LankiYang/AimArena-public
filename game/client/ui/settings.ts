@@ -66,7 +66,7 @@ function slider(label: string, min: number, max: number, step: number, value: nu
 
 const COLORS = ['#00ff9c', '#ffffff', '#ffe600', '#00e5ff', '#ff4fd8', '#ff4655'];
 
-/** 网络线路：显示当前地址 / 状态 / 延迟，并可手动切到下一线路（Toy 主站与预览各有 /ws） */
+/** 网络线路：显示当前连接状态和延迟。 */
 function networkField() {
   const conn = app.conn;
   if (!conn) return null;
@@ -170,7 +170,7 @@ export function openSettings(onChange?: () => void, onClose?: () => void) {
     h('label', null, '触控键位布局'),
     h('div', { style: 'display:flex;align-items:center;gap:12px;flex-wrap:wrap' },
       h('button', { class: 'btn ghost sm', type: 'button', 'data-testid': 'touch-layout-open', onclick: (e: MouseEvent) => openTouchLayoutEditor(e.currentTarget as HTMLElement, changed) }, '自定义布局'),
-      h('span', { class: 'field-hint' }, 'Toy 玩家跨设备云同步；普通网页只存本机'),
+      h('span', { class: 'field-hint' }, '布局保存在本机'),
     ),
   );
   const body = h(

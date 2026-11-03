@@ -45,21 +45,21 @@ export const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode
 
 /** 内联 SVG 图标（线性，24 网格） */
 const ICONS: Record<string, string> = {
-  gear: '<path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>',
-  back: '<path d="M15 18l-6-6 6-6"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  x: '<path d="M18 6 6 18M6 6l12 12"/>',
-  crown: '<path d="M3 8l4 4 5-7 5 7 4-4-2 11H5L3 8Z"/>',
-  bot: '<rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4M9 13h.01M15 13h.01"/>',
-  check: '<path d="M20 6 9 17l-5-5"/>',
-  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
-  refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
-  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
-  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
-  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z"/><circle cx="12" cy="12" r="3"/>',
-  play: '<path d="M6 4l14 8-14 8V4Z"/>',
-  send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/>',
-  swap: '<path d="M7 16V4M7 4 3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/>',
+  gear: '<rect x="5" y="5" width="14" height="14"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  back: '<path d="M19 12H5m0 0 5-5m-5 5 5 5"/>',
+  plus: '<path d="M12 4v16M4 12h16"/>',
+  x: '<path d="M5 5l14 14M19 5 5 19"/>',
+  crown: '<path d="M3 7l4 5 5-7 5 7 4-5-2 12H5Z"/>',
+  bot: '<rect x="4" y="7" width="16" height="13"/><path d="M12 3v4M8 12h2m4 0h2M8 16h8"/>',
+  check: '<path d="M4 12l5 5L20 6"/>',
+  copy: '<rect x="8" y="8" width="12" height="12"/><path d="M16 8V4H4v12h4"/>',
+  refresh: '<path d="M19 8V4l-3 3M5 16v4l3-3M16 7H8L4 11M8 17h8l4-4"/>',
+  users: '<circle cx="9" cy="8" r="3"/><path d="M3 20v-3l3-3h6l3 3v3M16 5l3 3-3 3M17 14l4 3v3"/>',
+  lock: '<rect x="5" y="10" width="14" height="11"/><path d="M8 10V7l2-3h4l2 3v3M12 14v3"/>',
+  eye: '<path d="M2 12l5-5h10l5 5-5 5H7Z"/><circle cx="12" cy="12" r="2"/>',
+  play: '<path d="M6 4l14 8-14 8Z"/>',
+  send: '<path d="M3 4l18 8-18 8 4-8ZM7 12h14"/>',
+  swap: '<path d="M7 4v16m0-16L4 7m3-3 3 3m7 13V4m0 16-3-3m3 3 3-3"/>',
 };
 export function icon(name: keyof typeof ICONS | string, size = 18): SVGSVGElement {
   const span = document.createElement('span');

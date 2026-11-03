@@ -7,16 +7,12 @@ import type { RoomSettings, RoomSummary } from '../../shared/lobby.ts';
 import { DEFAULT_SETTINGS, SCORE_LIMITS } from '../../shared/lobby.ts';
 import { app, type Screen } from '../app.ts';
 import { profile, saveProfile } from '../profile.ts';
-import { isToyEnvironment } from '../toy.ts';
-import { FREE_AGENT_ID, isAgentLocked } from '../toy-unlock.ts';
 import { agentArt, bg, mapCover, mapSlice } from './art.ts';
 import { h, icon, set } from './dom.ts';
 import { agentPicker } from './landing.ts';
 import { modal, seg, toast, toggle } from './overlay.ts';
 import { openSettings } from './settings.ts';
-import { openKillLeaderboard } from './leaderboard.ts';
 import { createMailEntry } from './mail.ts';
-import { checkInputSafety } from '../safety.ts';
 import { openFriends } from './friends.ts';
 
 const QP_KEY = 'vpvp.quickplay.v1';
@@ -64,13 +60,10 @@ export function topbar(active: string, extra?: Node, onSettings: () => void = op
 }
 
 function editProfile() {
-  const toy = isToyEnvironment();
   const name = h('input', {
-    class: ['input', toy && 'toy-name-locked'],
+    class: 'input',
     value: profile.name,
     maxLength: 16,
-    readOnly: toy,
-    title: toy ? 'Toy 内代号由 B站授权/游客随机生成，不可修改' : undefined,
   });
   let agent = profile.agent;
   const body = h(
@@ -81,7 +74,6 @@ function editProfile() {
       { class: 'field' },
       h('label', null, '代号'),
       name,
-      toy ? h('div', { class: 'field-hint' }, 'Toy 内代号由 B站授权/游客随机生成，不可修改') : null,
     ),
     h('div', { class: 'field' }, h('label', null, '特工'), agentPicker(agent, (id) => (agent = id))),
   );
@@ -89,21 +81,13 @@ function editProfile() {
     title: '个人资料',
     body,
     okText: '保存',
-    onOk: async () => {
-      const n = toy ? profile.name : name.value.trim();
+    onOk: () => {
+      const n = name.value.trim();
       if (!n) {
         toast('代号不能为空');
         return false;
       }
-      // 只有玩家真的改了昵称才检测；Toy 里平台授权/游客随机昵称只读，不会走到这里
-      if (!toy && n !== profile.name) {
-        const safe = await checkInputSafety(n, 'nickname');
-        if (!safe.ok) {
-          toast(safe.message ?? '内容检测未通过');
-          return false;
-        }
-      }
-      saveProfile({ name: n, agent: isAgentLocked(agent) ? FREE_AGENT_ID : agent });
+      saveProfile({ name: n, agent });
       app.conn?.send({ t: 'profile', name: n, agent: profile.agent });
       app.route();
     },
@@ -237,7 +221,6 @@ function openCreateRoom() {
 
 /** 大厅主体：顶部两个主操作 + 房间列表 */
 export function lobbyScreen(): Screen {
-  let rankClose: (() => void) | null = null;
   let qp = loadQp();
   let advanced = false; // 「更多设置」是否展开
   let onlyJoinable = false;
@@ -547,10 +530,6 @@ export function lobbyScreen(): Screen {
           h('div', { class: 'panel-title' }, '房间列表'),
           count,
           h('div', { class: 'spacer' }),
-          h('button', { class: 'btn ghost kill-entry', 'data-testid': 'kill-leaderboard-open', onclick: () => {
-            rankClose?.();
-            rankClose = openKillLeaderboard(() => { rankClose = null; });
-          } }, icon('crown', 16), '击杀榜'),
           h('button', { class: 'btn icon ghost', 'data-testid': 'refresh-rooms', title: '刷新房间列表', 'aria-label': '刷新房间列表', onclick: () => app.conn?.send({ t: 'listRooms' }) }, icon('refresh')),
         ),
         h(
@@ -586,7 +565,6 @@ export function lobbyScreen(): Screen {
     dispose() {
       clearInterval(timer);
       tb.dispose();
-      rankClose?.();
       mail.dispose();
     },
     update() {

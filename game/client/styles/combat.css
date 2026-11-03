@@ -1,0 +1,428 @@
+/* combat.css — 射击试玩 HUD（左下生命 / 右下弹药 / 中下换弹复活 / 中上说明 / 右上击杀信息）
+ *
+ * 布局与 SPEC 一致，只负责样式：
+ *   中上  「射击试玩 · 3秒复活」
+ *   左下  100HP 数字 + 血条
+ *   右下  武器名 + 大字弹药 + 备弹
+ *   中下  「R 换弹」/「换弹中 N.Ns」/「N.Ns 后复活」
+ *   右上  击杀信息（最多 4 条，5 秒消失）
+ *   中心  命中 X（爆头金色）；受伤时边缘红闪
+ *
+ * 板上所有元素默认 pointer-events:none，绝不抢鼠标、不挡准心，也不盖 ESC 菜单；
+ * 只有 ESC 解锁后（.hud-unlocked）武器按钮才恢复可点，且按钮只放在右下角落。
+ * 颜色 / 字体全部取自 base.css 的设计变量，与既有红青暗色一致。
+ */
+
+.combat-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  font-family: var(--font-ui);
+  color: var(--text);
+  /* 屏幕边缘留白：四个角的内容都贴在这条线上 */
+  --hud-pad: 34px;
+}
+
+/* ---------- 中上：说明文案 ---------- */
+.hud-banner {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(11, 17, 24, 0.58);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.hud-team-key {
+  position: absolute; top: 54px; left: var(--hud-pad); display: flex; gap: 14px;
+  padding: 5px 9px; border-radius: 3px; background: rgba(11, 17, 24, .7); font-size: 12px; font-weight: 700;
+}
+.hud-team-key .ally { color: #53e3c2; }
+.hud-team-key .enemy { color: #ff5365; }
+
+/* ---------- 右上：击杀信息 ---------- */
+.hud-feed {
+  position: absolute;
+  top: 18px;
+  right: var(--hud-pad);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  max-width: 40vw;
+}
+.hud-feed-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border-right: 2px solid var(--red);
+  background: rgba(11, 17, 24, 0.66);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: hud-feed-in 0.2s var(--ease) both;
+}
+@keyframes hud-feed-in { from { opacity: 0; transform: translateX(14px); } }
+.hud-feed-killer { color: var(--red); }
+.hud-feed-gun { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 11px; letter-spacing: 0.06em; }
+.hud-feed-icon { width: auto; height: 12px; max-width: 38px; object-fit: contain; opacity: 0.78; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.7)); }
+.hud-feed-victim { color: var(--text); }
+
+/* ---------- 中心：命中 X ---------- */
+.hud-hitwrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.hud-hit {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  opacity: 0;
+  transition: opacity 0.09s linear;
+}
+.hud-hit.on { opacity: 1; }
+.hud-hit span {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+}
+.hud-hit span:nth-child(1) { transform: rotate(45deg); }
+.hud-hit span:nth-child(2) { transform: rotate(-45deg); }
+.hud-hit.head span { background: var(--gold); box-shadow: 0 0 8px rgba(242, 201, 76, 0.7); }
+
+/* ---------- 击杀确认：准心下短暂显示武器剪影 +「击杀」 ---------- */
+.hud-kill {
+  position: absolute; left: 50%; top: 50%;
+  display: flex; align-items: center; gap: 7px; padding: 4px 10px 4px 7px;
+  border: 1px solid rgba(255, 70, 85, 0.62); border-radius: 3px;
+  background: rgba(11, 17, 24, 0.78); color: var(--text);
+  font-size: 13px; font-weight: 800; letter-spacing: 0.12em;
+  opacity: 0; pointer-events: none;
+}
+.hud-kill.on { animation: hud-kill-in 0.72s var(--ease) both; }
+@keyframes hud-kill-in {
+  0% { opacity: 0; transform: translate(-50%, 44px) scale(0.82); }
+  12% { opacity: 1; transform: translate(-50%, 33px) scale(1); }
+  70% { opacity: 1; transform: translate(-50%, 33px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, 29px) scale(0.98); }
+}
+.hud-kill-icon { width: auto; height: 16px; max-width: 44px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
+.hud-kill-text { color: var(--red); }
+
+/* ---------- 受伤红闪：只压边缘，中心不动 ---------- */
+.hud-hurt {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.18s ease-out;
+  background:
+    radial-gradient(ellipse at center, transparent 42%, rgba(255, 70, 85, 0.34) 88%, rgba(255, 70, 85, 0.55) 100%);
+}
+.hud-hurt.on { opacity: 1; transition-duration: 0.05s; }
+
+/* ---------- 左下：生命 ---------- */
+.hud-health {
+  position: absolute;
+  left: var(--hud-pad);
+  bottom: var(--hud-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hud-hp {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-family: var(--font-num);
+  line-height: 1;
+}
+.hud-num {
+  font-size: 42px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+.hud-hp-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+}
+.hud-hpbar {
+  width: 190px;
+  height: 5px;
+  border-radius: 2px;
+  background: rgba(11, 17, 24, 0.72);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.hud-hpbar > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--teal);
+  transition: width 0.16s var(--ease), background 0.2s;
+}
+/* 残血：数字与血条一起转红，但不闪烁（不堆调试效果） */
+.combat-hud.hud-critical .hud-num { color: var(--red); }
+.combat-hud.hud-critical .hud-hpbar > i { background: var(--red); }
+.combat-hud.hud-dead .hud-health { opacity: 0.45; }
+
+/* ---------- 右下：武器 / 弹药 ---------- */
+.hud-weapon {
+  position: absolute;
+  right: var(--hud-pad);
+  bottom: var(--hud-pad);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.hud-wname {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.hud-ammo {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: var(--font-num);
+  line-height: 1;
+}
+.hud-mag {
+  font-size: 42px;
+  font-weight: 600;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+.hud-reserve {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.combat-hud.hud-reloading .hud-mag { color: var(--muted); }
+
+/* ---------- 中下：换弹 / 复活 / 保护 ---------- */
+.hud-center {
+  position: absolute;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+}
+.hud-reload,
+.hud-respawn {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+.hud-respawn { color: var(--red); font-size: 16px; }
+.hud-reloadbar {
+  width: 132px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(11, 17, 24, 0.72);
+  overflow: hidden;
+}
+.hud-reloadbar > i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--gold);
+}
+.hud-protect {
+  padding: 3px 9px;
+  border-radius: 3px;
+  background: rgba(47, 209, 184, 0.14);
+  color: #5fe6d1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  visibility: hidden;
+}
+.hud-protect.on { visibility: visible; }
+
+/* ---------- 右下角：解锁后的武器按钮（锁定时只读、不可点） ---------- */
+.hud-menu {
+  position: absolute;
+  right: var(--hud-pad);
+  bottom: calc(var(--hud-pad) + 74px);
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+.hud-wbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: rgba(15, 25, 35, 0.72);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.hud-wbtn:disabled { opacity: 0.35; cursor: default; }
+.combat-hud.hud-unlocked .hud-menu { pointer-events: auto; }
+.combat-hud.hud-unlocked .hud-wbtn:hover { border-color: rgba(236, 232, 225, 0.45); color: var(--text); }
+.hud-wbtn.on { border-color: var(--red); background: rgba(255, 70, 85, 0.16); color: #fff; }
+.hud-key {
+  font-family: var(--font-num);
+  font-size: 11px;
+  color: var(--muted);
+}
+.hud-wbtn.on .hud-key { color: #ff9aa2; }
+
+/* ---------- 右侧中部：观战面板（阶段11，只有阵亡时显示） ----------
+ *   目标名 + 血量 / 弹药 + 右下角队友列表（高亮当前观战目标）；
+ *   观战期间本人已经不能行动，左下血量与右下弹药块隐掉，读数全部看这一块。
+ *   面板本身不吃鼠标（pointer-events:none），不挡 ESC 菜单与准星。
+ */
+.hud-spectate {
+  position: absolute;
+  top: 50%;
+  right: var(--hud-pad);
+  transform: translateY(-50%);
+  width: 236px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--teal);
+  border-radius: var(--radius);
+  background: rgba(11, 17, 24, 0.76);
+  pointer-events: none;
+}
+.hud-spectate-title { font-size: 15px; font-weight: 700; letter-spacing: 0.04em; color: #5fe6d1; }
+.hud-spectate-stats {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 4px 8px;
+  font-family: var(--font-num);
+  font-size: 13px;
+  color: var(--text-2);
+}
+.hud-spectate-hplabel { font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); }
+.hud-spectate-hp { font-size: 22px; font-weight: 700; color: var(--text); }
+.hud-spectate-hpbar {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(11, 17, 24, 0.72);
+  overflow: hidden;
+}
+.hud-spectate-hpbar > i { display: block; width: 0; height: 100%; background: #5fe6d1; }
+.hud-spectate-ammo { font-size: 15px; font-weight: 600; color: var(--text); }
+.hud-spectate-weapon { justify-self: end; font-family: var(--font-ui); font-size: 12px; color: var(--muted); }
+.hud-spectate-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.hud-spectate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 8px;
+  border-left: 2px solid transparent;
+  background: rgba(236, 232, 225, 0.05);
+  font-size: 13px;
+  color: var(--text-2);
+}
+.hud-spectate-row.on { border-left-color: var(--gold); background: rgba(242, 201, 76, 0.16); color: #fff; }
+.hud-spectate-row.on::after { content: '观战'; font-size: 10px; letter-spacing: 0.1em; color: var(--gold); }
+.hud-spectate-row.is-dead { opacity: 0.45; }
+.hud-spectate-hint { font-size: 11px; letter-spacing: 0.06em; color: var(--muted); }
+/* 观战时本人的血量 / 弹药块没有意义：让位给观战面板（布局保留，不跳位） */
+.combat-hud.hud-spectating .hud-health,
+.combat-hud.hud-spectating .hud-weapon { visibility: hidden; }
+
+/* 窄屏：缩小数字，避免和 ESC 菜单挤在一起 */
+@media (max-width: 720px) {
+  .combat-hud { --hud-pad: 18px; }
+  .hud-num, .hud-mag { font-size: 32px; }
+  .hud-hpbar { width: 140px; }
+  .hud-center { bottom: 84px; }
+  .hud-spectate { width: 196px; padding: 8px 10px; }
+}
+
+/* 原站 AdsSight.B9rA83Su.css；宽度由武器相机 FOV 与逐枪瞄具距离投影，不用固定像素框。 */
+.ads-sight { position: absolute; top: 50%; left: 50%; width: var(--ads-sight-width, 0vw); height: auto; pointer-events: none; opacity: 0; z-index: 1; transform: translate(-50%, -50%) scaleX(var(--game-stretch-x, 1)); }
+
+/* 原站ScopeOverlay：视窗半径46vh，不用拉大枪模冒充狙击镜。 */
+.scope-overlay { position: absolute; inset: 0; overflow: hidden; pointer-events: none; display: none; z-index: 1; --scope-ry: 46vh; --scope-rx: calc(46vh * var(--game-stretch-x, 1)); }
+.scope-mask { position: absolute; inset: 0; background: #000; --scope-cut: radial-gradient(ellipse var(--scope-rx) var(--scope-ry) at 50% 50%, transparent calc(100% - 1px), #000 100%); -webkit-mask-image: var(--scope-cut); mask-image: var(--scope-cut); }
+.scope-glass { position: absolute; top: 50%; left: 50%; width: calc(var(--scope-rx) * 2); height: calc(var(--scope-ry) * 2); transform: translate(-50%, -50%); }
+/* mwplYhJu.js 默认高级狙击准星：白色、厚度 1；BEHTQmct.js 按 12 / 1080 换算为 vh。 */
+.scope-dot { position: absolute; top: 50%; left: 50%; width: calc(1.111111vh * var(--game-stretch-x, 1)); height: 1.111111vh; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); }
+/* ---------- 左下：护甲（阶段9 经济，SND） ---------- */
+.hud-armor {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-num);
+  line-height: 1;
+}
+.hud-armor[hidden] { display: none; }
+.hud-armor-shield {
+  width: 15px;
+  height: 17px;
+  background: var(--teal);
+  clip-path: polygon(50% 100%, 0 62%, 0 0, 100% 0, 100% 62%);
+}
+.hud-armor-num { font-size: 22px; font-weight: 600; }
+.hud-armor-kind {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.hud-armorbar {
+  width: 86px;
+  height: 4px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: rgba(11, 17, 24, 0.72);
+  overflow: hidden;
+}
+.hud-armorbar > i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--teal);
+  transition: width 0.16s var(--ease);
+}
+/* 再生甲回甲中：盾牌与数值转金，轻微呼吸（只在真的回甲时亮） */
+.hud-armor.is-regen .hud-armor-shield { background: #ffd479; }
+.hud-armor.is-regen .hud-armor-num { color: #ffd479; }
+.hud-armor.is-regen .hud-armorbar > i { background: #ffd479; }

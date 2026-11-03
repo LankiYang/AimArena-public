@@ -7,7 +7,6 @@ import { init, NavMeshQuery, QueryFilter, exportNavMesh, importNavMesh, type Nav
 import { generateTiledNavMesh } from 'recast-navigation/generators';
 import type { MapId } from '../shared/catalog.ts';
 import { ROPE_CLIMB_SPEED, ROPE_SEGMENT_TOLERANCE, ropeLength, type RopeDef } from '../shared/rope.ts';
-import { expandInstances } from '../shared/world/terrain.ts';
 import { GAME_DIR } from './paths.ts';
 import { getMapData, sitePoint } from './mapdata.ts';
 import type { ServerWorld } from './world.ts';
@@ -280,12 +279,11 @@ async function loadOrBake(world: ServerWorld): Promise<Nav> {
   return new Nav(navMesh, world.climbRopes);
 }
 
-/** 可玩区裁剪框：NavMesh_Targeting ∪ 所有出生点/包点，水平 ±8m，下 8m，上 12m。
- *  必须裁：infinity 远景几何 Y 跨度 726 m，超过 Recast 体素高度上限。 */
+/** Use the authored collision bounds as the navigation bake region. */
 function playBounds(world: ServerWorld): [number[], number[]] {
-  const nt = expandInstances(world.doc, 'gameplay', (n) => /NavMesh_Targeting/.test(n) && !/_V2$/.test(n))[0];
-  const lo = nt.box.slice(0, 3),
-    hi = nt.box.slice(3, 6);
+  const b = world.pawn.bounds;
+  const lo = Array.from(b.subarray(0, 3));
+  const hi = Array.from(b.subarray(3, 6));
   for (const p of allMarkerPoints(world.map)) {
     lo[0] = Math.min(lo[0], p.x);
     lo[1] = Math.min(lo[1], p.y);
@@ -324,7 +322,11 @@ function allPolyRefs(navMesh: NavMesh): number[] {
 }
 
 function bake(world: ServerWorld): Uint8Array {
-  const soup = world.pawn.tris;
+  const soup = new Float32Array(world.pawn.count * 9);
+  for (let i = 0; i < world.pawn.count; i++) {
+    const offset = world.pawn.order[i] * 9;
+    soup.set(world.pawn.tris.subarray(offset, offset + 9), i * 9);
+  }
   const idx = new Uint32Array(soup.length / 3);
   for (let i = 0; i < idx.length; i++) idx[i] = i;
   const bounds = playBounds(world);

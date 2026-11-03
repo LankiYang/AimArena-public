@@ -1,7 +1,17 @@
 {
-  "name": "aimarena-source-review",
+  "name": "aimarena-public",
   "private": true,
   "type": "module",
   "engines": { "node": ">=22.18" },
-  "scripts": { "check:infection": "node game/tools/infection-check.mjs" }
+  "scripts": {
+    "start": "node game/server/main.ts",
+    "check:infection": "node game/tools/infection-check.mjs"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "recast-navigation": "^0.43.1",
+    "three": "^0.186.1",
+    "three-mesh-bvh": "^0.9.16",
+    "ws": "^8.22.0"
+  }
 }

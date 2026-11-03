@@ -12,7 +12,6 @@
 import { h } from './dom.ts';
 import { modal, trapTab } from './overlay.ts';
 import { openSettings } from './settings.ts';
-import { openKillLeaderboard } from './leaderboard.ts';
 
 export interface MatchMenuOpts {
   /** 菜单挂到哪（对局容器），随对局容器一起销毁 */
@@ -58,7 +57,6 @@ export class MatchMenu {
     this.o = o;
     this.resumeBtn = h('button', { class: 'btn primary block', type: 'button', 'data-testid': 'match-resume', onclick: () => this.resume() }, '继续游戏');
     this.settingsBtn = h('button', { class: 'btn block', type: 'button', 'data-testid': 'match-settings', onclick: () => this.openSettingsModal() }, '设置');
-    const leaderboardBtn = h('button', { class: 'btn block', type: 'button', 'data-testid': 'match-leaderboard', onclick: () => this.openLeaderboardModal() }, '击杀排行榜');
     this.exitBtn = h('button', { class: 'btn red block', type: 'button', 'data-testid': 'match-exit', onclick: () => this.openExitConfirm() }, '退出对局');
     this.retry = h('div', { class: 'match-retry', role: 'status', 'data-testid': 'match-retry', hidden: true }, MENU_RETRY_TEXT);
     this.panel = h(
@@ -69,7 +67,7 @@ export class MatchMenu {
         'div',
         { class: 'match-body' },
         this.retry,
-        h('div', { class: 'match-actions' }, this.resumeBtn, leaderboardBtn, this.settingsBtn, this.exitBtn),
+        h('div', { class: 'match-actions' }, this.resumeBtn, this.settingsBtn, this.exitBtn),
         h(
           'div',
           { class: 'match-keys' },
@@ -184,11 +182,6 @@ export class MatchMenu {
     this.subClose = openSettings(this.o.onSettingsChange, () => this.afterSubClose());
   }
 
-  private openLeaderboardModal() {
-    if (this.disposed || this.subClose) return;
-    this.entry = document.activeElement as HTMLElement | null;
-    this.subClose = openKillLeaderboard(() => this.afterSubClose());
-  }
 
   private openExitConfirm() {
     if (this.disposed || this.subClose) return;

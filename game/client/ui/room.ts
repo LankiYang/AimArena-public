@@ -14,7 +14,6 @@ import { agentPicker } from './landing.ts';
 import { settingsForm, topbar } from './lobby.ts';
 import { modal, toast, toggle } from './overlay.ts';
 import { openSettings } from './settings.ts';
-import { openKillLeaderboard } from './leaderboard.ts';
 import { linkNotice } from './link.ts';
 
 const send = (m: Parameters<NonNullable<typeof app.conn>['send']>[0]) => app.conn?.send(m);
@@ -294,7 +293,6 @@ export function roomScreen(): Screen {
 
   let lastRoom = '';
   let lastLink = '';
-  let rankClose: (() => void) | null = null;
 
   function openRoomMenu() {
     const current = app.room;
@@ -328,7 +326,6 @@ export function roomScreen(): Screen {
       )) : null,
       action('观战席', () => jump(specBox)),
       action('地图与规则', () => jump(settingsBox)),
-      action('击杀排行榜', () => { rankClose = openKillLeaderboard(() => { rankClose = null; }); }),
       action('修改代号 / 特工', () => tb.el.querySelector<HTMLElement>('.me-chip')?.click()),
       action('个人设置', () => openSettings()),
     );
@@ -674,7 +671,7 @@ export function roomScreen(): Screen {
 
   return {
     el,
-    dispose() { rankClose?.(); tb.dispose(); },
+    dispose() { tb.dispose(); },
     update() {
       tb.refresh();
       const room = app.room;
