@@ -1,0 +1,21 @@
+/* round.css — 爆破模式回合 HUD：顶部回合条（比分 / 阶段 / 包的状态）、居中横幅、安放 / 拆除读条。
+   全部 pointer-events: none，不挡鼠标与触屏；位置与 match-intel.css 的实时比分按同一个 --intel-top 排。 */
+.round-bar { position: absolute; z-index: 23; top: calc(var(--intel-top, 16px) + 58px); left: 50%; transform: translateX(-50%); width: 320px; max-width: calc(100vw - 24px); padding: 5px 10px 6px; border: 1px solid rgba(178,213,228,.2); border-radius: 5px; background: rgba(8,16,23,.78); color: var(--text); font-family: var(--font-ui); text-align: center; pointer-events: none; user-select: none; }
+.round-bar[hidden], .round-channel[hidden] { display: none; }
+.round-bar-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.round-score { min-width: 40px; font-size: 20px; font-variant-numeric: tabular-nums; }
+.round-score.red { color: #ff7b7b; text-align: left; }
+.round-score.blue { color: #7cc7ff; text-align: right; }
+.round-phase { flex: 1; font-size: 14px; font-weight: 700; letter-spacing: .04em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.round-sub { margin-top: 2px; font-size: 12px; color: rgba(220,236,244,.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.round-channel { position: absolute; z-index: 22; left: 50%; top: calc(50% + 44px); transform: translateX(-50%); width: 220px; color: var(--text); font-family: var(--font-ui); text-align: center; pointer-events: none; }
+.round-channel-label { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.round-channel-track { margin-top: 4px; height: 6px; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,.18); }
+.round-channel-fill { display: block; height: 100%; width: 0; background: #ffd166; }
+.round-banner { position: absolute; z-index: 26; left: 50%; top: 24%; transform: translate(-50%, -6px); min-width: 260px; max-width: min(520px, 86vw); padding: 10px 22px; border-left: 3px solid var(--round-tone, #b2d5e4); background: rgba(11,17,24,.82); color: var(--text); font-family: var(--font-ui); text-align: center; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; }
+.round-banner.on { opacity: 1; transform: translate(-50%, 0); }
+.round-banner.win { --round-tone: #6ee7a1; }
+.round-banner.lose { --round-tone: #ff7b7b; }
+.round-banner-title { font-size: 20px; font-weight: 800; letter-spacing: .06em; }
+.round-banner-sub { margin-top: 3px; font-size: 13px; color: rgba(220,236,244,.84); }
+.touch .round-bar { top: calc(var(--intel-top, 16px) + 50px); width: 240px; }

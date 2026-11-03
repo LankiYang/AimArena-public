@@ -1,0 +1,122 @@
+/* 局内信息层：固定标定小地图 + 实时团队击杀 + 可原生滑动的 K/D/A。 */
+.game-root.has-match-intel { --minimap-size: 176px; --intel-left: max(18px,env(safe-area-inset-left)); --intel-top: max(16px,env(safe-area-inset-top)); }
+.has-match-intel .hud-banner, .has-match-intel .hud-team-key { display: none; }
+.match-minimap { position: absolute; z-index: 20; top: var(--intel-top); left: var(--intel-left); width: var(--minimap-size); pointer-events: none; color: var(--text); font-family: var(--font-ui); }
+.minimap-canvas { display: block; width: 100%; aspect-ratio: 1; border: 1px solid rgba(178,213,228,.35); border-radius: 5px; background: rgba(8,16,23,.8); }
+.minimap-caption { display: flex; justify-content: space-between; gap: 5px; padding: 4px 5px; background: rgba(8,16,23,.85); border-radius: 0 0 4px 4px; font-size: 11px; line-height: 16px; }
+.minimap-location { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.minimap-status { flex: none; color: var(--muted); font-size: 10px; }
+.minimap-legend { display: flex; gap: 8px; padding-top: 4px; font-size: 10px; white-space: nowrap; text-shadow: 0 1px 4px #000; }
+.minimap-legend .self { color: #88d9ff; } .minimap-legend .ally { color: #53e3c2; } .minimap-legend .enemy { color: #ff7483; }
+
+.live-score { position: absolute; z-index: 24; top: var(--intel-top); left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 260px; min-height: 52px; padding: 5px 12px; border: 1px solid rgba(178,213,228,.28); border-radius: 5px; background: rgba(8,16,23,.86); color: var(--text); font-family: var(--font-ui); cursor: pointer; touch-action: manipulation; user-select: none; }
+.live-score:hover, .live-score:focus-visible { border-color: rgba(178,213,228,.8); outline: 2px solid rgba(136,217,255,.5); outline-offset: 2px; }
+/* TDM：这一行兼任整场阶段（剩余时间 / 击杀目标），比 SND 稍宽以放两行文案；SND 仍是「回合胜场 + Tab 战绩」 */
+.live-score.is-tdm { width: 292px; }
+.live-score.is-tdm .score-context > span { font-size: 14px; font-weight: 700; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.score-side { display: flex; align-items: baseline; justify-content: center; gap: 7px; min-width: 0; }
+.score-side small { font-size: 11px; white-space: nowrap; }
+.score-side b { font-family: var(--font-num); font-size: 29px; font-variant-numeric: tabular-nums; line-height: 1; overflow: hidden; text-overflow: ellipsis; }
+.score-side.red { color: #ff7483; } .score-side.blue { color: #53e3c2; }
+.score-side.my-team small { text-decoration: underline; text-underline-offset: 4px; }
+.score-context { display: flex; flex: none; align-items: center; flex-direction: column; gap: 2px; font-size: 11px; white-space: nowrap; }
+.score-context small { font-size: 10px; color: var(--muted); }
+.has-match-intel .hud-feed { top: 76px; }
+
+.match-score-wrap { position: absolute; inset: 0; z-index: 42; display: flex; padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); background: rgba(4,9,14,.6); backdrop-filter: blur(4px); }
+.match-score-wrap[hidden] { display: none; }
+.match-score-panel { margin: auto; display: flex; flex-direction: column; width: min(880px,100%); max-height: 100%; min-height: 0; overflow: hidden; border: 1px solid var(--line-2); border-radius: 7px; background: var(--panel-solid,#111f2a); color: var(--text); font-family: var(--font-ui); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.match-score-head { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.match-score-head h2 { margin: 0; font-size: 22px; line-height: 1.2; }
+.match-score-head > span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.match-score-head .match-score-latency { color: var(--text); font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.match-score-body { min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; padding: 12px; }
+.match-score-teams { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.match-score-team { min-width: 0; border: 1px solid var(--line); border-top: 2px solid #ff5365; border-radius: 4px; overflow: hidden; }
+.match-score-team.blue { border-top-color: #53e3c2; }
+.match-score-team-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; padding: 8px 10px; background: rgba(255,255,255,.025); }
+.match-score-team-head strong { font-size: 14px; color: #ff7483; white-space: nowrap; }
+.match-score-team.blue .match-score-team-head strong { color: #53e3c2; }
+.match-score-team-head > span { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.match-score-team table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.match-score-team th { padding: 7px 2px; color: var(--muted); font-size: 10px; font-weight: 500; text-align: center; }
+.match-score-team th:first-child { width: auto; text-align: left; padding-left: 10px; }
+.match-score-team th:not(:first-child) { width: 46px; }
+.match-score-team td { padding: 0 2px; height: 46px; border-top: 1px solid var(--line); }
+.match-score-team td:first-child { padding-left: 6px; }
+.match-score-identity { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.match-score-identity img { width: 28px; height: 36px; object-fit: cover; object-position: center 8%; flex: none; }
+.match-score-state { width: 5px; height: 5px; border-radius: 50%; background: #53e3c2; flex: none; }
+.match-score-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; font-size: 13px; }
+.match-score-badge { flex: none; font-size: 9px; color: var(--muted); }
+.match-score-number { text-align: center; font-family: var(--font-num); font-size: 17px; font-variant-numeric: tabular-nums; }
+.match-score-team tr.is-self { background: rgba(136,217,255,.12); box-shadow: inset 2px 0 #88d9ff; }
+.match-score-team tr.is-self .match-score-badge { color: #88d9ff; }
+.match-score-team tr.is-dead .match-score-state { background: #77838d; }
+.match-score-team tr.is-dead img { filter: grayscale(1); opacity: .6; }
+.match-score-note, .match-score-empty { margin: 12px 2px 0; font-size: 11px; line-height: 1.6; color: var(--muted); }
+.match-score-empty { margin: 2px 0 12px; }
+.match-score-empty[hidden] { display: none; }
+.match-score-foot { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-top: 1px solid var(--line); }
+.match-score-foot > small { color: var(--muted); font-size: 11px; }
+.match-score-foot .btn { min-height: 44px; min-width: 112px; }
+.match-score-wrap.is-peek { pointer-events: none; }
+.match-score-wrap.is-peek .match-score-foot .btn { visibility: hidden; }
+
+/* 信息层的几何布局与摇杆/弹药/槽位共用变量，不用整屏缩放挤字。 */
+.game-root.touch.has-match-intel { --minimap-size: clamp(104px,29vmin,128px); --intel-left: var(--touch-edge-l); --intel-top: var(--touch-edge-t); }
+.touch.has-match-intel .live-score { width: 192px; min-height: 44px; height: 44px; gap: 6px; padding: 4px 8px; }
+.touch.has-match-intel .live-score.is-tdm { width: 216px; }
+.touch.has-match-intel .live-score.is-tdm .score-context > span { font-size: 13px; }
+.touch.has-match-intel .score-side { gap: 4px; }
+.touch.has-match-intel .score-side b { font-size: 24px; }
+.touch.has-match-intel .score-context { font-size: 10px; }
+.touch.has-match-intel .score-context small { font-size: 9px; }
+.touch.has-match-intel .minimap-caption { position: absolute; left: 1px; right: 1px; bottom: 1px; border-radius: 0 0 4px 4px; padding: 1px 3px; font-size: 9px; line-height: 12px; }
+.touch.has-match-intel .minimap-status, .touch.has-match-intel .minimap-legend { display: none; }
+.touch.has-match-intel .touch-tip, .touch.has-match-intel .touch-rotate { display: none; }
+.touch.has-match-intel .touch-weapons { top: calc(var(--intel-top) + var(--minimap-size) + 8px); }
+.touch.has-match-intel .hud-feed { top: calc(var(--intel-top) + 52px); }
+@media (orientation: portrait) {
+  .touch.has-match-intel .live-score { left: var(--touch-edge-l); transform: none; width: min(168px,calc(100vw - var(--touch-edge-l) - var(--touch-edge-r) - 164px)); gap: 3px; padding: 4px 5px; }
+  .touch.has-match-intel .score-side { flex-direction: column; align-items: center; gap: 0; }
+  .touch.has-match-intel .score-side small { order: 0; font-size: 9px; line-height: 11px; }
+  .touch.has-match-intel .score-side b { order: 1; font-size: clamp(18px,6vw,22px); }
+  .touch.has-match-intel .score-context > span { display: none; }
+  /* TDM 竖屏：剩余时间 / 击杀目标必须看得见（SND 的「回合胜场」仍隐藏，保持原样） */
+  .touch.has-match-intel .live-score.is-tdm { width: min(184px,calc(100vw - var(--touch-edge-l) - var(--touch-edge-r) - 164px)); }
+  .touch.has-match-intel .live-score.is-tdm .score-context > span { display: block; font-size: 12px; line-height: 1.2; }
+  .touch.has-match-intel .match-minimap { top: calc(var(--intel-top) + 56px); --minimap-size: clamp(112px,32vw,144px); }
+  .touch.has-match-intel .touch-weapons { top: calc(var(--intel-top) + 56px + clamp(112px,32vw,144px) + 8px); }
+}
+@media (orientation: landscape) and (max-height: 360px) {
+  .game-root.touch.has-match-intel { --minimap-size: 88px; }
+}
+@media (max-width: 559px) {
+  .match-score-teams { grid-template-columns: minmax(0,1fr); gap: 12px; }
+}
+@media (orientation: portrait) and (max-width: 359px) {
+  /* 极窄竖屏：先保比分与时间，目标文案让位（390×844 及以上的竖屏仍完整显示） */
+  .touch.has-match-intel .live-score.is-tdm { width: calc(100vw - var(--touch-edge-l) - var(--touch-edge-r) - 164px); }
+  .touch.has-match-intel .live-score.is-tdm .score-context small { display: none; }
+}
+@media (max-height: 450px) and (orientation: landscape) {
+  .match-score-head { padding: 8px 12px; }
+  .match-score-head h2 { font-size: 18px; }
+  .match-score-body { padding: 8px; }
+  .match-score-teams { gap: 8px; }
+  .match-score-team-head { padding: 5px 6px; }
+  .match-score-team-head strong { font-size: 12px; }
+  .match-score-team-head > span { font-size: 10px; }
+  .match-score-team th { padding: 4px 1px; font-size: 9px; }
+  .match-score-team th:not(:first-child) { width: 33px; }
+  .match-score-team td { height: 32px; }
+  .match-score-identity { gap: 3px; }
+  .match-score-identity img { width: 21px; height: 29px; }
+  .match-score-name { font-size: 12px; }
+  .match-score-number { font-size: 15px; }
+  .match-score-badge { display: none; }
+  .match-score-team tr.is-self .match-score-badge { display: inline; }
+  .match-score-foot { padding: 6px 8px; }
+  .match-score-note { margin: 8px 2px 0; font-size: 10px; }
+}

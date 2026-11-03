@@ -1,0 +1,34 @@
+/* 击杀榜沿用游戏面板；横屏矮视口也只滚动内容区，不遮挡关闭按钮。 */
+.modal[data-testid="kill-leaderboard"] { width: min(640px,calc(100vw - 32px)); max-height: min(760px,calc(var(--viewport-height,100dvh) - 24px)); display: flex; flex-direction: column; overflow: hidden; }
+.modal[data-testid="kill-leaderboard"] > .panel-head,
+.modal[data-testid="kill-leaderboard"] > .modal-foot { flex: none; }
+.modal[data-testid="kill-leaderboard"] > .modal-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.kill-board { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.kill-rule { margin: 0; color: var(--text-2); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.kill-board-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.kill-mine { flex: 1; min-width: 170px; font-weight: 700; color: var(--gold); }
+.kill-board-tools .btn { min-height: 44px; flex: none; }
+.kill-progress, .kill-error { font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.kill-progress { color: var(--text-2); }
+.kill-progress[data-status="synced"] { color: #82dbb4; }
+.kill-error, .kill-progress[data-status="error"], .kill-progress[data-status="rate-limit"] { color: #ffb18c; }
+.kill-row { display: grid; grid-template-columns: 42px minmax(0,1fr) 90px; align-items: center; gap: 10px; min-height: 54px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.kill-row-head { min-height: 30px; font-size: 12px; color: var(--text-2); border: 0; }
+.kill-row-head > :last-child { text-align: right; }
+.kill-row.kill-top { background: #ffc45108; }
+.kill-place { font-size: 18px; color: var(--text-2); }
+.kill-top .kill-place { color: var(--gold); }
+.kill-player { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.kill-player img, .kill-avatar { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #1b2b38; object-fit: cover; }
+.kill-player b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kill-score { font-size: 18px; font-variant-numeric: tabular-nums; text-align: right; }
+.kill-empty { padding: 28px 10px; text-align: center; color: var(--text-2); line-height: 1.6; }
+.kill-entry { min-height: 44px; white-space: nowrap; }
+@media (max-width: 400px) {
+  .kill-row { grid-template-columns: 32px minmax(0,1fr) 76px; gap: 7px; padding-inline: 4px; }
+  .kill-player { gap: 7px; }
+  .kill-score { font-size: 16px; }
+  .rooms .panel-head { gap: 8px; }
+  .rooms .panel-head .panel-title { font-size: 20px; }
+  .rooms .kill-entry { padding-inline: 10px; }
+}

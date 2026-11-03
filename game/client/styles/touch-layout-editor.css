@@ -1,0 +1,24 @@
+[data-testid="touch-layout-editor"] > .modal-body { min-height: 0; overflow-y: auto; }
+.touch-layout-editor { display: flex; flex-direction: column; gap: 12px; }
+.touch-layout-editor > p { margin: 0; line-height: 1.55; }
+.touch-layout-stage-wrap { display: flex; justify-content: center; }
+.touch-layout-stage {
+  position: relative; width: min(100%, 760px); aspect-ratio: 16 / 9; max-height: 48vh; min-height: 190px;
+  overflow: hidden; border: 1px solid var(--line-2); border-radius: 6px;
+  background: radial-gradient(circle at center, rgba(45,65,78,.48), rgba(8,14,20,.96));
+  touch-action: none; user-select: none;
+}
+.touch-layout-stage::before { content: '左侧：移动'; position: absolute; inset: 0 50% 0 0; display: grid; place-items: center; color: rgba(220,236,244,.22); border-right: 1px dashed rgba(220,236,244,.3); font-size: 12px; pointer-events: none; }
+.touch-layout-stage::after { content: '右侧：视角'; position: absolute; inset: 0 0 0 50%; display: grid; place-items: center; color: rgba(220,236,244,.22); font-size: 12px; pointer-events: none; }
+.touch-layout-handle {
+  position: absolute; z-index: 1; transform: translate(-50%, -50%); display: grid; place-items: center;
+  width: clamp(40px, 7vw, 54px); height: clamp(40px, 7vw, 54px); padding: 2px;
+  border: 2px solid rgba(255,255,255,.65); border-radius: 50%; background: rgba(11,17,24,.82);
+  color: var(--text); font-size: 11px; font-weight: 700; line-height: 1.1; text-align: center; touch-action: none; cursor: grab;
+}
+.touch-layout-handle:disabled { opacity: .55; cursor: wait; }
+.touch-layout-handle.dragging { z-index: 2; border-color: var(--gold); background: rgba(255,70,85,.8); cursor: grabbing; }
+.touch-layout-handle.is-stick { width: clamp(70px, 12vw, 96px); height: clamp(70px, 12vw, 96px); border-style: dashed; }
+.touch-layout-handle.is-fire { width: clamp(64px, 11vw, 88px); height: clamp(64px, 11vw, 88px); border-color: var(--red); }
+.touch-layout-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.touch-layout-tools .field-hint { flex: 1; min-width: 200px; }

@@ -1,0 +1,326 @@
+/* 移动端不是桌面页面的缩小版：真实视口、可滚动的页面、44px 触点与独立装备布局。 */
+:root { --viewport-height: 100vh; --viewport-top: 0px; }
+@supports (height: 100dvh) { :root { --viewport-height: 100dvh; } }
+#app { top: var(--viewport-top); bottom: auto; height: var(--viewport-height); overflow: hidden; }
+button, .agent-tile, [role="button"] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button:focus-visible, [role="button"]:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+[hidden] { display: none !important; }
+/* 桌面/竖屏保留原位置，横屏将同一套真实操作合并到一条工具栏。 */
+.room-chrome { display: contents; }
+.room-chrome > .room-head, .room-chrome > .room-foot, .room-chrome > .topbar { flex-shrink: 0; }
+.room-foot { order: 10; }
+.room-agent-trigger, .slot-more, .room-scroll-hint, .room-compact-status, .gate-short { display: none; }
+.room-title-text { min-width: 0; }
+.team-slots { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.room-menu-actions { display: flex; flex-direction: column; gap: 10px; }
+.room-menu-actions > .btn { justify-content: flex-start; }
+.room-menu-status { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.5; }
+.room-menu-team { display: grid; grid-template-columns: minmax(0,1fr) auto auto; align-items: center; gap: 8px; }
+.hint-bar:has(.hint-fix) { padding: 0; }
+.hint-fix { width: 100%; height: auto !important; min-height: 44px; white-space: normal; text-align: left; justify-content: flex-start; }
+@media (prefers-reduced-motion: reduce) {
+  .screen-enter, .agent-hero, .room-row, .slot, .load-card, .modal, .modal-wrap, .match-panel, .hud-feed-row { animation: none !important; }
+  .backdrop .img, .btn, .agent-tile { transition: none; }
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  body { font-size: 15px; overscroll-behavior: none; }
+  .screen { --page-l: max(16px, env(safe-area-inset-left)); --page-r: max(16px, env(safe-area-inset-right)); }
+  .screen > :not(.backdrop):not(.agent-hero):not(.hero-word) { flex-shrink: 0; }
+  .btn, .btn.sm { min-width: 44px; min-height: 44px; height: 44px; flex-shrink: 0; font-size: 14px; }
+  .btn.icon, .btn.icon.sm { width: 44px; }
+  .btn.primary { min-height: 52px; font-size: 19px; }
+  .input, select.input, .side select.input, .chat-input .input, .rooms-foot .input {
+    min-width: 0; min-height: 44px; height: 44px; font-size: 16px;
+  }
+  .field, .panel, .hero-body, .room-main, .side { min-width: 0; }
+  .field > label, .label { font-size: 12px; letter-spacing: .06em; }
+  .seg { min-width: 0; }
+  .seg button { min-width: 44px; min-height: 44px; height: 44px; padding: 0 6px; font-size: 14px; }
+  .toggle { min-height: 44px; font-size: 14px; line-height: 1.5; }
+  .toggle .knob { flex-shrink: 0; }
+  .range { height: 44px; background: linear-gradient(var(--bg-3),var(--bg-3)) center / 100% 4px no-repeat; }
+  .range::-webkit-slider-thumb { width: 24px; height: 24px; }
+  .range::-moz-range-thumb { width: 22px; height: 22px; }
+  .panel { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .panel-head { padding: 12px 14px; gap: 8px; }
+  .panel-title { font-size: 21px; }
+
+  /* 不挤压顶栏；代号截断，不逐字换行。 */
+  .topbar { flex: none; height: auto; min-height: 60px; padding: max(8px,env(safe-area-inset-top)) var(--page-r) 8px var(--page-l); gap: 8px; }
+  .logo { min-width: 0; font-size: 16px; gap: 8px; letter-spacing: .04em; }
+  .logo-mark { flex: none; }
+  .logo-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nav { flex: none; margin-left: 0; }
+  .nav a { padding: 10px 6px; white-space: nowrap; }
+  .me-chip { min-width: 0; max-width: 140px; min-height: 44px; gap: 6px; padding-right: 8px; }
+  .me-chip .av { flex: none; width: 30px; height: 30px; }
+  .me-chip b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+  .net-dot { flex: none; white-space: nowrap; }
+  .topbar > .btn { flex: none; }
+
+  /* 首页：竖屏可滚动，短横屏使用左右分栏；不自动弹出手机键盘。 */
+  .landing { justify-content: flex-start; overflow-y: auto; overscroll-behavior: contain; padding: max(20px,env(safe-area-inset-top)) var(--page-r) max(20px,env(safe-area-inset-bottom)) var(--page-l); }
+  .landing-main { flex: none; width: 100%; max-width: 520px; margin: auto; gap: 20px; }
+  .brand { gap: 8px; }
+  .brand-title { font-size: clamp(34px,8vw,56px); line-height: 1.06; }
+  .brand-title .en { font-size: .42em; letter-spacing: .09em; }
+  .brand-sub { font-size: 14px; line-height: 1.6; }
+  .landing-card { padding: 16px; gap: 16px; }
+  .landing-card .field { gap: 8px; }
+  .landing-card .input { height: 44px; }
+  .landing-card .btn.primary { height: 52px; }
+  .agent-pick { gap: 6px; grid-template-columns: repeat(6,minmax(0,1fr)); }
+  .agent-tile { min-width: 44px; min-height: 48px; height: 56px; aspect-ratio: auto; }
+  .agent-tile::after { font-size: 12px; padding: 14px 2px 3px; }
+  .landing .agent-hero { opacity: .2; right: 0; width: 90%; height: 100%; pointer-events: none; }
+  .hero-word, .landing-foot { display: none; }
+  .field-hint { margin-top: 0; font-size: 14px; }
+  .agent-lock .ic { width: 15px; height: 15px; }
+  .hud-feed-gun-name { display: none; }
+  .hud-feed-icon { height: 10px; max-width: 30px; }
+  .hud-kill { font-size: 12px; gap: 5px; }
+  .hud-kill-icon { height: 14px; max-width: 34px; }
+  .unlock-task { flex-wrap: wrap; row-gap: 8px; }
+  .unlock-task-main { flex: 1 1 100%; }
+  .unlock-task .unlock-state { margin-right: auto; }
+  .unlock-task .btn { flex: none; min-width: 76px; }
+
+  /* 大厅：整页滚动，不把“快速开始”或列表底部挤出固定高度。 */
+  .lobby { display: block; overflow-y: auto; overscroll-behavior: contain; }
+  .lobby > .topbar { position: sticky; top: 0; }
+  .lobby > .lobby-hero { position: relative; z-index: 2; margin: 16px var(--page-r) 0 var(--page-l); }
+  .lobby-body { display: block; overflow: visible; padding: 16px var(--page-r) max(20px,env(safe-area-inset-bottom)) var(--page-l); }
+  .hero-body { padding: 14px; gap: 12px; }
+  .hero-actions { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .btn.primary.hero-quick { min-width: 0; width: 100%; min-height: 68px; height: auto; padding: 12px; flex-wrap: wrap; gap: 4px 8px; }
+  .hero-quick .sub { flex-basis: 100%; text-align: center; font-size: 14px; }
+  .hero-tip { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+  .hero-opts { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding-top: 12px; }
+  .hero-opts .hero-label { display: none; }
+  .hero-opts > .seg { width: 100%; grid-column: 1 / -1; }
+  .hero-opts .map-select { width: 100%; }
+  .hero-more.open { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .rooms { min-height: 320px; overflow: hidden; }
+  .rooms-filters { display: grid; grid-template-columns: minmax(0,1fr) auto; padding: 12px 14px 0; gap: 8px; }
+  .rooms-filters .sf { width: 100%; }
+  .rooms-filters .mf { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); width: 100%; grid-column: 1 / -1; }
+  .rooms-filters > .spacer { display: none; }
+  .auto-note { font-size: 12px; }
+  .rooms-list { flex: none; min-height: 180px; overflow: visible; padding: 10px; }
+  .empty { padding: 12px 0; }
+  .empty-in { max-width: 100%; padding: 20px 14px; }
+  .empty .big { font-size: 30px; }
+  .empty-in p { font-size: 14px; }
+  .rooms-foot { display: grid; grid-template-columns: minmax(0,1fr) auto; padding: 12px 14px; }
+  .rooms-foot > .label { grid-column: 1 / -1; }
+  .rooms-foot .input { width: 100%; }
+  .room-row { grid-template-columns: 64px minmax(0,1fr) auto; gap: 10px; padding: 10px; }
+  .room-row .thumb { width: 64px; height: 100%; min-height: 90px; grid-row: 1 / 3; border-radius: 3px; }
+  .room-row .thumb span { left: 5px; font-size: 11px; }
+  .room-row .rn { grid-column: 2; }
+  .room-row .rn b { font-size: 15px; }
+  .room-row .cnt { grid-column: 3; font-size: 19px; }
+  .room-row .row-actions { grid-column: 2 / -1; }
+  .room-row .row-actions .btn { width: 100%; }
+
+  /* 房间：队伍卡片真正排入文档流，操作栏独立，不再压缩队伍/聊天区。 */
+  .room { overflow-y: auto; overscroll-behavior: contain; }
+  .room-head { padding: 12px var(--page-r) 0 var(--page-l); gap: 10px; align-items: flex-start; }
+  .room-title { flex: 1; }
+  .room-title .kicker { flex-wrap: wrap; gap: 6px; font-size: 12px; letter-spacing: 0; }
+  .room-title h1 { font-size: 22px; }
+  .code-pill { min-height: 44px; min-width: 72px; justify-content: center; }
+  .room-bar { padding: 12px var(--page-r) 0 var(--page-l); flex-wrap: wrap; gap: 8px; }
+  .room-bar > .spacer { display: none; }
+  .hint-bar { flex: 1 1 100%; min-height: 44px; font-size: 14px; }
+  .room-bulk { width: 100%; }
+  .room-bulk .btn { width: 100%; }
+  .room-body { flex: none; display: flex; flex-direction: column; min-height: auto; overflow: visible; gap: 16px; padding: 16px var(--page-r) 16px var(--page-l); }
+  .room-main { gap: 16px; }
+  .teams { flex: none; grid-template-columns: minmax(0,1fr); gap: 18px; }
+  .team-col { min-width: 0; }
+  .team-col > .scroll { overflow: visible; }
+  .vs { display: none; }
+  .team-head, .team-col.t1 .team-head { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .team-head b { font-size: 20px; }
+  .team-head .team-ops { gap: 4px; }
+  .team-ops .btn { padding: 0 8px; font-size: 13px; }
+  .slot, .team-col.t1 .slot { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 8px 10px; height: auto; min-height: 80px; padding: 10px; text-align: left; flex: none; }
+  .slot .portrait { width: 52px; min-height: 60px; height: 100%; grid-row: 1 / 3; border-radius: 3px; }
+  .slot .who { grid-column: 2; }
+  .slot .who b { font-size: 15px; }
+  .team-col.t1 .slot .who .tags { justify-content: flex-start; }
+  .slot .slot-ops { grid-column: 2; gap: 6px; flex-wrap: wrap; }
+  .slot-ops .btn { padding: 0 8px; font-size: 13px; }
+  .slot-ops .btn.icon { padding: 0; }
+  .slot .kick { opacity: 1; }
+  .team-col.t1 .slot.me::before { left: 0; right: auto; }
+  .slot.empty, .team-col.t1 .slot.empty { display: flex; min-height: 64px; height: auto; padding: 8px 10px; }
+  .slot.empty .btn { height: 44px; }
+  .spec-block { flex-wrap: wrap; padding: 12px; gap: 10px; }
+  .spec-who { min-width: 90px; }
+  .side { overflow: visible; gap: 14px; }
+  .side .panel { padding: 14px; }
+  .chat { min-height: 210px; flex: none; }
+  .chat-log { min-height: 120px; max-height: 200px; overflow-y: auto; overflow-wrap: anywhere; }
+  .landing, .lobby, .room, .modal-body, .chat-log, .agent-bar, .al-buy-catalog, .al-buy-filters { touch-action: pan-x pan-y pinch-zoom; -webkit-overflow-scrolling: touch; }
+  .chat-input { padding: 10px; }
+  .room-foot { position: sticky; bottom: 0; flex: none; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px 12px; padding: 10px var(--page-r) max(10px,env(safe-area-inset-bottom)) var(--page-l); border-top: 1px solid var(--line-2); background: #101b26f5; }
+  .room-foot > .spacer { display: none; }
+  .room-foot > .field { min-width: 0; gap: 4px; }
+  .agent-bar { width: 100%; overflow-x: auto; overscroll-behavior-x: contain; padding: 3px; gap: 6px; }
+  .agent-bar .agent-tile { flex: none; width: 48px; height: 48px; }
+  .room-foot [data-testid="start-reason"] { grid-column: 1 / -1; order: -1; height: auto; min-height: 0; font-size: 12px; }
+  .room-foot .btn.primary { padding: 0 16px; }
+  .room-foot .gate-fix { min-height: 44px; height: auto; font-size: 14px; }
+
+  /* 弹窗头尾固定、中间滚动，键盘升起后仍能关闭/提交。 */
+  .modal-wrap { top: var(--viewport-top); bottom: auto; height: var(--viewport-height); overflow: hidden; padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+  .modal { width: min(560px,100%) !important; max-width: 100%; max-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+  .modal > .panel-head, .modal > .modal-foot { flex: none; }
+  .modal-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px; gap: 16px; }
+  .modal-foot { padding: 12px 16px; }
+  .modal-foot .btn { flex: 1; }
+  .modal .agent-pick { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .modal .agent-tile { height: 72px; }
+  .mode-cards { grid-template-columns: minmax(0,1fr); }
+  .qp-row { grid-template-columns: minmax(0,1fr); }
+  .room-create-toggles { flex-direction: column; gap: 8px !important; }
+  .settings-colors { flex-wrap: wrap; }
+  .toasts { top: max(12px,env(safe-area-inset-top)); width: calc(100% - 32px); }
+  .toast { max-width: 100%; overflow-wrap: anywhere; font-size: 14px; }
+  .load-main { padding: 20px var(--page-r) max(20px,env(safe-area-inset-bottom)) var(--page-l); gap: 16px; }
+  .load-map { flex-wrap: wrap; gap: 12px; }
+  .load-map h1 { font-size: clamp(40px,9vw,72px); }
+  .load-map .info b { font-size: 20px; }
+  .load-teams { gap: 12px; }
+  .load-team { min-width: 0; gap: 4px; }
+  .load-card { min-width: 0; height: 96px; }
+  .match-overlay { padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+  .touch .match-keys { display: none; }
+}
+@media (max-width: 480px) {
+  .topbar .logo-name { display: none; }
+  .topbar .me-chip { max-width: 124px; }
+  .landing-card { padding: 12px; }
+  .room-foot .field > label::after { content: ' · 左右滑动'; letter-spacing: 0; }
+}
+@media (max-width: 359px) {
+  .agent-pick { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .agent-pick .agent-tile { height: 64px; }
+  .topbar .net-dot { font-size: 0; gap: 0; }
+}
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 540px) {
+  .landing { padding-top: max(12px,env(safe-area-inset-top)); padding-bottom: max(12px,env(safe-area-inset-bottom)); }
+  .landing-main { max-width: 900px; display: grid; grid-template-columns: minmax(160px,.8fr) minmax(308px,1.2fr); gap: 16px; align-items: center; }
+  .brand-title { font-size: clamp(28px,7vh,40px); }
+  .brand-sub { display: block; font-size: 14px; }
+  .brand-tag { display: none; }
+  .landing-card { gap: 10px; padding: 12px; }
+  .landing-card .field { gap: 4px; }
+  .landing-card .input { height: 44px; }
+  .landing-card .btn.primary { height: 48px; min-height: 48px; }
+  .agent-pick { gap: 4px; }
+  .agent-tile { height: 44px; min-height: 44px; }
+  .agent-tile::after { font-size: 12px; }
+}
+
+/* 横屏房间：52px 工具栏 + 两列 44px 阵容行，十人阵容优先。
+ * 只由 .room 整页纵向滚动；人机管理、特工选择使用可触摸操作面板。 */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 540px) and (max-width: 900px),
+       (orientation: landscape) and (max-height: 500px) and (min-width: 540px) and (pointer: coarse) {
+  .room { display: block; overflow-x: hidden; overflow-y: auto; scroll-padding-top: calc(60px + env(safe-area-inset-top)); scrollbar-width: thin; scrollbar-color: #738391 #14202b; }
+  .room .backdrop .img { filter: saturate(.7) brightness(.55); }
+  .room-chrome { position: sticky; top: 0; z-index: 6; display: grid; grid-template-columns: minmax(0,1fr) auto 44px; gap: 8px; align-items: center; min-height: 52px; padding: max(4px,env(safe-area-inset-top)) var(--page-r) 4px var(--page-l); background: #101b26; border-bottom: 1px solid var(--line-2); }
+  .room-chrome > .topbar { display: contents; }
+  .room-chrome > .topbar > :not(.btn) { display: none; }
+  .room-chrome > .topbar > .btn { grid-column: 3; grid-row: 1; }
+  .room-head { grid-column: 1; grid-row: 1; padding: 0; gap: 8px; align-items: center; min-width: 0; }
+  .room-head > .btn { width: 44px; min-width: 44px; padding: 0; gap: 0; }
+  .room-head > .btn > span { display: none; }
+  .room-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .room-title-text { order: -1; flex: 1; min-width: 0; }
+  .room-title h1 { margin: 0; font-size: 16px; line-height: 1.2; }
+  .room-compact-status { display: block; font-size: 12px; line-height: 18px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .room-compact-status.ok { color: #81d9af; }
+  .room-compact-status.red { color: var(--gold); }
+  .room-title .kicker { flex: none; flex-wrap: nowrap; gap: 0; }
+  .room-title .room-meta, .room-title .kicker > .chip { display: none; }
+  .room-title .code-pill { min-width: 64px; padding: 0 6px; font-size: 14px; }
+  .room .room-foot { grid-column: 2; grid-row: 1; order: 0; position: static; display: flex; gap: 8px; padding: 0; border: 0; background: none; flex-wrap: nowrap; }
+  .room-foot > .field, .room-foot > .spacer, .room-foot > [data-testid="start-reason"] { display: none; }
+  .room-agent-trigger { display: inline-flex; min-width: 76px; gap: 6px; padding: 0 6px; font-size: 14px; }
+  .room-agent-avatar { width: 24px; height: 36px; background: 50% 12% / 300% no-repeat; }
+  .room-foot > .btn.primary { min-width: 114px; min-height: 44px; height: 44px; padding: 0 12px; font-size: 16px; letter-spacing: 0; }
+  .room-foot > .gate-fix { display: inline-flex; width: 114px; min-width: 114px; min-height: 44px; height: 44px; padding: 0 8px; font-size: 14px; justify-content: center; }
+  .room-foot .gate-full, .room-foot:has(.gate-fix) > [data-testid="start-btn"] { display: none; }
+  .room-foot .gate-short { display: inline; }
+  .room-bar { display: none; }
+  .room-body { display: flex; flex-direction: column; overflow: visible; min-height: auto; padding: 4px var(--page-r) max(16px,env(safe-area-inset-bottom)) var(--page-l); gap: 16px; }
+  .room-main { min-height: auto; gap: 12px; }
+  .room .teams { flex: none; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; min-height: auto; }
+  .room .team-col { gap: 2px; min-height: auto; }
+  .room .team-head, .room .team-col.t1 .team-head { height: 24px; min-height: 24px; padding: 0 2px; gap: 8px; flex-wrap: nowrap; }
+  .room .team-head b { font-size: 16px; line-height: 22px; }
+  .room .team-head i { font-size: 14px; }
+  .room .team-head .team-ops { display: none; }
+  .room .team-slots { gap: 2px; overflow: visible; }
+  .room .slot, .room .team-col.t1 .slot { display: grid; grid-template-columns: 36px minmax(0,1fr) auto; min-height: 44px; height: 44px; padding: 0; gap: 8px; border: 0; box-shadow: inset 0 0 0 1px var(--line-2); background: #101b26e8; }
+  .room .slot.me { box-shadow: inset 0 0 0 1px var(--tc); }
+  .room .slot .portrait { grid-column: 1; grid-row: 1; width: 36px; min-height: 0; height: 44px; border-radius: 3px 0 0 3px; }
+  .room .slot .who { grid-column: 2; display: flex; align-items: center; gap: 6px; }
+  .room .slot .who b { flex: 1; min-width: 0; font-size: 14px; line-height: 20px; }
+  .room .slot .who .tags { flex: none; flex-wrap: nowrap; gap: 4px; margin: 0; }
+  .room .slot .tags:empty { display: none; }
+  .room .slot .chip { height: 20px; padding: 0 4px; font-size: 12px; letter-spacing: 0; }
+  .room .slot .slot-ops { display: none; }
+  .room .slot .slot-more, .room .slot .slot-manage { grid-column: 3; display: inline-flex; width: 44px; min-width: 44px; height: 44px; padding: 0; font-size: 13px; letter-spacing: 0; border-color: var(--line); }
+  .room .slot > .kick { grid-column: 3; }
+  .room .slot.empty, .room .team-col.t1 .slot.empty { display: flex; min-height: 44px; height: 44px; padding: 0 6px; gap: 4px; }
+  .room .slot.empty .btn { height: 44px; min-height: 44px; padding: 0 6px; }
+  .room-scroll-hint { display: block; margin: 0; font-size: 14px; color: var(--text-2); text-align: center; }
+  .room .side, .room .room-main { overflow: visible; }
+  .room .side > .panel { flex: none; }
+  .room .chat { min-height: 240px; }
+  .room .chat-log { min-height: 140px; max-height: 200px; }
+}
+
+/* 装备：复用同一批真实武器卡片/参数，不把 1116×677 的桌面稿缩成小字。 */
+.al-buy-mobile-head, .al-buy-filters { display: none; }
+.al-buy-catalog { display: contents; }
+.al-buy-mobile-category { display: none; }
+.al-buy.is-compact.on { display: flex; padding: max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+.al-buy.is-compact .al-buy-stage { position: relative; inset: auto; transform: none !important; width: min(960px,100%) !important; height: 100% !important; margin: auto; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line-2); border-radius: 8px; background: #101b26; }
+.al-buy.is-compact .al-buy-mobile-head { display: flex; flex: none; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.al-buy-mobile-head strong { display: block; font-size: 20px; }
+.al-buy-mobile-head small { display: block; font-size: 12px; color: var(--text-2); }
+.al-buy-mobile-head .btn { min-height: 44px; height: 44px; min-width: 88px; }
+.al-buy.is-compact .al-buy-filters { display: flex; flex: none; overflow-x: auto; gap: 6px; padding: 8px 12px; overscroll-behavior-x: contain; }
+.al-buy-filters button { flex: none; min-height: 44px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 4px; background: var(--bg-2); color: var(--text-2); font-size: 14px; }
+.al-buy-filters button[aria-pressed="true"] { border-color: var(--teal); background: #183c3b; color: #8ef0df; }
+.al-buy.is-compact .al-buy-catalog { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-content: start; gap: 8px; padding: 4px 12px 12px; overflow-y: auto; overscroll-behavior: contain; }
+.al-buy.is-compact .al-buy-head, .al-buy.is-compact .al-buy-line { display: none; }
+.al-buy.is-compact .al-buy-tile { position: relative; inset: auto !important; width: 100% !important; height: 112px !important; min-width: 0; border-radius: 4px; }
+.al-buy.is-compact .al-buy-mobile-category { display: block; position: absolute; top: 7px; left: 9px; font-size: 12px; color: var(--text-2); }
+.al-buy.is-compact .al-buy-chips { left: auto; right: 0; }
+.al-buy.is-compact .al-buy-icon { top: 24px; height: 42px; left: 8%; width: 84%; }
+.al-buy.is-compact .al-buy-tag { left: 9px; right: 9px; bottom: 8px; }
+.al-buy.is-compact .al-buy-name { font-size: 16px; font-weight: 600; }
+.al-buy.is-compact .al-buy-stat { font-size: 12px; }
+.al-buy.is-compact .al-buy-detail { position: relative; inset: auto !important; width: auto !important; height: auto !important; grid-column: 1 / -1; padding: 16px; border-radius: 4px; }
+.al-buy.is-compact .al-buy-bars { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.al-buy.is-compact .al-buy-note, .al-buy.is-compact .al-buy-kv, .al-buy.is-compact .al-buy-dfoot { font-size: 14px; }
+.al-buy.is-compact .al-buy-foot { position: static; flex: none; padding: 10px 12px; margin: 0; border-top: 1px solid var(--line); font-size: 14px; }
+@media (min-width: 600px) {
+  .al-buy.is-compact .al-buy-catalog { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .al-buy.is-compact .al-buy-tile { height: 108px !important; }
+}
+/* 阶段9 经济：手机上余额条变成列表顶部的整行（不是绝对定位的桌面角标） */
+.al-buy.is-compact .al-buy-credits {
+  position: static;
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  height: auto;
+  padding: 8px 12px;
+}

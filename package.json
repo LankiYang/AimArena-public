@@ -1,0 +1,7 @@
+{
+  "name": "aimarena-source-review",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.18" },
+  "scripts": { "check:infection": "node game/tools/infection-check.mjs" }
+}

@@ -1,0 +1,42 @@
+// Classic infection lifecycle: authoritative phase, membership, and victory boundaries.
+import assert from 'node:assert/strict';
+import { InfectionRules } from '../server/infection.ts';
+import { INFECTION_PREPARE_TICKS, INFECTION_ACTIVE_TICKS } from '../shared/infection.ts';
+
+const mother = new InfectionRules({ motherId: 2 });
+let s = mother.start(100, [1, 2, 3]);
+assert.equal(s.phase, 'prepare');
+assert.deepEqual(s.humans, [1, 2, 3]);
+assert.deepEqual(s.infected, []);
+assert.equal(mother.infect(1), false, 'preparation cannot infect');
+s = mother.step(100 + INFECTION_PREPARE_TICKS - 1);
+assert.equal(s.phase, 'prepare');
+assert.equal(s.remainingTicks, 1);
+s = mother.step(100 + INFECTION_PREPARE_TICKS);
+assert.equal(s.phase, 'active');
+assert.deepEqual(s.infected, [2]);
+assert.deepEqual(s.humans, [1, 3]);
+assert.equal(s.remainingTicks, INFECTION_ACTIVE_TICKS);
+assert.equal(mother.infect(2), false, 'infected player cannot be infected twice');
+assert.equal(mother.infect(1), true);
+assert.equal(mother.infect(1), false);
+assert.equal(mother.view(100 + INFECTION_PREPARE_TICKS).winner, null);
+assert.equal(mother.infect(3), true);
+s = mother.view(101 + INFECTION_PREPARE_TICKS);
+assert.equal(s.phase, 'ended');
+assert.equal(s.winner, 1, 'infectors win after last human is infected');
+assert.equal(mother.addPlayer(4), false, 'ended match cannot admit a player');
+assert.equal(mother.infect(4), false);
+
+const timer = new InfectionRules({ random: () => 0 });
+timer.start(0, [1, 2]);
+timer.step(INFECTION_PREPARE_TICKS);
+assert.equal(timer.addPlayer(3), true, 'mid-match joins as human');
+assert.equal(timer.isHuman(3), true);
+assert.equal(timer.removePlayer(3), true);
+assert.equal(timer.step(INFECTION_PREPARE_TICKS + INFECTION_ACTIVE_TICKS - 1).winner, null);
+s = timer.step(INFECTION_PREPARE_TICKS + INFECTION_ACTIVE_TICKS);
+assert.equal(s.phase, 'ended');
+assert.equal(s.winner, 0, 'surviving humans win at deadline');
+assert.equal(timer.step(INFECTION_PREPARE_TICKS + INFECTION_ACTIVE_TICKS + 1).winner, 0);
+console.log('PASS infection phases, initial mother, joins, infection and both win conditions');

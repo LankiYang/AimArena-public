@@ -1,0 +1,277 @@
+/* touch.css — 手机/平板触摸操作层（只在 .touch 对局容器里出现）
+ *
+ * 布局按「角落 + 固定网格」排：左下摇杆，右下 3×3 动作网格（开火占 2×2），
+ * 左上依次是阵营图例与 1/2/3 槽位，右上只有一条「装备 / 菜单」。
+ * 所有尺寸跟随 vmin 和安全区缩放；HUD 的上下留白直接引用同一组变量，
+ * 不再用写死的 bottom 像素去猜按钮会不会压到弹药。
+ */
+
+.touch {
+  --touch-edge-l: max(16px, env(safe-area-inset-left));
+  --touch-edge-r: max(16px, env(safe-area-inset-right));
+  --touch-edge-t: max(12px, env(safe-area-inset-top));
+  --touch-edge-b: max(16px, env(safe-area-inset-bottom));
+  --touch-gap: clamp(6px, 1.4vmin, 8px);
+  --touch-btn: clamp(44px, 12.5vmin, 56px);
+  --touch-stick: clamp(100px, 27vmin, 120px);
+  --touch-actions: calc(var(--touch-btn) * 3 + var(--touch-gap) * 2);
+  overscroll-behavior: none;
+}
+
+.touch-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 21;
+  pointer-events: none; /* 只有下面这些控件自己吃触摸 */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-ui);
+}
+
+/* 视角层：铺满整屏、在所有控件下面，拖动它转向 */
+.touch-look {
+  position: absolute;
+  inset: 0 0 0 50%;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.touch-tip,
+.touch-rotate {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  border-radius: 4px;
+  background: rgba(11, 17, 24, 0.62);
+  color: var(--text-2);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.touch-tip { top: var(--touch-edge-t); animation: touch-tip-out 6s ease-in forwards; }
+@keyframes touch-tip-out { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+/* 竖屏提示：只在竖屏出现，不拦操作 */
+.touch-rotate { top: calc(var(--touch-edge-t) + 6px); display: none; color: var(--gold, #f2c94c); }
+@media (orientation: portrait) { .touch-rotate { display: block; } .touch-tip { display: none; } }
+
+/* ---------- 左下：摇杆 ---------- */
+.touch-stick {
+  position: absolute;
+  left: var(--touch-edge-l);
+  bottom: var(--touch-edge-b);
+  width: var(--touch-stick);
+  height: var(--touch-stick);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  background: radial-gradient(circle at 50% 50%, rgba(11, 17, 24, 0.5), rgba(11, 17, 24, 0.28));
+  pointer-events: auto;
+  touch-action: none;
+}
+.touch-stick.on { border-color: rgba(83, 227, 194, 0.75); }
+.touch-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--touch-stick) * 0.44);
+  height: calc(var(--touch-stick) * 0.44);
+  margin: calc(var(--touch-stick) * -0.22) 0 0 calc(var(--touch-stick) * -0.22);
+  border-radius: 50%;
+  background: rgba(228, 240, 255, 0.82);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- 右下：3×3 动作网格（开火 2×2，绝不溢出容器） ----------
+ *   row1  静步   换弹   跳跃
+ *   row2  蹲     开火   开火
+ *   row3  开镜   开火   开火
+ */
+.touch-actions {
+  position: absolute;
+  right: var(--touch-edge-r);
+  bottom: var(--touch-edge-b);
+  display: grid;
+  grid-template-columns: repeat(3, var(--touch-btn));
+  grid-template-rows: repeat(3, var(--touch-btn));
+  gap: var(--touch-gap);
+  pointer-events: none;
+}
+.tbtn {
+  display: grid;
+  place-items: center;
+  width: var(--touch-btn);
+  height: var(--touch-btn);
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.32);
+  background: rgba(11, 17, 24, 0.4);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: clamp(12px, 1.75vmin, 15px);
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.08s linear, border-color 0.08s linear, transform 0.08s linear;
+}
+.tbtn.on, .tbtn.pressed { background: rgba(255, 70, 85, 0.55); border-color: #fff; }
+.touch-actions .tbtn.on { box-shadow: inset 0 0 0 2px rgba(255,255,255,.2); }
+.tbtn-fire { grid-area: 2 / 2 / 4 / 4; width: calc(var(--touch-btn) * 2 + var(--touch-gap)); height: calc(var(--touch-btn) * 2 + var(--touch-gap)); font-size: clamp(15px, 2.3vmin, 19px); }
+.tbtn-fire.on { background: rgba(255, 70, 85, 0.72); }
+.tbtn-aim { grid-area: 3 / 1; }
+.tbtn-aim.on { background: rgba(83, 227, 194, 0.55); border-color: #fff; }
+.tbtn-reload { grid-area: 1 / 2; }
+.tbtn-jump { grid-area: 1 / 3; }
+.tbtn-crouch { grid-area: 2 / 1; }
+/* 爆破模式「使用」（安放 / 拆除）：摇杆右侧、与摇杆底边对齐，不占动作网格 */
+.touch .tbtn-use { position: absolute; left: calc(var(--touch-edge-l) + var(--touch-stick) + 12px); bottom: var(--touch-edge-b); }
+/* 观战（阶段11）：阵亡后的左右切换条，放在底部中间（摇杆与动作区之间） */
+.touch-spectate {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--touch-edge-b) + 6px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+.touch-spectate-name {
+  max-width: min(46vw, 240px);
+  padding: 4px 10px;
+  border-radius: 3px;
+  background: rgba(11, 17, 24, 0.72);
+  border: 1px solid var(--line);
+  color: #5fe6d1;
+  font-size: clamp(12px, 1.8vmin, 14px);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.touch-spectate .tbtn { font-size: clamp(14px, 2vmin, 18px); }
+.tbtn-walk { grid-area: 1 / 1; }
+.tbtn-crouch.on, .tbtn-walk.on { background: rgba(83, 227, 194, 0.5); border-color: #fff; }
+
+/* ---------- 左上：阵营图例 + 切枪（数字键等价） ---------- */
+.touch .hud-team-key { top: var(--touch-edge-t); left: var(--touch-edge-l); }
+.touch-weapons {
+  position: absolute;
+  left: var(--touch-edge-l);
+  top: calc(var(--touch-edge-t) + 42px);
+  display: flex;
+  flex-direction: row;
+  gap: var(--touch-gap);
+  pointer-events: none;
+}
+.touch-weapons .tbtn {
+  width: clamp(44px, 12vmin, 52px);
+  height: clamp(44px, 12vmin, 52px);
+  font-family: var(--font-num);
+  font-size: clamp(16px, 2.4vmin, 19px);
+}
+.touch-weapons .tbtn.on { border-color: var(--gold, #f2c94c); background: rgba(242, 201, 76, 0.18); color: #fff; }
+
+/* ---------- 右上：装备 / 菜单（唯一一条，安全区内） ---------- */
+.touch .match-menu {
+  top: var(--touch-edge-t);
+  right: var(--touch-edge-r);
+  gap: 6px;
+  z-index: 22;
+}
+.touch .match-menu .btn { min-width: 44px; min-height: 44px; height: 44px; padding: 0 10px; font-size: 14px; }
+.touch .match-menu .kbd { display: none; }
+
+/* 触摸模式下：不再显示桌面的右下武器按钮（已经有触摸切枪），也不显示点击提示 */
+.touch .hud-menu { display: none; }
+.touch .click-hint { display: none; }
+
+/* 触摸模式 HUD：全部让开摇杆与动作网格 */
+.touch .hud-banner { display: none; } /* 用上面的触摸提示代替，两者都在顶部中间 */
+.touch .hud-feed { top: calc(var(--touch-edge-t) + 52px); right: var(--touch-edge-r); width: min(34vw, 300px); max-width: none; }
+.touch .hud-feed-row { width: 100%; min-width: 0; max-width: 100%; flex: none; gap: 4px; padding: 4px 6px; font-size: 12px; line-height: 16px; }
+.touch .hud-feed-killer, .touch .hud-feed-victim { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.touch .hud-feed-gun { flex: none; }
+.touch .hud-health { left: var(--touch-edge-l); bottom: calc(var(--touch-edge-b) + var(--touch-stick) + 50px); }
+.touch .hud-weapon { right: var(--touch-edge-r); bottom: calc(var(--touch-edge-b) + var(--touch-actions) + 10px); }
+.touch .hud-center { bottom: calc(var(--touch-edge-b) + 22px); }
+.touch .hud-num, .touch .hud-mag { font-size: clamp(26px, 5vmin, 34px); }
+.touch .hud-hpbar { width: clamp(110px, 18vw, 150px); }
+.touch .hud-reloadbar { width: clamp(92px, 16vw, 132px); }
+/* 观战面板：手机上也放右侧中部，窄屏缩宽度；底部的左右切换条由 .touch-spectate 负责 */
+.touch .hud-spectate { width: min(40vw, 210px); padding: 8px 10px; }
+.touch .hud-spectate-hp { font-size: 19px; }
+
+/* 竖屏：控件本身够用，主要把中间状态文字抬到 HUD 之上，避免窄屏横向相撞 */
+@media (orientation: portrait) {
+  .touch .hud-team-key { display: none; } /* 竖屏顶部留给横屏提示与槽位 */
+  .touch-rotate { left: var(--touch-edge-l); top: calc(var(--touch-edge-t) + 52px); transform: none; }
+  .touch-weapons { top: calc(var(--touch-edge-t) + 90px); }
+  .touch .hud-hpbar { width: 104px; }
+  .touch .hud-center { bottom: calc(var(--touch-edge-b) + max(var(--touch-stick), var(--touch-actions)) + 58px); }
+  .touch .hud-feed { width: min(42vw, 190px); }
+  /* 竖屏：观战面板挪到顶部右侧下方，避开正下方的左右切换条与中下倒计时 */
+  .touch .hud-spectate { top: auto; bottom: calc(var(--touch-edge-b) + max(var(--touch-stick), var(--touch-actions)) + 96px); transform: none; width: min(58vw, 220px); }
+}
+
+/* 短横屏只展示最近的击杀，不能把弹药信息盖住；竖屏/平板仍展示四条。 */
+@media (orientation: landscape) and (max-height: 450px) {
+  .touch .hud-feed-row:nth-last-child(n+4) { display: none; }
+}
+/* 极窄或极矮的横屏：按钮再收一点，仍保持 44px 可点尺寸 */
+@media (orientation: landscape) and (max-height: 360px) {
+  .touch { --touch-btn: 44px; --touch-stick: 96px; --touch-gap: 6px; }
+  .touch .hud-feed-row:nth-last-child(n+2) { display: none; }
+}
+
+/* Player-saved normalized positions place every gameplay control independently. */
+.touch-ui.custom-layout .touch-actions,
+.touch-ui.custom-layout .touch-weapons { display: contents; }
+.touch-ui.custom-layout .tbtn { position: absolute; grid-area: auto; }
+.touch-ui.custom-layout .touch-stick,
+.touch-ui.custom-layout .tbtn-use { position: absolute; }
+
+/* Untouched defaults use edge anchors rather than viewport percentages, so their
+   spacing follows the actual button and minimap sizes on short/wide screens. */
+.touch-ui.default-layout .tbtn-weapon-1,
+.touch-ui.default-layout .tbtn-weapon-2,
+.touch-ui.default-layout .tbtn-weapon-3 {
+  top: var(--touch-edge-t);
+  left: calc(var(--touch-edge-l) + var(--minimap-size, 128px) + 8px);
+}
+.touch-ui.default-layout .tbtn-weapon-2 {
+  left: calc(var(--touch-edge-l) + var(--minimap-size, 128px) + 8px + clamp(44px, 12vmin, 52px) + var(--touch-gap));
+}
+.touch-ui.default-layout .tbtn-weapon-3 {
+  left: calc(var(--touch-edge-l) + var(--minimap-size, 128px) + 8px + (clamp(44px, 12vmin, 52px) + var(--touch-gap)) * 2);
+}
+.touch-ui.default-layout .tbtn-fire { right: var(--touch-edge-r); bottom: var(--touch-edge-b); }
+.touch-ui.default-layout .tbtn-aim,
+.touch-ui.default-layout .tbtn-crouch,
+.touch-ui.default-layout .tbtn-walk {
+  right: calc(var(--touch-edge-r) + var(--touch-btn) * 2 + var(--touch-gap) * 2);
+}
+.touch-ui.default-layout .tbtn-aim { bottom: var(--touch-edge-b); }
+.touch-ui.default-layout .tbtn-crouch { bottom: calc(var(--touch-edge-b) + var(--touch-btn) + var(--touch-gap)); }
+.touch-ui.default-layout .tbtn-walk,
+.touch-ui.default-layout .tbtn-reload,
+.touch-ui.default-layout .tbtn-jump {
+  bottom: calc(var(--touch-edge-b) + (var(--touch-btn) + var(--touch-gap)) * 2);
+}
+.touch-ui.default-layout .tbtn-reload { right: calc(var(--touch-edge-r) + var(--touch-btn) + var(--touch-gap)); }
+.touch-ui.default-layout .tbtn-jump { right: var(--touch-edge-r); }
+.touch-ui.default-layout .tbtn-use {
+  left: calc(var(--touch-edge-l) + var(--touch-stick) + var(--touch-gap));
+  bottom: calc(var(--touch-edge-b) + (var(--touch-stick) - var(--touch-btn)) / 2);
+}
+@media (orientation: portrait) {
+  .touch-ui.default-layout { --minimap-size: clamp(112px, 32vw, 144px); }
+  .touch-ui.default-layout .tbtn-weapon-1,
+  .touch-ui.default-layout .tbtn-weapon-2,
+  .touch-ui.default-layout .tbtn-weapon-3 { top: calc(var(--touch-edge-t) + 56px); }
+}

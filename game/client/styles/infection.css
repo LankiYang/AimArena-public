@@ -1,0 +1,25 @@
+/* Infection mode status bar; remains readable in desktop and touch layouts. */
+.infection-hud {
+  position: absolute; z-index: 21; top: 70px; left: 50%; transform: translateX(-50%);
+  display: grid; grid-template-columns: auto auto; align-items: center; gap: 3px 12px;
+  min-width: 250px; padding: 7px 12px; border: 1px solid rgba(160,190,205,.45);
+  border-radius: 5px; background: rgba(8,14,20,.78); color: var(--text); text-align: center;
+  pointer-events: none; font-family: var(--font-ui); text-shadow: 0 1px 3px rgba(0,0,0,.65);
+}
+.infection-main { display: flex; align-items: baseline; gap: 9px; justify-content: center; }
+.infection-phase { color: #d7eaf2; font-size: 13px; letter-spacing: .08em; }
+.infection-time { color: #ffdf86; font-family: var(--font-num); font-size: 22px; font-variant-numeric: tabular-nums; }
+.infection-counts, .infection-status { font-size: 12px; white-space: nowrap; }
+.infection-counts { color: #bcd0d8; }
+.infection-status { grid-column: 1 / -1; color: #9fd8ff; }
+.infection-hud.is-human { border-color: rgba(83,227,194,.58); }
+.infection-hud.is-human .infection-status { color: #53e3c2; }
+.infection-hud.is-infected { border-color: rgba(255,83,101,.7); }
+.infection-hud.is-infected .infection-status { color: #ff7180; }
+.infection-hud.is-ended { border-color: rgba(255,223,134,.7); }
+@media (max-width: 600px) {
+  .infection-hud { top: 52px; min-width: min(250px, calc(100vw - 28px)); padding: 5px 8px; gap: 2px 7px; }
+  .infection-phase { font-size: 11px; }
+  .infection-time { font-size: 19px; }
+  .infection-counts, .infection-status { font-size: 10px; }
+}
