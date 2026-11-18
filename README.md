@@ -35,6 +35,8 @@ npm start
 - 地图与场景：采用自制纯几何方块竞技场（`game/shared/public-map.ts`），自动生成碰撞 BVH 与导航网格。
 - 武器与角色：客户端使用低多边形方块盒模型与骨架挂点。
 - 生化模型：包含程序化生成的感染者第三人称模型（`game/data/infected_thirdperson.glb`）与第一人称双臂模型（`game/data/infected_firstperson_arms.glb`）。
+- 第一人称步枪：使用 AK-74M 与原配特种兵双臂模型及待机、移动、射击、换弹动作。素材来源为 FPS AK-74m animations by Cransh，授权 CC-BY-4.0。
+  This work is based on "FPS AK-74m animations" (https://sketchfab.com/3d-models/fps-ak-74m-animations-94be8385c402474cacd39bc096c6ca14) by Cransh (https://sketchfab.com/ccransh), licensed under CC-BY-4.0.
 - 绝无私密信息、证书私钥、服务器远程 IP 或未授权镜像资源。
 
 ## 独立规则测试
