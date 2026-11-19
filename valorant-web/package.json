@@ -1,0 +1,17 @@
+{
+  "name": "valorant-web-study",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser tactical FPS multiplayer development slice",
+  "scripts": {
+    "start": "node server.cjs",
+    "test": "node --test server.test.cjs research/character-motion.test.mjs research/third-person-weapon.test.mjs research/weapon-model.test.mjs research/fps-first-person-rig.test.mjs research/ascent-environment.test.mjs research/ascent-collision.test.mjs",
+    "verify-assets": "node research/verify-assets.cjs",
+    "test:legacy-arms": "node --test research/view-arms.test.mjs research/wrist-skin.test.mjs research/elbow-skin.test.mjs research/weapon-pose.test.mjs research/view-arm-anatomy.test.mjs"
+  },
+  "dependencies": {
+    "three": "0.170.0",
+    "ws": "8.18.0"
+  }
+}

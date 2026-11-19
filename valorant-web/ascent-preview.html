@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111a1d"><title>Ascent B · 第一人称几何检查</title>
+  <script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#111a1d;color:#e8ece8;font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif;overflow:hidden}#view{position:fixed;inset:0;width:100%;height:100%;display:block}.shade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,#111a1d9c,transparent 28%),linear-gradient(0deg,#111a1dbd,transparent 25%)}header{position:fixed;inset:0 0 auto;display:flex;justify-content:space-between;align-items:center;padding:21px 30px;border-bottom:1px solid #dce6df1b;background:linear-gradient(#111a1dba,transparent)}header strong{font-size:11px;letter-spacing:2.8px}header strong i{font-style:normal;color:#e45855;margin-right:12px}.back{color:#ced8d0;text-decoration:none;font-size:11px;border:1px solid #c6dbcf40;padding:9px 13px}.back:hover{background:#dce7df12}.caption{position:fixed;left:30px;top:92px;color:#b9c5c0;font-size:11px;line-height:1.8}.caption b{font-size:14px;color:#f2f3ed;letter-spacing:1px}.metrics{position:fixed;right:26px;top:86px;text-align:right;font-size:9px;letter-spacing:1.5px;color:#96aaa4;line-height:1.9}.metrics strong{color:#e8ede8;font-size:11px}.crosshair{position:fixed;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%);pointer-events:none}.crosshair:before,.crosshair:after{content:"";position:absolute;background:#e8f0e8;box-shadow:0 0 4px #111}.crosshair:before{left:6px;top:0;width:1px;height:14px}.crosshair:after{left:0;top:6px;width:14px;height:1px}.notice{position:fixed;left:50%;top:61%;transform:translate(-50%,-50%);padding:17px 22px;background:#111a1dda;border:1px solid #c4d2cc36;text-align:center;backdrop-filter:blur(10px);min-width:275px}.notice h1{font-size:13px;letter-spacing:2px;margin:0 0 8px}.notice p{font-size:10px;line-height:1.8;color:#a5b6ae;margin:0}.notice button{margin-top:14px;border:0;background:#f1eee8;color:#18201e;padding:10px 20px;font-weight:700;font-size:10px;letter-spacing:1px}.controls{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);display:flex;gap:9px;align-items:center;white-space:nowrap;font-size:9px;color:#c5d0c9}.controls kbd{padding:4px 6px;border:1px solid #b8cbc144;background:#101a1d9c;font:inherit;margin:0 2px}.footer{position:fixed;left:25px;bottom:22px;color:#93a59d;font-size:9px;letter-spacing:1px}.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);padding:9px 14px;background:#251d1cde;border:1px solid #cc827478;color:#f1c8b8;font-size:10px}.hidden{display:none}@media(max-width:650px){header{padding:15px 16px}.caption{left:16px;top:76px;font-size:9px}.metrics{right:15px;top:75px;font-size:8px}.controls{font-size:8px;gap:3px;bottom:17px}.controls kbd{padding:3px 4px;margin:0}.footer{display:none}.notice{top:64%;min-width:245px}.back{font-size:9px;padding:8px 10px}}
+  </style>
+</head>
+<body>
+  <canvas id="view" aria-label="第一人称 Ascent B 实际三角网格漫游"></canvas><div class="shade"></div>
+  <header><strong><i>V /</i> ASCENT B · GEOMETRY WALK</strong><a class="back" href="/showcase.html?model=ascent">返回模型检查室</a></header>
+  <div class="caption"><b>原版 B 区几何 · 重建材质</b><br>第一人称 · 三角网格地面与墙体碰撞</div>
+  <div class="metrics"><span id="loadStatus">正在读取 3D 几何…</span><br><span id="position">—</span><br><span id="surface">—</span></div>
+  <div class="crosshair"></div>
+  <section class="notice" id="entry"><h1>进入 B MAIN</h1><p>原版几何节选 · 灰泥、石砖与陶瓦材质重建。<br>原始楼板缺口仍然存在。</p><button id="start">开始漫游</button></section>
+  <div class="toast hidden" id="toast"></div>
+  <div class="controls"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动</span><span><kbd>SHIFT</kbd> 慢走</span><span><kbd>C</kbd> 蹲下</span><span><kbd>SPACE</kbd> 跳跃</span><span>鼠标观察</span><span><kbd>ESC</kbd> 释放鼠标</span></div>
+  <div class="footer">206,190 VERTICES · 192,209 TRIANGLES · EXACT COLLISION</div>
+  <script type="module" src="/src/ascent-preview.js"></script>
+</body></html>

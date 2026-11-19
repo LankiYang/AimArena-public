@@ -1,0 +1,36 @@
+{
+  "source": "https://github.com/vanshnegi4444-sys/aimlab",
+  "sourceCommit": "961d8cb363155f1fa704256bc90c15bce471d5ce",
+  "sourceFile": "assets/maps/ascentB.bin",
+  "originalRights": "VALORANT map geometry: Riot Games. Upstream software MIT (Vansh Negi, 2026). User states project authorization.",
+  "conversion": "VMAP v1 positions, normals, vertex colors and triangle indices preserved; no reduction, no original texture maps.",
+  "limitations": "Ascent B excerpt only. Upstream reports floor gaps and missing Market corridor. Not a full Ascent map.",
+  "vertexCount": 206190,
+  "triangleCount": 192209,
+  "min": [
+    -67.49543762207031,
+    -1.6674898862838745,
+    -109.43598175048828
+  ],
+  "max": [
+    10.25,
+    49.90491485595703,
+    -46.34029006958008
+  ],
+  "colorMin": [
+    185,
+    185,
+    180,
+    255
+  ],
+  "colorMax": [
+    185,
+    185,
+    180,
+    255
+  ],
+  "flagCounts": {
+    "0": 166112,
+    "1": 40078
+  }
+}

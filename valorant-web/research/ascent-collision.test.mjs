@@ -1,0 +1,44 @@
+// UTF-8. Real 192k-triangle dataset tests; no GPU, no substitute map.
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import { buildAscentCollision, AscentWalker, ASCENT_SPAWNS, parseAscentGLB } from '../shared/ascent-collision.mjs';
+const input = fs.readFileSync(new URL('../assets/maps/ascent-b.glb', import.meta.url));
+assert.throws(() => parseAscentGLB(input.subarray(0, 100)), /Invalid|truncated/);
+const before = process.memoryUsage().heapUsed, world = buildAscentCollision(input);
+assert.equal(world.stats.triangleCount, 192209); assert.equal(world.stats.vertexCount, 206190);
+const probes = [ ['B Main', -23, -50, 1], ['CT Arch', -6, -88, 1.003], ['Lane', -24.5, -58.5, 1] ];
+const floors = [];
+for (const [name,x,z,expected] of probes) { const hit = world.floorAt(x,z,4,6); assert.ok(hit, name+' has actual floor'); assert.ok(Math.abs(hit.position.y-expected)<.12, name+' floor height'); floors.push({name,x,z,y:hit.position.y}); }
+assert.equal(world.floorAt(1000,1000,4,6),false);
+assert.equal(world.floorAt(-20,-50,4,6),false,'known source floor hole remains a hole');
+const walker = new AscentWalker(world, ASCENT_SPAWNS.bMain.foot);
+for(let i=0;i<120;i++)walker.update(new THREE.Vector3(),1/60);
+assert.ok(Math.abs(walker.getFoot().y-1)<.08,'capsule rests on source floor'); assert.ok(walker.grounded);
+const rest=walker.getFoot().clone(); walker.update(new THREE.Vector3(),1/60,{jump:true});
+assert.ok(walker.velocity.y>0,'jump from source floor');for(let i=0;i<180;i++)walker.update(new THREE.Vector3(),1/60);
+assert.ok(Math.abs(walker.getFoot().y-rest.y)<.08,'jump lands on exact triangles');
+const path=[];walker.reset();
+for(let i=0;i<120;i++){walker.update(new THREE.Vector3(0,0,-1),1/60,{speed:2.5});if(i%30===0)path.push(walker.getFoot().toArray());}
+assert.ok(!walker.fellOut,'tested B Main walk stays inside geometry');
+const wallHit=world.raycast(new THREE.Vector3(-25,1.6,-50),new THREE.Vector3(1,0,0),6);
+assert.ok(wallHit,'actual source wall ray hit');
+const againstWall=new AscentWalker(world,[-23.7,1,-50]);for(let i=0;i<120;i++)againstWall.update(new THREE.Vector3(1,0,0),1/60,{speed:2.5});
+assert.ok(againstWall.getFoot().x<-23.15,'capsule cannot cross real B Main wall');
+const lowArch=new AscentWalker(world,[-58.4,3.46,-75.892]);
+for(let i=0;i<120;i++)lowArch.update(new THREE.Vector3(),1/60,{crouch:true});
+assert.ok(lowArch.grounded,'crouched player rests on source low structure');
+assert.equal(lowArch.canStand(),false,'original overhead triangles block standing');
+const lowRest=lowArch.getFoot().clone();
+for(let i=0;i<120;i++)lowArch.update(new THREE.Vector3(),1/60,{crouch:false});
+assert.ok(lowArch.crouched,'standing request cannot push capsule through overhead triangles');
+assert.ok(lowRest.distanceTo(lowArch.getFoot())<.02,'blocked stand keeps capsule position stable');
+const openAir=new AscentWalker(world,[-23.6,1,-50]);
+for(let i=0;i<30;i++)openAir.update(new THREE.Vector3(),1/60,{crouch:true});
+assert.ok(openAir.canStand(),'B Main has real overhead clearance');
+openAir.update(new THREE.Vector3(),1/60,{crouch:false});
+assert.equal(openAir.crouched,false,'can stand after leaving low structure');
+const rays=500,start=performance.now();for(let i=0;i<rays;i++)world.floorAt(-23+(i%5)*.1,-50-Math.floor(i/5)%5*.1,4,6);
+const result={...world.stats,heapGrowthMB:(process.memoryUsage().heapUsed-before)/1048576,floors,rest:rest.toArray(),walkingPath:path,walkEnd:walker.getFoot().toArray(),wallRay:wallHit.position.toArray(),wallStop:againstWall.getFoot().toArray(),rayAverageMs:(performance.now()-start)/rays};
+fs.writeFileSync(new URL('./ascent-collision-results.json',import.meta.url),JSON.stringify(result,null,2)+'\n','utf8');
+console.log(JSON.stringify(result,null,2));world.dispose();console.log('Ascent exact triangle collision self-test passed.');

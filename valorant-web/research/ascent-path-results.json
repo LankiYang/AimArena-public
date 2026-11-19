@@ -1,0 +1,422 @@
+{
+  "sourceTriangles": 192209,
+  "results": [
+    {
+      "label": "attack BMain",
+      "spawn": [
+        -23.6,
+        1.00001,
+        -50
+      ],
+      "target": [
+        -32,
+        0.999896,
+        -66
+      ],
+      "found": true,
+      "withinPlantRadius": true,
+      "explored": 1400,
+      "pending": 130,
+      "exhausted": false,
+      "maxNodes": 6000,
+      "seconds": 1.9420401000000003,
+      "closest": [
+        -31.149387276314506,
+        0.9997933949281639,
+        -65.69099377893788
+      ],
+      "closestDistance": 0.9050523248285702,
+      "searchBounds": {
+        "minX": -31.403228065584983,
+        "maxX": -11.727148323471061,
+        "minZ": -65.94583088562553,
+        "maxZ": -44.3334177921693
+      },
+      "replay": {
+        "maxDrift": 0,
+        "totalFrames": 450,
+        "minFootY": 0.9912512861750504,
+        "maxFootY": 1.028825680106121,
+        "floorMissFrames": 0,
+        "nonGroundedFrames": 26,
+        "fellOut": false
+      },
+      "waypoints": [
+        {
+          "action": "start",
+          "foot": [
+            -23.6,
+            1,
+            -50
+          ]
+        },
+        {
+          "action": 0,
+          "direction": {
+            "x": 0,
+            "z": -1
+          },
+          "foot": [
+            -23.6023,
+            1,
+            -56.0666
+          ]
+        },
+        {
+          "action": 1,
+          "direction": {
+            "x": 0.7071067811865475,
+            "z": -0.7071067811865476
+          },
+          "foot": [
+            -17.478,
+            1,
+            -62.1953
+          ]
+        },
+        {
+          "action": 2,
+          "direction": {
+            "x": 1,
+            "z": -6.123233995736766e-17
+          },
+          "foot": [
+            -16.6108,
+            1,
+            -62.1953
+          ]
+        },
+        {
+          "action": 1,
+          "direction": {
+            "x": 0.7071067811865475,
+            "z": -0.7071067811865476
+          },
+          "foot": [
+            -15.3793,
+            1,
+            -62.68
+          ]
+        },
+        {
+          "action": 2,
+          "direction": {
+            "x": 1,
+            "z": -6.123233995736766e-17
+          },
+          "foot": [
+            -13.7348,
+            1,
+            -62.5406
+          ]
+        },
+        {
+          "action": 0,
+          "direction": {
+            "x": 0,
+            "z": -1
+          },
+          "foot": [
+            -13.6581,
+            1,
+            -64.247
+          ]
+        },
+        {
+          "action": 6,
+          "direction": {
+            "x": -1,
+            "z": 1.8369701987210297e-16
+          },
+          "foot": [
+            -14.3247,
+            0.998,
+            -64.4596
+          ]
+        },
+        {
+          "action": 7,
+          "direction": {
+            "x": -0.7071067811865477,
+            "z": -0.7071067811865474
+          },
+          "foot": [
+            -14.9376,
+            0.993,
+            -65.073
+          ]
+        },
+        {
+          "action": 6,
+          "direction": {
+            "x": -1,
+            "z": 1.8369701987210297e-16
+          },
+          "foot": [
+            -30.5366,
+            0.9997,
+            -65.0782
+          ]
+        },
+        {
+          "action": 7,
+          "direction": {
+            "x": -0.7071067811865477,
+            "z": -0.7071067811865474
+          },
+          "foot": [
+            -31.1494,
+            0.9998,
+            -65.691
+          ]
+        }
+      ],
+      "actions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2,
+        2,
+        0,
+        0,
+        6,
+        7,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "framesPerAction": 10,
+      "dt": 0.016666666666666666,
+      "speed": 5.2,
+      "limits": "Bounded eight-direction actual-capsule walking search, 0.5m visited-state cells. No jumping/abilities, no added geometry. Failure is not a proof of global impossibility."
+    },
+    {
+      "label": "defend CT",
+      "spawn": [
+        -5.7,
+        1.003405,
+        -95
+      ],
+      "target": [
+        -32,
+        0.999896,
+        -66
+      ],
+      "found": true,
+      "withinPlantRadius": true,
+      "explored": 3001,
+      "pending": 360,
+      "exhausted": false,
+      "maxNodes": 6000,
+      "seconds": 5.381989299999999,
+      "closest": [
+        -31.53271052818795,
+        0.9998396634326072,
+        -66.15623869849027
+      ],
+      "closestDistance": 0.49274510666954063,
+      "searchBounds": {
+        "minX": -36.31222792095387,
+        "maxX": -2.380852592884546,
+        "minZ": -95.67999030160041,
+        "maxZ": -65.90239790885288
+      },
+      "replay": {
+        "maxDrift": 0,
+        "totalFrames": 540,
+        "minFootY": 0.970301030240106,
+        "maxFootY": 1.0542221229094464,
+        "floorMissFrames": 0,
+        "nonGroundedFrames": 8,
+        "fellOut": false
+      },
+      "waypoints": [
+        {
+          "action": "start",
+          "foot": [
+            -5.7,
+            1.0034,
+            -95
+          ]
+        },
+        {
+          "action": 5,
+          "direction": {
+            "x": -0.7071067811865475,
+            "z": 0.7071067811865477
+          },
+          "foot": [
+            -16.6598,
+            1,
+            -83.9374
+          ]
+        },
+        {
+          "action": 4,
+          "direction": {
+            "x": 1.2246467991473532e-16,
+            "z": 1
+          },
+          "foot": [
+            -16.6621,
+            1,
+            -69.2132
+          ]
+        },
+        {
+          "action": 5,
+          "direction": {
+            "x": -0.7071067811865475,
+            "z": 0.7071067811865477
+          },
+          "foot": [
+            -18.1758,
+            0.9728,
+            -67.3739
+          ]
+        },
+        {
+          "action": 6,
+          "direction": {
+            "x": -1,
+            "z": 1.8369701987210297e-16
+          },
+          "foot": [
+            -29.4406,
+            0.996,
+            -67.3813
+          ]
+        },
+        {
+          "action": 5,
+          "direction": {
+            "x": -0.7071067811865475,
+            "z": 0.7071067811865477
+          },
+          "foot": [
+            -30.0532,
+            0.9997,
+            -66.7691
+          ]
+        },
+        {
+          "action": 6,
+          "direction": {
+            "x": -1,
+            "z": 1.8369701987210297e-16
+          },
+          "foot": [
+            -30.9199,
+            0.9998,
+            -66.7691
+          ]
+        },
+        {
+          "action": 5,
+          "direction": {
+            "x": -0.7071067811865475,
+            "z": 0.7071067811865477
+          },
+          "foot": [
+            -31.5327,
+            0.9998,
+            -66.1562
+          ]
+        }
+      ],
+      "actions": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        5,
+        6,
+        5
+      ],
+      "framesPerAction": 10,
+      "dt": 0.016666666666666666,
+      "speed": 5.2,
+      "limits": "Bounded eight-direction actual-capsule walking search, 0.5m visited-state cells. No jumping/abilities, no added geometry. Failure is not a proof of global impossibility."
+    }
+  ]
+}

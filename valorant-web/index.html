@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1420">
+  <meta name="description" content="战术竞技网页多人开发预览">
+  <title>VALORANT / 战术竞技开发预览</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+</head>
+<body>
+  <main id="lobby" class="lobby">
+    <div class="lobby-scenery" aria-hidden="true"></div>
+    <div class="lobby-grid" aria-hidden="true"></div>
+    <header class="lobby-header">
+      <a class="brand" href="/" aria-label="VALORANT 首页"><svg viewBox="0 0 44 38" aria-hidden="true"><path d="M2 1 19 22h12L43 7v23L36 38H22L2 14Z" fill="currentColor"/><path d="M24 1h18L29 17H14Z" fill="currentColor"/></svg><span>VALORANT<small>WEB OPERATIONS</small></span></a>
+      <div class="header-center"><span class="status-dot"></span>多人开发预览<span class="header-divider"></span><span>DEVELOPMENT BUILD</span></div>
+      <div class="header-profile"><span class="profile-symbol">P</span><span>PLAYER<small>准备部署</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></div>
+    </header>
+    <aside class="side-nav" aria-label="大厅导航">
+      <div class="side-item active" title="开始游戏"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7Z"/></svg><span>PLAY</span></div>
+      <div class="side-item" title="特工"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8l3 6-3 9H8L5 10Z"/><path d="m8 10 4 2 4-2M12 12v5"/></svg><span>AGENTS</span></div>
+      <div class="side-item" title="武器"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h15l3 2v3h-8l-2 5H8l1-5H3Z"/><path d="M16 5v3M6 8V6"/></svg><span>ARSENAL</span></div>
+      <div class="side-line"></div><span class="side-footer">V / 01</span>
+    </aside>
+    <section class="lobby-main">
+      <div class="hero-coordinate"><span>45°25′ N / 12°20′ E</span><span>VENICE, ITALY</span></div>
+      <div class="hero-copy">
+        <p class="eyebrow"><i></i> MULTIPLAYER TACTICAL FPS / DEVELOPMENT PREVIEW</p>
+        <h1>VALORANT</h1>
+        <div class="hero-copy-rule"><span></span><b>突破极限</b><span></span></div>
+        <h2>每一回合，<br>都由你定义。</h2>
+        <p class="hero-description">集结队友，掌控战场。<br>精确枪法与特工技能，在此交锋。</p>
+        <div class="hero-tags"><span>战术射击</span><span>攻守对抗</span><span>真人联机</span></div><a class="showcase-link" href="/showcase.html" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="m9 1 7 4v8l-7 4-7-4V5Z"/><path d="m2 5 7 4 7-4M9 9v8"/></svg><span>查看 3D 素材预览</span><b>↗</b></a><a class="showcase-link geometry-link" href="/ascent-preview.html" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 15V5l7-4 7 4v10l-7 2ZM2 5l7 4 7-4M9 9v8"/></svg><span>原版 B 区几何漫游</span><b>↗</b></a>
+      </div>
+      <div class="agent-art" aria-hidden="true"><div class="agent-orbit"></div><span class="agent-number">01</span><img id="heroPortrait" src="/assets/ui/jett-portrait.png" alt="" draggable="false"><span class="art-cross cross-one">+</span><span class="art-cross cross-two">+</span></div>
+      <div class="agent-selection">
+        <div class="agent-caption"><span>YOUR AGENT</span><strong id="selectedAgent"><span id="agentName">JETT</span><i class="agent-label-jett">捷风</i><i class="agent-label-sage">贤者</i></strong><p id="agentRole">决斗 / DUELIST</p></div>
+        <div class="agent-picks" aria-label="选择特工">
+          <button id="agentJett" class="agent-pick selected" type="button" aria-pressed="true" aria-label="选择捷风"><img src="/assets/ui/jett-icon.png" alt="捷风"><span>JETT</span><i></i></button>
+          <button id="agentSage" class="agent-pick" type="button" aria-pressed="false" aria-label="选择贤者"><img src="/assets/ui/sage-icon.png" alt="贤者"><span>SAGE</span><i></i></button>
+        </div>
+      </div>
+      <section class="deploy-panel" aria-labelledby="deployTitle">
+        <div class="deploy-panel-top"><span class="eyebrow">CUSTOM MATCH</span><span class="panel-index">01 / 10</span></div>
+        <h3 id="deployTitle">集结，准备出击</h3><p class="panel-subtitle">创建房间，或输入房间代号加入队友</p>
+        <div class="map-preview"><img src="/assets/ui/ascent-splash.png" alt="Ascent 场景风格参考图"><div><span>SELECT YOUR BATTLEGROUND</span><strong id="mapTitle">ASCENT · B SITE</strong><i id="mapSubtitle">原版 B 区几何 / 重建 PBR 材质</i></div><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 14h20M14 4v20M8 8l12 12M20 8 8 20"/></svg></div>
+        <div class="match-form"><label for="mapSelect">部署地图 <span>BATTLEGROUND</span></label><select id="mapSelect" name="mapSelect"><option value="ascent-b" selected>ASCENT · B区原版几何</option><option value="ascent-study">悬城战术场 · 双点原创</option></select><p class="map-scope">B 区采用重建 PBR 材质；尚未取得整张 Ascent。</p>
+          <label for="playerName">玩家代号 <span>CALLSIGN</span></label><input id="playerName" name="playerName" autocomplete="nickname" maxlength="16" placeholder="输入你的代号" value="PLAYER">
+          <div class="form-row"><div><label for="roomCode">房间代号 <span>ROOM</span></label><input id="roomCode" name="roomCode" autocomplete="off" maxlength="16" placeholder="例如 ASCENT" value="ASCENT"></div><div><label for="teamSelect">阵营 <span>SIDE</span></label><select id="teamSelect" name="teamSelect"><option value="auto">自动分配</option><option value="attack">进攻方</option><option value="defend">防守方</option></select></div></div>
+        </div>
+        <div class="join-frame"><button id="joinBtn" class="join-btn" type="button"><span><b>PLAY</b><small>进入战场</small></span><svg viewBox="0 0 32 20" aria-hidden="true"><path d="M1 10h28M22 3l7 7-7 7"/></svg></button></div>
+        <p class="panel-footnote"><span class="status-dot"></span> 相同地图与房间代号的玩家进入同一场对局</p>
+      </section>
+      <footer class="lobby-footer"><span><i></i> TACTICAL / PRECISE / CREATIVE</span><p>非官方多人开发预览 <b>·</b> B 区原版几何 / 原创双点地图，基础武器动作为开发预览</p><span class="build-number">BUILD 0.1.0</span></footer>
+    </section>
+  </main>
+
+  <section id="loading" class="loading-screen hidden" aria-live="polite">
+    <img src="/assets/ui/ascent-splash.png" alt="" class="loading-image"><div class="loading-shade"></div>
+    <div class="loading-top"><span>VALORANT</span><small>WEB OPERATIONS / DEVELOPMENT BUILD</small></div>
+    <div class="loading-map"><span class="eyebrow">MISSION DEPLOYMENT / DEVELOPMENT PREVIEW</span><h2 id="loadingMapName">ASCENT <em>B SITE</em></h2><p id="loadingMapMode">原版 B 区几何 <span>重建 PBR 材质 / 开发预览</span></p><div class="loading-map-rule"></div><div class="loading-details"><span>战术射击</span><span>最多 10 人房间</span><span>攻守对抗原型</span></div></div>
+    <div class="load-status"><div class="load-caption"><span id="loadLabel">正在连接作战网络…</span><span class="load-icon" aria-hidden="true"></span></div><div class="load-track"><i id="loadProgress"></i></div><p>精确你的瞄准。相信你的队友。 <span>PREPARE FOR CONTACT</span></p></div>
+  </section>
+
+  <main id="game" class="game hidden">
+    <canvas id="gameCanvas" aria-label="第一人称游戏画面"></canvas>
+    <section id="hud" class="hud hidden">
+      <div class="hud-top-shade"></div>
+      <div class="minimap-panel"><canvas id="minimap" width="180" height="180" aria-label="战术小地图"></canvas><span class="minimap-north">N</span><div class="minimap-location" id="hudMapName">ASCENT · B SITE <span>悬城 B 区</span></div></div>
+      <div class="round-panel"><div class="score-side attack"><span>进攻</span><strong id="scoreAttack">0</strong><svg viewBox="0 0 18 22" aria-hidden="true"><path d="m9 1 8 18H1ZM9 8v7M8 18h2"/></svg></div><div class="round-clock"><span id="roundLabel">ROUND 01</span><strong id="roundTime">00:00</strong><span id="phaseLabel">等待玩家</span></div><div class="score-side defend"><svg viewBox="0 0 18 22" aria-hidden="true"><path d="m9 1 8 4v7l-8 8-8-8V5Z"/></svg><strong id="scoreDefend">0</strong><span>防守</span></div></div>
+      <div class="hud-network"><span><i class="status-dot"></i><b id="connectionStatus">连接中</b></span><span id="ping">— ms</span><span id="fps">— FPS</span><span class="network-build">DEV 0.1</span></div>
+      <div id="teamRoster" class="team-roster"></div>
+      <div id="killfeed" class="killfeed" aria-live="polite"></div>
+      <button id="readyBtn" class="ready-btn" type="button"><span class="ready-square"></span>准备开始 <small>READY</small></button>
+      <div id="crosshair" class="crosshair" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+      <div id="hint" class="game-hint">等待玩家加入房间</div>
+      <div class="hud-bottom-shade"></div>
+      <div class="hud-bottom"><div class="vitals"><div class="armor-block"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="m12 2 9 4v9l-9 10-9-10V6Z"/></svg><strong id="armor">0</strong></div><div class="health-block"><strong id="health">100</strong><span class="vital-underline"><i></i></span><small>HEALTH</small></div></div>
+        <div class="abilities"><div class="ability ability-smoke jett-ability" data-key="c"><span class="ability-top">C</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M10 29C0 23 7 14 14 15c-2-11 15-13 16-2 11 1 11 15 1 16ZM13 23c1-6 12-6 13 0"/></svg><span class="ability-charge"><i></i></span><small>烟雾 <b id="cooldown-smoke">就绪</b></small></div><div class="ability ability-wall sage-ability" data-key="c"><span class="ability-top">C</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M4 12 12 8v25l-8 3ZM16 7l8-3v25l-8 3ZM28 6l8 3v25l-8-4ZM4 23l8-4M16 17l8-4M28 17l8 3"/></svg><span class="ability-charge"><i></i></span><small>冰墙 <b id="cooldown-wall">就绪</b></small></div><div class="ability ability-updraft jett-ability" data-key="q"><span class="ability-top">Q</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="m7 25 13-15 13 15M7 16 20 2l13 14M20 11v26"/></svg><span class="ability-charge"><i></i></span><small>凌空 <b id="cooldown-updraft">就绪</b></small></div><div class="ability ability-slow sage-ability" data-key="q"><span class="ability-top">Q</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4v32M4 20h32M8 8l24 24M32 8 8 32M20 10l10 10-10 10-10-10ZM16 5l4 5 4-5M35 16l-5 4 5 4M24 35l-4-5-4 5M5 24l5-4-5-4"/></svg><span class="ability-charge"><i></i></span><small>减速 <b id="cooldown-slow">就绪</b></small></div><div class="ability ability-dash jett-ability" data-key="e"><span class="ability-top">E</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 15h24l-7-8M10 24h25l-7-8M5 32h17"/></svg><span class="ability-charge"><i></i></span><small>冲刺 <b id="cooldown-dash">就绪</b></small></div><div class="ability ability-heal sage-ability" data-key="e"><span class="ability-top">E</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="m20 4 14 16-14 16L6 20ZM20 12v16M12 20h16"/></svg><span class="ability-charge"><i></i></span><small>治疗 <b id="cooldown-heal">就绪</b></small></div></div>
+        <div class="ammo-block"><div class="credit-row">¤ <span id="credits">0</span></div><div class="weapon-name" id="weaponName">PHANTOM</div><div class="ammo-values"><strong id="ammo">30</strong><span>/</span><b id="reserve">90</b><svg viewBox="0 0 18 30" aria-hidden="true"><path d="M5 12 9 2l4 10v15H5Z"/><path d="M5 23h8"/></svg></div><span class="ammo-underline"></span></div>
+      </div>
+      <div class="hud-keyline"><span class="desktop-key"><kbd>CTRL</kbd>蹲下</span><span class="desktop-key"><kbd>SHIFT</kbd>慢走</span><span><kbd>F</kbd>装拆爆能器</span><span><kbd>B</kbd>购买</span><span><kbd>TAB</kbd>记分板</span><span><kbd>ESC</kbd>菜单</span></div>
+    </section>
+    <section id="scoreboard" class="scoreboard hidden" aria-label="比赛记分板"><div class="overlay-heading"><span>ASCENT STUDY / CUSTOM MATCH</span><h2>比赛记分板</h2><small>按住 TAB 查看</small></div><div class="scoreboard-body" id="scoreboardBody"></div></section>
+    <section id="buyMenu" class="buy-menu hidden" aria-labelledby="buyTitle"><div class="buy-header"><div><span class="eyebrow">THE ARSENAL / DEVELOPMENT PREVIEW</span><h2 id="buyTitle">选择你的武器</h2></div><div class="shop-tools"><span class="shop-balance">可用资金 <b>¤ <span id="shopCredits">0</span></b></span><button id="closeBuyBtn" type="button" class="close-hint"><kbd>B</kbd> 返回战场</button></div></div><div class="buy-grid"><button type="button" class="weapon-card" data-weapon="phantom"><span class="weapon-type">RIFLE / 步枪</span><svg viewBox="0 0 260 100" aria-hidden="true"><path d="M10 35h52l15-8h101l12 7h61v16h-57l-13 11h-29l-10 30h-23l7-30H84L65 75H43l12-23H10Z"/><path d="M154 61v24h24l5-24M86 40h84M101 27V18h50v9M196 35v15M219 35v15"/></svg><strong>PHANTOM <small>幻象</small></strong><span class="weapon-price">2,900 <i>SELECT</i></span></button><button type="button" class="weapon-card armor-card" data-weapon="armor"><span class="weapon-type">ARMOR / 护甲</span><svg viewBox="0 0 260 100" aria-hidden="true"><path d="m130 7 34 15v31l-34 40-34-40V22ZM112 48l14 14 27-34"/></svg><strong>HEAVY SHIELDS <small>重型护甲</small></strong><span class="weapon-price">1,000 <i>50 ARMOR</i></span></button></div><div class="shop-bottom"><p class="buy-footnote">仅提供已导入的幻象武器，基础动作处于开发预览。<br>购买、弹药与经济由服务器判定。</p></div></section>
+    <section id="pauseMenu" class="pause-menu hidden" aria-labelledby="pauseTitle"><div class="pause-dialog"><div class="pause-primary"><span class="eyebrow">FIELD OPERATIONS</span><h2 id="pauseTitle">保持专注</h2><p>多人对局仍在继续</p><button id="resumeBtn" class="solid-button" type="button">返回战场 <span>RESUME →</span></button><button id="copyRoomBtn" class="outline-button share-room-button" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 12 4-4M6 13l-1 1a3 3 0 0 0 4 4l4-4a3 3 0 0 0 0-4M14 7l1-1a3 3 0 0 0-4-4l-4 4a3 3 0 0 0 0 4"/></svg>分享房间链接 <span>COPY LINK</span></button><button id="leaveBtn" class="outline-button" type="button">离开房间 <span>LEAVE MATCH</span></button></div><section class="pause-settings" aria-labelledby="settingsTitle"><div class="settings-heading"><span>YOUR PREFERENCES</span><h3 id="settingsTitle">作战设置</h3></div><div class="setting-row"><label for="qualitySelect">画面质量 <span>GRAPHICS</span></label><select id="qualitySelect"><option value="low">流畅 / LOW</option><option value="medium" selected>均衡 / MEDIUM</option><option value="high">精细 / HIGH</option></select></div><div class="setting-row"><label for="sensitivity">鼠标灵敏度 <span>0.3 — 2.0</span></label><div class="range-control"><span>−</span><input id="sensitivity" type="range" min="0.3" max="2" step="0.1" value="1" aria-label="鼠标灵敏度"><span>+</span></div></div><div class="setting-row"><label for="volume">音效音量 <span>VOLUME</span></label><div class="range-control"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8h3l5-4v12l-5-4H3Z"/></svg><input id="volume" type="range" min="0" max="1" step="0.05" value="0.4" aria-label="音效音量"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8h3l5-4v12l-5-4H3ZM14 6q5 4 0 8M16 3q8 7 0 14"/></svg></div></div><p class="desktop-recommendation">推荐使用桌面浏览器与键盘鼠标进行游戏</p></section><div class="pause-controls"><span><kbd>WASD</kbd> 移动</span><span><kbd>CTRL</kbd> 蹲下</span><span><kbd>SHIFT</kbd> 慢走</span><span><kbd>R</kbd> 换弹</span><span><kbd>C / Q / E</kbd> 技能</span><span><kbd>F</kbd> 装拆爆能器</span><span><kbd>B</kbd> 购买</span><span><kbd>TAB</kbd> 记分板</span></div><small>DEVELOPMENT BUILD / 0.1.0</small></div></section>
+  </main>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
