@@ -1,14 +1,14 @@
 # AimArena · 公开调试版
 
-截图对应的 **Ascent B · AK-74M 首次接入版**在 [`valorant-web/`](./valorant-web/)。这一版使用 Cransh 的 AK-74M、原配特种兵双臂和原始动作；进入该目录启动即可查看。
+本分支的 **13 张地图与人机版**位于 [`valorant-web/`](./valorant-web/)。大厅支持选图、真人联机及 5 对 5 人机训练。第一人称沿用 Cransh 的 AK-74M、原配特种兵双臂和原始动作。
 
 ```bash
 cd valorant-web
-npm install
-npm start
+pnpm install --frozen-lockfile
+pnpm start
 ```
 
-启动后访问 <http://localhost:3000>。下面是根目录中 AimArena 调试版的说明。
+启动后访问 <http://localhost:3000>。需要 Node.js 22.12 或更新版本。详见 [启动与自测](./valorant-web/README.md)、[素材来源](./valorant-web/ASSETS.md) 和 [枪械模型调研](./valorant-web/research/weapon-asset-shortlist.md)。下面是根目录中 AimArena 调试版的说明。
 
 浏览器里的 5v5 射击原型（Node 权威服务器 + Three.js 客户端 + 确定性模拟）。
 

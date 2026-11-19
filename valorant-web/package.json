@@ -6,11 +6,13 @@
   "description": "Browser tactical FPS multiplayer development slice",
   "scripts": {
     "start": "node server.cjs",
-    "test": "node --test server.test.cjs research/character-motion.test.mjs research/third-person-weapon.test.mjs research/weapon-model.test.mjs research/fps-first-person-rig.test.mjs research/ascent-environment.test.mjs research/ascent-collision.test.mjs",
+    "test": "node --test server.test.cjs research/bots.test.cjs research/character-motion.test.mjs research/third-person-weapon.test.mjs research/weapon-model.test.mjs research/fps-first-person-rig.test.mjs research/ascent-environment.test.mjs research/ascent-collision.test.mjs research/ascent-full-path.test.mjs",
     "verify-assets": "node research/verify-assets.cjs",
     "test:legacy-arms": "node --test research/view-arms.test.mjs research/wrist-skin.test.mjs research/elbow-skin.test.mjs research/weapon-pose.test.mjs research/view-arm-anatomy.test.mjs"
   },
   "dependencies": {
+    "ngraph.graph": "20.1.2",
+    "ngraph.path": "1.6.1",
     "three": "0.170.0",
     "ws": "8.18.0"
   }

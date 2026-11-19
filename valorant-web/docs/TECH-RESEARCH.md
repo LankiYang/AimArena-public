@@ -24,8 +24,8 @@
 - 目标 60Hz 权威移动和规则模拟、20Hz 快照，实际频率受主机负载影响，尚未证明 10 人持续 60Hz。客户端 `dt` 不决定服务器速度；输入向量归一化，固定最大速度，碰撞和冲刺都由服务器约束。
 - 服务端维护世界碰撞、视点射线、弹药、射速、装填、护甲、购买、技能冷却、回合、装拆包和胜负。客户端不提交位置或伤害结果。
 - 命中回看其他玩家最多 200ms 的位置历史。当前是简化回溯，尚未与完整客户端插值时间线、射击起点回溯和反作弊系统结合，不能声称达到竞技商业产品的网络公平性。
-- study 的 `shared/world.cjs` 提供碰撞盒；Ascent B 则由 `shared/ascent-world.cjs` 在 Node 启动时加载 `/src/ascent-collision.mjs` 与 GLB，复用浏览器的精确三角 Octree 与 AscentWalker。`GET /world.json?map=ascent-b` 返回 B 地图描述（collision=triangle、assetUrl、单个B站点和实际探测出生点）；不带 map 时仍返回 study。
-- 地图具有两个明确选项：默认原版 Ascent B 几何节选与原创地中海双点布局 `Ascent study`。只有 B 节选使用原版源三角数据；重建表面材质不是找回的原作贴图。
+- `GET /maps.json` 列出 13 张发布包地图；`GET /world.json?map=<地图 ID>` 返回对应地图描述，不带 map 时返回 `ascent-full`。
+- 亚海悬城的十块渲染模型与 17,166 个碰撞体积分开加载，碰撞按 X/Z 网格索引，在客户端与服务器上运行同一套移动和地面查询。B 区节选和原创布局仅在隔离自测中使用。
 
 ## 客户端协议
 
@@ -33,7 +33,7 @@
 
 ```js
 // Client -> server
-{ type: 'join', name, room, map: 'ascent-b'|'ascent-study', agent: 'jett'|'sage', team: 'attack'|'defend' }
+{ type: 'join', name, room, map: 'ascent-full', agent: 'jett'|'sage', team: 'attack'|'defend' } // map 可用 /maps.json 中任一 ID
 { type: 'input', seq, dt, moveX, moveZ, yaw, pitch, jump, walk, crouch }
 { type: 'fire', shotId, yaw, pitch, clientTime } // clientTime = Date.now() epoch milliseconds
 { type: 'reload' }
@@ -94,13 +94,13 @@
 
 在现成授权资产、单张图、两角色、三把枪的假设下，2～4 人完成经过打磨的完整联机切片可以先按 6～12 周估算；这不是当前会话的交付承诺。全地图、全角色、全武器和全部技能的 1:1 成品需要长周期团队、美术生产及权利许可，不能把原型称为该成品。
 
-## 原版 B 区独立漫游
+## 退役地图入口
 
-`/ascent-preview.html` 加载 `assets/maps/ascent-b.glb` 的原版 B 区部分几何，通过 `/src/ascent-collision.mjs` 使用胶囊碰撞。其范围仅为 B 区节选，缺少原作纹理与部分走廊；保留模型原有缺口，坠落后重置。主游戏现也支持按 join.map=ascent-b 创建 B 区 PVP 房间：BMain 进攻出生点与 CT 安全防守出生点均经过胶囊稳定性探测，B 站点中心约 (-32,1,-66)。源三角精确控制脚底高度、移动、射线、冲刺及重力；没有添加覆盖缺口的平面。纯漫游页不连 PVP 房间，两种用途共享原几何。study 作为另一种房间地图保留。主对战可按 Enter 缩短购买倒计时以准备回合。
+`/ascent-preview.html` 跳转到亚海悬城全图。旧版分享链接中的 `ascent-b` 和 `ascent-study` 会替换为 `ascent-full` 并保留房间码。直接向游戏服务请求旧地图会收到 `MAP_UNAVAILABLE`。
 
-## 双地图房间与初始化
+## 地图房间与初始化
 
-`createGameServer()` 保持同步，未传源几何时继续支持原 study 测试。真实主入口先 `await loadAscentWorld()`，再 `createGameServer({ascentWorld})`；Windows 启动脚本采用同样初始化。GLB 的 192,209 个三角面只在进程内构建一次，实测约两秒。房间首位玩家锁定 `mapId`，不一致请求返回 `MAP_MISMATCH`；省略地图时采用现有房间地图，新房间省略则采用 study。welcome.world 是房间地图描述，后续每个快照带 mapId。
+`createGameServer()` 保持同步，地图由调用方显式传入。主入口加载 13 张发布包地图，再传入 `createGameServer({releaseWorlds})`。Windows 启动脚本使用同一入口。房间首位玩家锁定 `mapId`，选择另一张可用地图会收到 `MAP_MISMATCH`；省略地图时采用现有房间地图，新房间默认亚海悬城全图。welcome.world 是房间地图描述，后续每个快照带 mapId。
 
 玩家 y 仍为脚底；快照新增 vy、grounded、speed，供精确预测与减速校正。B 模式没有地面盒子回退；掉出原模型边界后发 `sourceGapReset` 并回到本方安全点。购买期 B 模式限制在出生点 4 米范围内，属于单站点开发规则。源几何射线保留双面命中，玩家移动按真实胶囊分步求解；冰墙仍是动态可破坏包围盒。
 

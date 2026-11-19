@@ -1,0 +1,85 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Ascent_Art_A.glb",
+      "triangles": 149842,
+      "batches": 36,
+      "bytes": 2525613,
+      "sha256": "d709e3c86a036f37429f5a98151f55a8bdf581d18639aa62e41afd24b17b2cc2",
+      "sourceSha256": "5751e05064b78bd9d12b7ef424731b277da5dcda2dfd71c057fc284c635e5c78"
+    },
+    {
+      "file": "Ascent_Art_APathMid.glb",
+      "triangles": 95183,
+      "batches": 14,
+      "bytes": 1905139,
+      "sha256": "80012de70fcf297199baa009226803a44fae9b53dee22814b8a5cda426f6b4b1",
+      "sourceSha256": "f933adfb1c02942175ddf3bb7e15a366e02b0f4743b97281bcdbd55eea9bfafb"
+    },
+    {
+      "file": "Ascent_Art_Atk.glb",
+      "triangles": 501258,
+      "batches": 94,
+      "bytes": 8031270,
+      "sha256": "523021d885ba9b2a9cb8ee2dfe450ce590d4b0cef6cfc105f8e8a639fc099192",
+      "sourceSha256": "11384ac0a61126a5af1dbdc36251ca88d923183efcf3205f40698c030abf7aed"
+    },
+    {
+      "file": "Ascent_Art_AtkPathA.glb",
+      "triangles": 277182,
+      "batches": 58,
+      "bytes": 4409696,
+      "sha256": "b3bbbbb6756fbf3b9655584ca45ede16bbaf744b58cc71f33d3f00f816b27f57",
+      "sourceSha256": "f78c51fc59b4bc13035f6040cf87febc06af8203d08bf53e61253eab26f2f773"
+    },
+    {
+      "file": "Ascent_Art_AtkPathB.glb",
+      "triangles": 267325,
+      "batches": 55,
+      "bytes": 3986063,
+      "sha256": "0a853ebc267aa7f002940343b7cd2716b814efc75a9718e3817d7391e0882d80",
+      "sourceSha256": "024c8d43378102ec04d921620e667a0299454a37f131e43c8c794fb00fb121b7"
+    },
+    {
+      "file": "Ascent_Art_B.glb",
+      "triangles": 214744,
+      "batches": 54,
+      "bytes": 3840318,
+      "sha256": "949361b2cda30cde2941f8b9b8e20fd482304a43e12c0e0865ee529052580e66",
+      "sourceSha256": "c5cdcecb6e0d6df33e6702bbdf3db0a58863c160e4f3846fafe094f6b2500856"
+    },
+    {
+      "file": "Ascent_Art_Def.glb",
+      "triangles": 47743,
+      "batches": 32,
+      "bytes": 977369,
+      "sha256": "7bbc41d105f5da29c2f7055f15729cba6599e3a239e80e6502aa27730f2c6725",
+      "sourceSha256": "3474f774f02235a314c84dfc020ef6b212050b5ec1eb4d6855ed8e0820fb1852"
+    },
+    {
+      "file": "Ascent_Art_DefPathA.glb",
+      "triangles": 418012,
+      "batches": 49,
+      "bytes": 7184324,
+      "sha256": "b933f8ee999529fc6cbdf79db1a0f5520ae0a6935f409605133d86bf0aa8a466",
+      "sourceSha256": "395e7571c450e65af0873606cc8e07e52bcc1997cac1101b6b60619a12121b65"
+    },
+    {
+      "file": "Ascent_Art_DefPathB.glb",
+      "triangles": 142043,
+      "batches": 38,
+      "bytes": 2220734,
+      "sha256": "7d27275849fa000f294178944d774d8d3fb5a785437e0c5c355db43f3499953b",
+      "sourceSha256": "282113bfae1746f458df0640ca76b979fdbd2ec952f3aebbae739a5160808aae"
+    },
+    {
+      "file": "Ascent_Art_Mid.glb",
+      "triangles": 222003,
+      "batches": 83,
+      "bytes": 3725726,
+      "sha256": "e670fb4b657977a29c262315a78f8c866c4928aed2859b8c8e94ad5bc8271ff1",
+      "sourceSha256": "46ec93dc0b72e9e68c3d369d922942af9017db2a78ce41bd36eeb3c3b15961fd"
+    }
+  ]
+}

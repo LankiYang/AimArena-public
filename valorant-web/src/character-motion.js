@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RemoteLocomotion } from './remote-locomotion.js';
 
 const TAU = Math.PI * 2;
 const clamp = THREE.MathUtils.clamp;
@@ -16,12 +17,12 @@ const damp = (value, target, rate, dt) => {
  * Optional state.hit (rising edge) or triggerHit() supplies a damage reaction.
  */
 export class MotionController {
-  constructor(model) {
+  constructor(model, { clips, root } = {}) {
     if (!model?.isObject3D) throw new TypeError('MotionController needs a THREE.Object3D model');
     this.model = model;
     this.bones = {};
     const names = ['Pelvis', 'Spine1', 'Spine3', 'Spine4', 'Head',
-      'L_Hip', 'L_Knee', 'L_Foot', 'R_Hip', 'R_Knee', 'R_Foot',
+      'L_Hip', 'L_Knee', 'L_Foot', 'L_Toe', 'R_Hip', 'R_Knee', 'R_Foot', 'R_Toe',
       'L_Shoulder', 'L_Elbow', 'R_Shoulder'];
     model.traverse(node => {
       if (!node.isBone) return;
@@ -32,13 +33,13 @@ export class MotionController {
     });
     this.bodyRoot = this.bones.Pelvis?.parent;
     if (!this.bodyRoot?.isBone || !this.bones.Spine1 || !this._contains(this.bodyRoot, this.bones.Spine1)) this.bodyRoot = null;
-    this.legs = ['L', 'R'].map(side => ({ side, hip: this.bones[`${side}_Hip`], knee: this.bones[`${side}_Knee`], foot: this.bones[`${side}_Foot`] }))
+    this.legs = ['L', 'R'].map(side => ({ side, hip: this.bones[`${side}_Hip`], knee: this.bones[`${side}_Knee`], foot: this.bones[`${side}_Foot`], toe: this.bones[`${side}_Toe`] }))
       .filter(leg => leg.hip && leg.knee?.parent === leg.hip && leg.foot?.parent === leg.knee);
     this.enabled = this.legs.length === 2;
+    const authored = Boolean(clips && root && this.enabled && this.legs.every(leg => leg.toe?.parent === leg.foot));
     this.metadata = Object.freeze({
-      kind: 'procedural-skeletal-transition',
-      description: 'Programmatic gait, crouch, airborne and action overlays; not original game animation clips.',
-      authoredAnimation: false,
+      kind: authored ? 'retargeted-tps-locomotion' : 'procedural-skeletal-transition',
+      authoredAnimation: authored,
       legSolver: 'world-space two-bone IK without stretching',
       primaryBones: Object.keys(this.bones).length,
       completeLegRig: this.enabled
@@ -66,6 +67,7 @@ export class MotionController {
     const head = this.bones.Head?.getWorldPosition(new THREE.Vector3());
     const ankleY = this.legs.length ? Math.min(...this.legs.map(leg => leg.foot.getWorldPosition(new THREE.Vector3()).y)) : 0;
     this.nominalHeight = head ? Math.max(0.2, head.y - ankleY) / Math.max(0.0001, model.getWorldScale(new THREE.Vector3()).y) * 1.1 : 1.8;
+    this.locomotion = authored ? new RemoteLocomotion(this, clips, root) : null;
   }
 
   _contains(parent, child) {
@@ -197,6 +199,30 @@ export class MotionController {
       return { leg, hip, knee, foot, restPole, orientation: leg.foot.getWorldQuaternion(new THREE.Quaternion()) };
     });
 
+    if (this.locomotion) this.locomotion.update(dt, state, legSamples);
+    else this._proceduralLegs(legSamples, { up, forward, right, travel, height, groundMotion, run, frequency });
+
+    const gaitSway = Math.sin(this.gait.phase) * groundMotion;
+    const aimPitch = clamp(number(state.aimPitch), -.8, .8);
+    const sustainedRecoil = state.shooting ? 0.014 * (0.5 + 0.5 * Math.sin(time * 70)) : 0;
+    this._rotateWorld(this.bones.Spine1, right, -f * groundMotion * (0.035 + run * 0.065) - this.crouchWeight * 0.10 + this.hitWeight * 0.12);
+    this._rotateWorld(this.bones.Spine1, forward, s * groundMotion * 0.055 + this.hitWeight * this.hitSide * 0.085);
+    this._rotateWorld(this.bones.Spine3, up, -gaitSway * 0.035);
+    this._rotateWorld(this.bones.Spine3, right, -aimPitch * .26);
+    this._rotateWorld(this.bones.Spine4, right, -aimPitch * .74 + (this.recoil * 0.035 + sustainedRecoil) - this.castWeight * 0.035);
+    this._rotateWorld(this.bones.Head, right, -this.hitWeight * 0.07 - this.recoil * 0.012);
+    this._rotateWorld(this.bones.R_Shoulder, right, this.recoil * 0.05);
+    const castWave = this.castWeight;
+    this._rotateWorld(this.bones.L_Shoulder, right, -castWave * 0.30);
+    this._rotateWorld(this.bones.L_Shoulder, up, castWave * 0.16);
+    this._rotateWorld(this.bones.L_Elbow, right, castWave * 0.18);
+    this.model.updateWorldMatrix(true, true);
+    this._rememberOutput();
+    return this;
+  }
+
+  _proceduralLegs(legSamples, { up, forward, right, travel, height, groundMotion, run, frequency }) {
+
     // Translate the shared pelvis/spine ancestor, not the model or any scale.
     // Counter-solving both legs holds the feet at their ground targets.
     if (this.bodyRoot) {
@@ -237,21 +263,6 @@ export class MotionController {
       }
     }
 
-    const gaitSway = Math.sin(this.phase) * groundMotion;
-    const sustainedRecoil = state.shooting ? 0.014 * (0.5 + 0.5 * Math.sin(time * 70)) : 0;
-    this._rotateWorld(this.bones.Spine1, right, -f * groundMotion * (0.035 + run * 0.065) - this.crouchWeight * 0.10 + this.hitWeight * 0.12);
-    this._rotateWorld(this.bones.Spine1, forward, s * groundMotion * 0.055 + this.hitWeight * this.hitSide * 0.085);
-    this._rotateWorld(this.bones.Spine3, up, -gaitSway * 0.035);
-    this._rotateWorld(this.bones.Spine4, right, (this.recoil * 0.035 + sustainedRecoil) - this.castWeight * 0.035);
-    this._rotateWorld(this.bones.Head, right, -this.hitWeight * 0.07 - this.recoil * 0.012);
-    this._rotateWorld(this.bones.R_Shoulder, right, this.recoil * 0.05);
-    const castWave = this.castWeight * (0.88 + 0.12 * Math.sin(time * 7));
-    this._rotateWorld(this.bones.L_Shoulder, right, -castWave * 0.30);
-    this._rotateWorld(this.bones.L_Shoulder, up, castWave * 0.16);
-    this._rotateWorld(this.bones.L_Elbow, right, castWave * 0.18);
-    this.model.updateWorldMatrix(true, true);
-    this._rememberOutput();
-    return this;
   }
 
   reset() {
@@ -261,6 +272,7 @@ export class MotionController {
     this.wasGrounded = true;
     this.wasHit = this.wasShooting = false;
     this.gait = { phase: 0, frequency: 0, speed: 0 };
+    this.locomotion?.reset();
     for (const record of this.records) record.written = false;
     return this;
   }

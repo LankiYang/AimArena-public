@@ -1,0 +1,70 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Port_Art_A.glb",
+      "triangles": 182754,
+      "batches": 54,
+      "bytes": 2457162,
+      "sha256": "2bfcfc084053073f4c7d32c6880a51109b37199165b1864eca549a528c798601",
+      "sourceSha256": "dda68df3c2db6fc83d8fa524c66d84eee45dcdac18ab2a34d2b28443067e3eb4"
+    },
+    {
+      "file": "Port_Art_AtkPathB.glb",
+      "triangles": 178588,
+      "batches": 40,
+      "bytes": 2554660,
+      "sha256": "bf27dcef11849b80194381e85e534a123f0480b78d970a15d0f097af7239236b",
+      "sourceSha256": "77ea92e194eef2fc35a27f774091ff7b47e125c239b3dbdde101246f5004a1c3"
+    },
+    {
+      "file": "Port_Art_AtkSpawn.glb",
+      "triangles": 228251,
+      "batches": 76,
+      "bytes": 3348752,
+      "sha256": "92c7530c23b4829b2ca0f0b4a805d01d52d2fb43740b23595483ee347a44588a",
+      "sourceSha256": "ef6603dd6fa7db1a6503f82b5d662bfcd11b5c14430b3a6d02d0cc0217d71623"
+    },
+    {
+      "file": "Port_Art_B.glb",
+      "triangles": 138425,
+      "batches": 40,
+      "bytes": 2002870,
+      "sha256": "14a9b76d894283365e8816acaf274d1cad07b810d5d4315380794e162001866d",
+      "sourceSha256": "bf7ec94d37ccffd83fabd5097dfe53f813fee31f5b37c135fd0c0faaabb5e1ea"
+    },
+    {
+      "file": "Port_Art_DefPathB.glb",
+      "triangles": 142252,
+      "batches": 41,
+      "bytes": 1898380,
+      "sha256": "2589c789cb5ab61915b38a8ed81e73af752ae0bac3a87e9c7f0f10628dc3b173",
+      "sourceSha256": "32157cd720c271667ae6d4a8020c3fa128e00a8119e8a3b971d8b0558ec80f7b"
+    },
+    {
+      "file": "Port_Art_DefSpawn.glb",
+      "triangles": 138697,
+      "batches": 52,
+      "bytes": 2027450,
+      "sha256": "e5b11380b50b48846477bb44943656aa75d003d47aa147a7cb44298895b448c1",
+      "sourceSha256": "09bab0a417619c52d8f29a0aa917f9d8abd7f70488d2ef3eee530c9c13209051"
+    },
+    {
+      "file": "Port_Art_Mid.glb",
+      "triangles": 226457,
+      "batches": 51,
+      "bytes": 3040864,
+      "sha256": "1b79f9b747033a09107231aa0beacc8e4a82d171383f24d48c551d895742a1f0",
+      "sourceSha256": "8bbb6c19193048776ddf986226064767dfd579b099f04810d87b423040e43216"
+    },
+    {
+      "file": "Port_Art_SnowAll.glb",
+      "triangles": 763034,
+      "batches": 113,
+      "bytes": 17095835,
+      "sha256": "643d34630550c5e5079be793b60dda0ed3ac9122ca0f2fb225dd27581e2eddc7",
+      "sourceSha256": "3980816e26ba55232e2fccba6d8524eea77acae0e6748aa80afdab8840bd39fd"
+    }
+  ],
+  "omitted": []
+}

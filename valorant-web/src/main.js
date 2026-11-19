@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ArenaScene } from './scene.js';
 import { AscentWalker } from './ascent-collision.mjs';
+import { isInPlantZone } from './plant-zone.mjs';
 
 const $=id=>document.getElementById(id),show=(id,on=true)=>$(id)?.classList.toggle('hidden',!on);
 const safe=text=>String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -15,28 +16,100 @@ $('agentJett')?.addEventListener('click',()=>selectAgent('jett'));$('agentSage')
 const storedName=localStorage.getItem('vw-name');if(storedName)$('playerName').value=storedName;
 const query=new URLSearchParams(location.search);
 if(query.has('room'))$('roomCode').value=query.get('room').slice(0,16);
-if(query.get('map')==='ascent-study')$('mapSelect').value='ascent-study';
-function selectMap(){const original=$('mapSelect').value==='ascent-b';if($('mapTitle'))$('mapTitle').textContent=original?'ASCENT · B SITE':'ASCENT STUDY';if($('mapSubtitle'))$('mapSubtitle').textContent=original?'原版 B 区几何 · 重建 PBR 材质':'原创地中海风格 · 双点对抗';if($('loadingMapName'))$('loadingMapName').textContent=original?'ASCENT B':'ASCENT STUDY';if($('loadingMapMode'))$('loadingMapMode').textContent=original?'原版 B 区几何 / 重建材质':'原创双点战术场';if($('hudMapName'))$('hudMapName').textContent=original?'ASCENT · B':'ASCENT STUDY';}
-$('mapSelect')?.addEventListener('change',selectMap);selectMap();
+const modes=new Set(['easy','normal','hard']);
+if(modes.has(query.get('bots')))$('botMode').value=query.get('bots');
+$('botMode').addEventListener('change',()=>{
+  if(query.has('room')||$('roomCode').value!=='ASCENT')return;
+  if(modes.has($('botMode').value))$('roomCode').value='BOT-'+Math.random().toString(36).slice(2,8).toUpperCase();
+});
+if(['ascent-b','ascent-study'].includes(query.get('map'))){
+  query.set('map','ascent-full');
+  history.replaceState(null,'',location.pathname+'?'+query+location.hash);
+}
+const mapLabels={
+  'ascent-full':['ASCENT','亚海悬城 · A / B 双点','全图 · 重建材质','亚海悬城'],
+};
+if(Object.hasOwn(mapLabels,query.get('map')||''))$('mapSelect').value=query.get('map');
+const coverByMap=new Map(), fallbackCover='/assets/ui/ascent-splash.png';
+function selectMap(){
+  const id=$('mapSelect').value,[title,subtitle,mode,hud]=mapLabels[id], cover=coverByMap.get(id)||fallbackCover;
+  $('mapTitle').textContent=title;$('mapSubtitle').textContent=subtitle;$('loadingMapName').textContent=title;$('loadingMapMode').textContent=mode;$('hudMapName').textContent=hud;$('mapScope').textContent=mode;
+  for(const el of [$('mapCover'),$('loadingMapCover')])if(el.getAttribute('src')!==cover)el.src=cover;
+  document.querySelector('.lobby-scenery').style.setProperty('--map-splash',`url("${cover}")`);
+}
+function localRecovery(id,port,message){
+  if(location.protocol!=='http:'||!['localhost','127.0.0.1','[::1]'].includes(location.hostname)||location.port===port)return false;
+  const url=new URL(location.href);
+  url.port=port;url.searchParams.set('map',id);url.searchParams.set('room',$('roomCode').value);
+  if(modes.has($('botMode').value))url.searchParams.set('bots',$('botMode').value);
+  $('mapRecoveryText').textContent=message;$('mapRecoveryLink').href=url.href;show('mapRecovery');show('toast',false);
+  return true;
+}
+const legacyLocalPorts=['3000','3001','3002','3003','3004'], latestLocalPort='3005';
+const offerNewMapCatalog=()=>legacyLocalPorts.includes(location.port)&&localRecovery(query.get('map')||$('mapSelect').value,latestLocalPort,'人机训练可在新版入口使用。');
+async function loadCatalog(){
+  if(legacyLocalPorts.includes(location.port)&&['localhost','127.0.0.1','[::1]'].includes(location.hostname)){
+    const health=await fetch('/health',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
+    if(health?.botSupport!==1)throw Error('Legacy match server');
+  }
+  const response=await fetch('/maps.json',{cache:'no-store'});
+  if(!response.ok)throw Error(`Map catalog HTTP ${response.status}`);
+  const maps=await response.json(), select=$('mapSelect'), group=document.createElement('optgroup');
+  group.label='竞技地图';
+  if(!Array.isArray(maps)||!maps.length||maps.some(entry=>!entry.release))throw Error('Legacy map catalog');
+  for(const entry of maps){
+    const {id,name,title,splash,sites}=entry, subtitle=`${title} · ${sites.join(' / ')}`;
+    mapLabels[id]=[name.toUpperCase(),subtitle,'全图 · 重建材质',title];
+    coverByMap.set(id,splash);
+    group.append(new Option(title,id));
+  }
+  if(!group.children.length)return;
+  const selected=select.value;
+  select.replaceChildren(group);
+  const wanted=query.get('map');
+  select.value=Object.hasOwn(mapLabels,wanted??'')?wanted:selected;
+  selectMap();
+}
+const catalogReady=loadCatalog().then(()=>true,error=>{offerNewMapCatalog();console.warn('Map catalog unavailable:',error);return false;});
+$('mapSelect')?.addEventListener('change',async()=>{selectMap();if(!await catalogReady&&offerNewMapCatalog())return;show('mapRecovery',false);});selectMap();
 if($('qualitySelect'))$('qualitySelect').value=quality;if($('sensitivity'))$('sensitivity').value=sensitivity;if($('volume'))$('volume').value=volume;
 $('qualitySelect')?.addEventListener('change',e=>{quality=e.target.value;localStorage.setItem('vw-quality',quality);arena?.setQuality(quality);});
 $('sensitivity')?.addEventListener('input',e=>{sensitivity=Number(e.target.value);localStorage.setItem('vw-sensitivity',sensitivity);});
 $('volume')?.addEventListener('input',e=>{volume=Number(e.target.value);localStorage.setItem('vw-volume',volume);});
-$('copyRoomBtn')?.addEventListener('click',async()=>{const url=new URL(location.href);url.search='';url.searchParams.set('room',snapshot?.room||$('roomCode').value);url.searchParams.set('map',map?.id||$('mapSelect').value);try{await navigator.clipboard.writeText(url.href);toast('房间链接已复制，好友使用相同链接即可加入');}catch{toast(`房间码：${snapshot?.room||$('roomCode').value}`);}});
+$('copyRoomBtn')?.addEventListener('click',async()=>{const url=new URL(location.href);url.search='';url.searchParams.set('room',snapshot?.room||$('roomCode').value);url.searchParams.set('map',map?.id||$('mapSelect').value);if(snapshot?.botMode)url.searchParams.set('bots',snapshot.botMode);try{await navigator.clipboard.writeText(url.href);toast('房间链接已复制，好友使用相同链接即可加入');}catch{toast(`房间码：${snapshot?.room||$('roomCode').value}`);}});
+
+async function fetchWorld(id){
+  let response;
+  try{response=await fetch(`/world.json?map=${encodeURIComponent(id)}`,{cache:'no-store'});}
+  catch{throw Error('无法连接对战服务器，请检查网络后重试');}
+  if(response.status===404){
+    const body=await response.json().catch(()=>null);
+    if(body?.error==='MAP_UNAVAILABLE'&&legacyLocalPorts.includes(location.port))localRecovery(id,latestLocalPort,'当前服务器未载入所选地图。');
+    throw Error('当前服务器未载入所选地图，请从新版入口进入');
+  }
+  if(!response.ok)throw Error(`地图服务暂不可用（HTTP ${response.status}）`);
+  const world=await response.json().catch(()=>null);
+  if(world?.id!==id)throw Error('当前服务器未载入所选地图，请从新版入口进入');
+  return world;
+}
 
 async function join(){
-  if(active||$('joinBtn').disabled)return;$('joinBtn').disabled=true;leaving=false;show('loading');$('loadLabel').textContent='建立战术场景…';
+  if(active||$('joinBtn').disabled)return;$('joinBtn').disabled=true;leaving=false;show('mapRecovery',false);show('loading');$('loadLabel').textContent='建立战术场景…';
   const name=$('playerName').value.trim().slice(0,16)||'PLAYER';localStorage.setItem('vw-name',name);
   try{
-    const requestedMap=$('mapSelect')?.value||'ascent-b';
-    if(!arena||arena.map.id!==requestedMap){arena?.dispose();arena=null;bombMesh=null;predictionWalker=null;minimapBackground=null;const response=await fetch(`/world.json?map=${encodeURIComponent(requestedMap)}`);if(!response.ok)throw Error('地图数据读取失败');map=await response.json();if(map.id!==requestedMap)throw Error('服务器尚未载入所选地图，请重启服务器');arena=new ArenaScene($('gameCanvas'),map,(p,text)=>{$('loadProgress').style.width=`${Math.round(p*100)}%`;$('loadLabel').textContent=text;});arena.setQuality(quality);await arena.ready;
+    const hasCatalog=await catalogReady;
+    if(!hasCatalog&&offerNewMapCatalog()){
+      show('loading',false);$('joinBtn').disabled=false;return;
+    }
+    const requestedMap=$('mapSelect')?.value||'ascent-full';
+    if(!arena||arena.map.id!==requestedMap){arena?.dispose();arena=null;bombMesh=null;predictionWalker=null;minimapBackground=null;map=await fetchWorld(requestedMap);arena=new ArenaScene($('gameCanvas'),map,(p,text)=>{$('loadProgress').style.width=`${Math.round(p*100)}%`;$('loadLabel').textContent=text;});arena.setQuality(quality);await arena.ready;
       if(!arena.assets.jett||!arena.assets.sage||!arena.assets.rifle)throw Error('三维素材加载失败，请检查网络与 assets 文件夹，刷新重试');
     }
-    buildMinimapBackground();
+    await buildMinimapBackground();
     const room=$('roomCode').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,16)||'ASCENT';
     ws=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}`);
     const timeout=setTimeout(()=>{if(!active){ws.close();show('loading',false);toast('连接超时，请检查服务器');$('joinBtn').disabled=false;}},10000);
-    ws.onopen=()=>send('join',{name,room,agent,map:requestedMap,team:$('teamSelect').value});
+    ws.onopen=()=>send('join',{name,room,agent,map:requestedMap,team:$('teamSelect').value,botMode:$('botMode').value});
     ws.onmessage=event=>{let m;try{m=JSON.parse(event.data);}catch{return;}
       if(m.type==='welcome'){
         clearTimeout(timeout);selfId=m.selfId;weapons=m.weapons;serverOffset=m.serverTime-Date.now();active=true;paused=true;seq=0;keys.clear();show('lobby',false);show('loading',false);show('game');show('hud');show('pauseMenu');$('connectionStatus').textContent=`已连接 · ${m.room}`;toast(`房间 ${m.room} · 分享相同房间码邀请好友`);initAudio();
@@ -47,12 +120,12 @@ async function join(){
         else {local.x+=(p.x-local.x)*.28;local.z+=(p.z-local.z)*.28;local.y+=(p.y-local.y)*.5;local.crouch=p.crouch;local.alive=p.alive;if(predictionWalker){const foot=predictionWalker.getFoot();predictionWalker.capsule.translate(new THREE.Vector3(local.x-foot.x,local.y-foot.y,local.z-foot.z));if(Number.isFinite(p.vy))predictionWalker.velocity.y=p.vy;}}
         if(p.hp<lastHp){document.body.classList.add('damaged');setTimeout(()=>document.body.classList.remove('damaged'),180);sound('hit');}lastHp=p.hp;
       }else if(m.type==='event')onEvent(m);
-      else if(m.type==='error'){const translated={MAP_MISMATCH:'这个房间已选定另一张地图，请切换地图或使用新房间码',MAP_UNAVAILABLE:'服务器尚未加载此地图，请重启服务器',WALL_BLOCKED:'此处空间不足，请面向空地放置冰墙',NO_SURFACE:'目标位置缺少原始地面，请换一个位置',BUY_PHASE:'请在购买阶段购买装备',CREDITS:'资金不足',ROOM_FULL:'房间人数已满',PLANT_SITE:'携带爆能器进入地图标记的安装区域',ABILITY:'此特工没有该技能'};toast(translated[m.code]||m.message);if(!active){clearTimeout(timeout);show('loading',false);$('joinBtn').disabled=false;ws.close();}}
+      else if(m.type==='error'){const translated={MAP_MISMATCH:'这个房间已选定另一张地图，请切换地图或使用新房间码',MODE_MISMATCH:'请选与房间相同的模式和难度，或使用新房间码',BOT_UNAVAILABLE:'这张地图暂不支持人机训练',MAP_UNAVAILABLE:'服务器尚未加载此地图，请重启服务器',WALL_BLOCKED:'此处空间不足，请面向空地放置冰墙',NO_SURFACE:'目标位置缺少原始地面，请换一个位置',BUY_PHASE:'请在购买阶段购买装备',CREDITS:'资金不足',ROOM_FULL:'房间人数已满',PLANT_SITE:'携带爆能器进入地图标记的安装区域',ABILITY:'此特工没有该技能'};toast(translated[m.code]||m.message);if(!active){clearTimeout(timeout);show('loading',false);$('joinBtn').disabled=false;leaving=true;ws.close();}}
       else if(m.type==='pong')$('ping').textContent=`${Math.max(1,Date.now()-m.clientTime)} ms`;
     };
     ws.onclose=()=>{clearTimeout(timeout);if(!leaving){toast('服务器连接已断开，请重新加入');leave();} $('joinBtn').disabled=false;};
     ws.onerror=()=>toast('无法连接对战服务器');
-  }catch(e){console.error(e);arena?.dispose();arena=null;show('loading',false);toast(e.message||'加载失败');$('joinBtn').disabled=false;}
+  }catch(e){console.error(e);arena?.dispose();arena=null;show('loading',false);if($('mapRecovery').classList.contains('hidden'))toast(e.message||'加载失败');$('joinBtn').disabled=false;}
 }
 $('joinBtn').addEventListener('click',join);
 function leave(){leaving=true;ws?.close();active=false;paused=false;self=local=snapshot=null;mouseDown=false;keys.clear();document.exitPointerLock?.();show('lobby');show('game',false);show('hud',false);show('pauseMenu',false);show('buyMenu',false);show('scoreboard',false);$('joinBtn').disabled=false;for(const [,p]of arena?.players||[])p.root.removeFromParent();arena?.players.clear();}
@@ -64,7 +137,7 @@ $('closeBuyBtn')?.addEventListener('click',resume);
 let hadPointerLock=false;
 addEventListener('pointerlockchange',()=>{const locked=!!document.pointerLockElement;if(locked){hadPointerLock=true;return;}if(hadPointerLock&&active&&$('buyMenu').classList.contains('hidden')){paused=true;keys.clear();mouseDown=false;send('interact',{action:'stop'});show('pauseMenu');}hadPointerLock=false;});
 addEventListener('keydown',e=>{
-  if(!active)return;if(['Space','Tab','KeyB','KeyF'].includes(e.code))e.preventDefault();if(e.code==='Tab'){show('scoreboard');return;}if(e.repeat)return;
+  if(!active)return;if(['Space','Tab','KeyB','KeyF'].includes(e.code))e.preventDefault();if(e.code==='Tab'){show('scoreboard');renderScoreboard();return;}if(e.repeat)return;
   if(e.code==='KeyB'){const opening=$('buyMenu').classList.contains('hidden');show('buyMenu',opening);if(opening){paused=true;keys.clear();mouseDown=false;send('interact',{action:'stop'});document.exitPointerLock?.();show('pauseMenu',false);}else resume();return;}
   if(e.code==='Escape'){paused=true;mouseDown=false;send('interact',{action:'stop'});show('pauseMenu');show('buyMenu',false);return;}
   if(e.code==='Enter'){send('ready');toast('已准备 · 即将开始回合');return;}
@@ -101,19 +174,32 @@ function onEvent(m){
 function initAudio(){if(!audio){try{audio=new AudioContext();}catch{}}audio?.resume();}
 function sound(kind){if(!audio||audio.state!=='running')return;const t=audio.currentTime,g=audio.createGain();g.connect(audio.destination);const vol=kind==='shot'?.15:kind==='distant'?.025:.065;g.gain.setValueAtTime(Math.max(.001,vol*volume),t);g.gain.exponentialRampToValueAtTime(.001,t+.17);if(['shot','distant','hit'].includes(kind)){const b=audio.createBuffer(1,audio.sampleRate*.15,audio.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*5);const source=audio.createBufferSource();source.buffer=b;const f=audio.createBiquadFilter();f.type='lowpass';f.frequency.value=kind==='shot'?2300:1000;source.connect(f).connect(g);source.start();}const o=audio.createOscillator();o.type=kind==='shot'?'triangle':'sine';o.frequency.setValueAtTime(({shot:130,head:1300,hit:340,ui:650,start:520,ability:420,reload:700,distant:70})[kind]||400,t);o.frequency.exponentialRampToValueAtTime(kind==='shot'?35:800,t+.12);o.connect(g);o.start();o.stop(t+.18);}
 function mapProjection(w,h){const b=map.bounds,scale=Math.min((w-12)/(b.maxX-b.minX),(h-12)/(b.maxZ-b.minZ));return{scale,cx:w/2-(b.minX+b.maxX)/2*scale,cy:h/2-(b.minZ+b.maxZ)/2*scale};}
-function buildMinimapBackground(){
+async function buildMinimapBackground(){
   const c=document.createElement('canvas');c.width=c.height=180;const ctx=c.getContext('2d'),{scale,cx,cy}=mapProjection(180,180);ctx.fillStyle='#0c1d25ed';ctx.fillRect(0,0,180,180);
-  if(arena.exactWorld){const geo=arena.exactWorld.geometry,pos=geo.attributes.position,ix=geo.index.array;for(let i=0;i<ix.length;i+=3){const a=ix[i],b=ix[i+1],d=ix[i+2];const ax=pos.getX(a),az=pos.getZ(a),ay=pos.getY(a),bx=pos.getX(b),bz=pos.getZ(b),by=pos.getY(b),dx=pos.getX(d),dz=pos.getZ(d),dy=pos.getY(d);const area=(bx-ax)*(dz-az)-(bz-az)*(dx-ax);if(Math.abs(area)<.025)continue;const y=(ay+by+dy)/3;if(y>7)continue;ctx.fillStyle=y<.5?'#43575e':'#76878a';ctx.beginPath();ctx.moveTo(cx+ax*scale,cy+az*scale);ctx.lineTo(cx+bx*scale,cy+bz*scale);ctx.lineTo(cx+dx*scale,cy+dz*scale);ctx.fill();}}
+  if(map.minimap){
+    const {url,xOffset,zOffset,scale:normalized,zScale=normalized}=map.minimap, image=new Image();image.src=url;await image.decode();
+    ctx.drawImage(image,cx-xOffset/normalized*scale,cy-zOffset/zScale*scale,scale/normalized,scale/zScale);
+  }
+  else if(arena.exactWorld){const geo=arena.exactWorld.geometry,pos=geo.attributes.position,ix=geo.index.array;for(let i=0;i<ix.length;i+=3){const a=ix[i],b=ix[i+1],d=ix[i+2];const ax=pos.getX(a),az=pos.getZ(a),ay=pos.getY(a),bx=pos.getX(b),bz=pos.getZ(b),by=pos.getY(b),dx=pos.getX(d),dz=pos.getZ(d),dy=pos.getY(d);const area=(bx-ax)*(dz-az)-(bz-az)*(dx-ax);if(Math.abs(area)<.025)continue;const y=(ay+by+dy)/3;if(y>7)continue;ctx.fillStyle=y<.5?'#43575e':'#76878a';ctx.beginPath();ctx.moveTo(cx+ax*scale,cy+az*scale);ctx.lineTo(cx+bx*scale,cy+bz*scale);ctx.lineTo(cx+dx*scale,cy+dz*scale);ctx.fill();}}
   else{ctx.fillStyle='#71848888';for(const b of map.boxes)ctx.fillRect(cx+(b.x-b.w/2)*scale,cy+(b.z-b.d/2)*scale,b.w*scale,b.d*scale);}minimapBackground=c;
 }
 function minimap(){const c=$('minimap'),ctx=c.getContext('2d'),w=c.width,h=c.height,{scale,cx,cy}=mapProjection(w,h);ctx.clearRect(0,0,w,h);if(minimapBackground)ctx.drawImage(minimapBackground,0,0,w,h);for(const s of map.sites){ctx.strokeStyle='#d7bd86';ctx.beginPath();ctx.arc(cx+s.x*scale,cy+s.z*scale,s.radius*scale,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#ede4cd';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText(s.id,cx+s.x*scale,cy+s.z*scale+4);}for(const p of snapshot.players){if(!p.alive||p.team!==self.team)continue;ctx.fillStyle=p.id===selfId?'#fff6d9':'#83d9c6';ctx.beginPath();ctx.arc(cx+p.x*scale,cy+p.z*scale,p.id===selfId?3.5:2.5,0,Math.PI*2);ctx.fill();if(p.id===selfId){ctx.strokeStyle='#fff6d9';ctx.beginPath();ctx.moveTo(cx+p.x*scale,cy+p.z*scale);ctx.lineTo(cx+p.x*scale+Math.sin(yaw)*9,cy+p.z*scale-Math.cos(yaw)*9);ctx.stroke();}}}
 
+function matchPopulation(){
+  const bots=snapshot.players.filter(p=>p.bot).length;
+  const humans=snapshot.players.length-bots;
+  return snapshot.botMode?`${humans} 真人 · ${bots} 人机`:`${humans}/10 在线`;
+}
+function renderScoreboard(){
+  if(!snapshot)return;
+  $('scoreboard').innerHTML=`<div class="scoreboard-title">${safe(snapshot.room)} <small>${matchPopulation()}</small></div><table><thead><tr><th>玩家</th><th>阵营</th><th>角色</th><th>生命</th><th>武器</th><th>资金</th></tr></thead><tbody>${snapshot.players.map(p=>`<tr class="${p.id===selfId?'self':''}"><td>${safe(p.name)}</td><td>${p.team==='attack'?'进攻':'防守'}</td><td>${p.agent.toUpperCase()}</td><td>${p.alive?p.hp:'阵亡'}</td><td>${p.weapon.toUpperCase()}</td><td>${p.credits}</td></tr>`).join('')}</tbody></table>`;
+}
 function updateHUD(){if(!self||!snapshot)return;const now=serverNow(),phase=snapshot.phase;const remaining=Math.max(0,Math.ceil((snapshot.phaseEndsAt-now)/1000));$('health').textContent=Math.ceil(self.hp);$('armor').textContent=Math.ceil(self.armor||0);$('ammo').textContent=self.ammo;$('reserve').textContent=self.reserve;$('weaponName').textContent=self.weapon.toUpperCase();$('scoreAttack').textContent=snapshot.score.attack;$('scoreDefend').textContent=snapshot.score.defend;$('roundTime').textContent=phase==='waiting'?'—:—':`${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')}`;$('phaseLabel').textContent=({waiting:'等待对手 / FREE ROAM',buy:'购买阶段 / BUY PHASE',live:'回合进行中',end:'回合结束'})[phase];$('roundLabel').textContent=`ROUND ${String(snapshot.round).padStart(2,'0')}`;
   const credits=$('credits');if(credits)credits.textContent=self.credits.toLocaleString();const shopCredits=$('shopCredits');if(shopCredits)shopCredits.textContent=self.credits.toLocaleString();
   const roster=snapshot.players.map(p=>`<div class="roster-player ${p.team===self.team?'ally':'enemy'} ${p.alive?'':'dead'}"><img src="/assets/ui/${p.agent}-icon.png" alt="${safe(p.agent)}"><span>${safe(p.name)}</span></div>`).join('');if($('teamRoster').innerHTML!==roster)$('teamRoster').innerHTML=roster;
-  const scoreRows=`<div class="scoreboard-title">${safe(snapshot.room)} <small>${snapshot.players.length}/10 · 真人对战</small></div><table><thead><tr><th>玩家</th><th>阵营</th><th>角色</th><th>生命</th><th>武器</th><th>资金</th></tr></thead><tbody>${snapshot.players.map(p=>`<tr class="${p.id===selfId?'self':''}"><td>${safe(p.name)}</td><td>${p.team==='attack'?'进攻':'防守'}</td><td>${p.agent.toUpperCase()}</td><td>${p.alive?p.hp:'阵亡'}</td><td>${p.weapon.toUpperCase()}</td><td>${p.credits}</td></tr>`).join('')}</tbody></table>`;if(!$('scoreboard').classList.contains('hidden'))$('scoreboard').innerHTML=scoreRows;
-  $('connectionStatus').textContent=`${snapshot.room} · ${snapshot.players.length}/10 在线`;
-  const near=map.sites.find(s=>Math.hypot(s.x-self.x,s.z-self.z)<=s.radius),bomb=snapshot.bomb||{};
+  if(!$('scoreboard').classList.contains('hidden'))renderScoreboard();
+  $('connectionStatus').textContent=`${snapshot.room} · ${matchPopulation()}`;
+  const near=map.sites.find(s=>isInPlantZone(self,s)),bomb=snapshot.bomb||{};
   let hint=phase==='waiting'?'等待另一阵营加入 · 你可以自由探索、试枪和施放技能':phase==='buy'?'按 B 购买武器 · 按 Enter 准备，缩短倒计时':self.hasBomb&&near?'按住 F 部署爆能器':bomb.state==='planted'&&Math.hypot(self.x-bomb.x,self.z-bomb.z)<3?'按住 F 拆除爆能器':'WASD 移动  ·  C Q E '+(agent==='jett'?'烟雾 / 凌空 / 冲刺':'冰墙 / 减速 / 治疗')+'  ·  F 装拆包  ·  B 购买';
   if(!self.alive)hint='你已阵亡 · 等待下一回合';if(bomb.state==='planting'||bomb.state==='defusing')hint=`${bomb.state==='planting'?'部署':'拆除'}中 ${Math.round(bomb.progress*100)}%`;$('hint').textContent=hint;
   $('readyBtn')?.classList.toggle('hidden',phase!=='buy');
@@ -133,7 +219,7 @@ let last=performance.now();function frame(time){requestAnimationFrame(frame);con
   if(predictionWalker&&self.alive){const allowed=!paused&&!['buy','end'].includes(snapshot.phase);const old=predictionWalker.getFoot();const foot=predictionWalker.update(new THREE.Vector3(allowed?moveX:0,0,allowed?moveZ:0),dt,{jump:allowed&&keys.has('Space'),crouch,speed:moveSpeed});if(collides(foot.x,foot.z,foot.y,crouch)){predictionWalker.capsule.translate(new THREE.Vector3(old.x-foot.x,0,old.z-foot.z));}const pos=predictionWalker.getFoot();local.x=pos.x;local.y=pos.y;local.z=pos.z;local.crouch=predictionWalker.crouched;if(predictionWalker.fellOut)predictionWalker.reset([self.x,self.y,self.z]);}else if(self.alive&&!paused&&!['buy','end'].includes(snapshot.phase))predict(moveX*moveSpeed*dt,moveZ*moveSpeed*dt);
   if(time-lastSend>1000/60){send('input',{seq:++seq,moveX,moveZ,yaw,pitch,jump:keys.has('Space'),walk,crouch});lastSend=time;}
   if(mouseDown)tryShoot(time);
-  arena.camera.fov=THREE.MathUtils.lerp(arena.camera.fov,aim?58:76,dt*12);arena.camera.updateProjectionMatrix();arena.updatePlayers(snapshot.players,selfId,self.team,dt);arena.updateSmokes(snapshot.smokes||[],dt);arena.updateAbilities(snapshot.barriers||[],snapshot.slows||[],dt);arena.update(dt,local,yaw,pitch,!!(forward||right),Math.max(0,(self.reloading-serverNow())/1000),walk);
+  arena.camera.fov=THREE.MathUtils.lerp(arena.camera.fov,aim?58:76,dt*12);arena.camera.updateProjectionMatrix();arena.updatePlayers(snapshot.players,selfId,self.team,dt,snapshot.serverTime,serverNow());arena.updateSmokes(snapshot.smokes||[],dt);arena.updateAbilities(snapshot.barriers||[],snapshot.slows||[],dt);arena.update(dt,local,yaw,pitch,!!(forward||right),Math.max(0,(self.reloading-serverNow())/1000),walk);
   const inside=(snapshot.smokes||[]).some(s=>Math.hypot(local.x-s.x,local.y+1.6-s.y,local.z-s.z)<s.radius);document.body.classList.toggle('in-smoke',inside);
   if(time-uiTime>100){updateHUD();uiTime=time;}fpsFrames++;fpsTime+=dt;if(fpsTime>=1){const el=$('fps');if(el)el.textContent=`${Math.round(fpsFrames/fpsTime)} FPS`;fpsFrames=0;fpsTime=0;}
 }frame.shotId=0;requestAnimationFrame(frame);

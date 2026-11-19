@@ -1,0 +1,166 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Rook_Art_ALink.glb",
+      "triangles": 57630,
+      "batches": 17,
+      "bytes": 684187,
+      "sha256": "19e932e39aa38a1f8b8d3fcdf06a6340184060415fb994c66813fa966d97473e",
+      "sourceSha256": "8dbb2a3d5edfbe3a2420a6d68ce67205344811bd839f2e969695174fb58ffbad"
+    },
+    {
+      "file": "Rook_Art_ASite.glb",
+      "triangles": 173096,
+      "batches": 24,
+      "bytes": 2166834,
+      "sha256": "87349f257b04bee3ace95dba0b05e15f05287efba4e499286754fcde5b90b34e",
+      "sourceSha256": "5b73f81ef3c70b3f19d8c50915358cba8c68444552928cee664c4394e8c9a892"
+    },
+    {
+      "file": "Rook_Art_ASiteExterior.glb",
+      "triangles": 93409,
+      "batches": 45,
+      "bytes": 1198101,
+      "sha256": "453c9b196c23ada16999f23fa37d69951c98a8239c4dc9ae1150e3176742cfd0",
+      "sourceSha256": "fd3ba640f4de2b9c268e91848b17b9e1cf29bd7be44d633a04fc1f3dda2b4a62"
+    },
+    {
+      "file": "Rook_Art_AtkPathA.glb",
+      "triangles": 78060,
+      "batches": 22,
+      "bytes": 1057328,
+      "sha256": "0596ea3d971e1dd5cd45298501ad7a7533571f21d3b3ff527bf2f47b891aa015",
+      "sourceSha256": "1f85bd28c48fc9f5e8969ef7adcea767120bd40ddc0bcc8eec5d596b39712285"
+    },
+    {
+      "file": "Rook_Art_AtkPathB.glb",
+      "triangles": 265473,
+      "batches": 42,
+      "bytes": 4732756,
+      "sha256": "28d62d6e59566291eb95ce4d69fc4d5f37fd922232d9b24d71b923c93140c2bb",
+      "sourceSha256": "a9756dfffc8f3f8ce838d96410ed2402e749d3ef88c480e315d2fb64169226bf"
+    },
+    {
+      "file": "Rook_Art_AtkSpawn.glb",
+      "triangles": 174370,
+      "batches": 60,
+      "bytes": 2535580,
+      "sha256": "2be4f47c788cb9abb7d53d42fc171e4899092f193ac7887d4f9d1a4decd6a328",
+      "sourceSha256": "0a491ee645b2bdd890c217b3c6a540343aa9915f8ad18ef5e87fdcec4322cdc8"
+    },
+    {
+      "file": "Rook_Art_AtkSpawn_Props.glb",
+      "triangles": 91483,
+      "batches": 30,
+      "bytes": 1480728,
+      "sha256": "b5fcc21e232f5568f45731f2402785628aa05c9b79cf9fbac36631f50ee06a9d",
+      "sourceSha256": "f3dad662e3c73bd1d1286255c98b06c9249f5d49d498e37dba06db89d160e430"
+    },
+    {
+      "file": "Rook_Art_BLink.glb",
+      "triangles": 25660,
+      "batches": 10,
+      "bytes": 300795,
+      "sha256": "07c99ac92b7800a76b3e2d8a4e068e56e1947bc3e98e9bca03940e2727156ee4",
+      "sourceSha256": "889fba5e1382ac1cc4f506324dfad605e73cce4535d68252d57b1ad47f031409"
+    },
+    {
+      "file": "Rook_Art_BSite.glb",
+      "triangles": 420288,
+      "batches": 34,
+      "bytes": 7316676,
+      "sha256": "ff472d29a5b309a691f86b0dcd30010ee4cc860dfca3a69c0ecf2043387f687b",
+      "sourceSha256": "72196c973f29d337dc5ccacdc2536c23cf5b4e8b78d9725692916fd6c19ca075"
+    },
+    {
+      "file": "Rook_Art_Crystals.glb",
+      "triangles": 167522,
+      "batches": 58,
+      "bytes": 3561876,
+      "sha256": "9d8dad774887df1e081a274b81c9318f2e01fda56eb58f76af4c5c8cf72df35a",
+      "sourceSha256": "284ef80aabc2c97cd4b570b2fff734f635dc07cda654e28357a6be2e46a42bcd"
+    },
+    {
+      "file": "Rook_Art_DefPathA.glb",
+      "triangles": 55240,
+      "batches": 31,
+      "bytes": 772132,
+      "sha256": "270f8777f46cbeb46f01b81d66cb2974a9900706d193e074ced0edcba9a7864e",
+      "sourceSha256": "eb27746f4e78f5897a1078b9801426bdff54de27c50d016b1cd63dc4672263be"
+    },
+    {
+      "file": "Rook_Art_DefPathB.glb",
+      "triangles": 345340,
+      "batches": 45,
+      "bytes": 5568549,
+      "sha256": "36959fc7501f845c69ab6dd68f41dd2a8273b7791d3b16e8de7687cf0cb030e1",
+      "sourceSha256": "6541ceee510984166c917187dbfc0bfbe5d08e6d1ae7b02f627d1aa1eedc1229"
+    },
+    {
+      "file": "Rook_Art_DefPathMid.glb",
+      "triangles": 68245,
+      "batches": 19,
+      "bytes": 830377,
+      "sha256": "316fc89995505971254bb04c0a4a1461e806a89b2ab86f16f879c2cd48529619",
+      "sourceSha256": "71507561fe8e55499b3575f434981a077d6973fe64461628f4034085e5c94cf2"
+    },
+    {
+      "file": "Rook_Art_DefSpawn.glb",
+      "triangles": 593948,
+      "batches": 77,
+      "bytes": 9137342,
+      "sha256": "e907cafb5fe4a77868f761cc7a5ec416bc99931349b8a2f6c05edcaa32e7feb3",
+      "sourceSha256": "dcbe5b306b398915bb70f49ab3a108fad38bde95c8af5e8b08eeb6daa09c8e34"
+    },
+    {
+      "file": "Rook_Art_Mid.glb",
+      "triangles": 71160,
+      "batches": 18,
+      "bytes": 984044,
+      "sha256": "79f74cd1a609fca8e598675314f3481840d3653f69cd400e826710e52e7ab191",
+      "sourceSha256": "854a50041c003024788db402fa7741bb301b2c5bcd81ce3a25eebad42883b602"
+    },
+    {
+      "file": "Rook_Art_Mid_Castle.glb",
+      "triangles": 56149,
+      "batches": 19,
+      "bytes": 867867,
+      "sha256": "6ce965452b00a72ab96aad09f43fe6e49f88a9d993fd6852782f3ed13aeb8ff1",
+      "sourceSha256": "65a3f664f189ccaf40664a8cfc258b6d5d67490623532cd15a1f4af7a7a88c1d"
+    },
+    {
+      "file": "Rook_Art_Murals.glb",
+      "triangles": 6053,
+      "batches": 26,
+      "bytes": 134634,
+      "sha256": "cf03a8898f4cd4316aaf433689957a021876051421434087ca43f20c9112ddba",
+      "sourceSha256": "45ac29be007420eb998dfeec934838e1925b866b37563a56f3febc5066836ca7"
+    },
+    {
+      "file": "Rook_Art_SaltSkirts.glb",
+      "triangles": 171598,
+      "batches": 111,
+      "bytes": 2671812,
+      "sha256": "13d822e4da6eb12374f3daa03389b7f3a414d9437ef88877d7a380fc87ad5926",
+      "sourceSha256": "498e33c53bb11d6dee98dbcd479451d5b7d0a86a5b00e85fd7a6255702ec8d11"
+    },
+    {
+      "file": "Rook_Art_Signage.glb",
+      "triangles": 470,
+      "batches": 30,
+      "bytes": 13451,
+      "sha256": "1de5dfabc3d7c6de8bb980a4ada9d52181af78d4609d94d33714215fb3f73c1d",
+      "sourceSha256": "b33489b5ea0dc553d2a01d64b0544eece7dfca689afbdcf6c8b8bc4a5677cd14"
+    },
+    {
+      "file": "Rook_Ground.glb",
+      "triangles": 63550,
+      "batches": 94,
+      "bytes": 1165892,
+      "sha256": "e71ab85f577f44b1377007e07b184590d5a6bf37011eb4b76ccca72bdf7c3135",
+      "sourceSha256": "bb1ff7b119bd3016ffce849e1fa333980de233687ea389f8fdf22ff801dd1831"
+    }
+  ],
+  "omitted": []
+}

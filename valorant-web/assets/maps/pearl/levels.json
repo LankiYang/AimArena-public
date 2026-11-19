@@ -1,0 +1,102 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Pitt_Art_ASite.glb",
+      "triangles": 183953,
+      "batches": 38,
+      "bytes": 3609369,
+      "sha256": "5c6ec20c5a42812e2919ff76633871154ad540db84ed53e1ebc1d4eaf8b04bcd",
+      "sourceSha256": "474ae526d7cee1fdaa54ff7a7e907dc0713715c7bffcc2b323232dcd8d84fc84"
+    },
+    {
+      "file": "Pitt_Art_AtkPathA.glb",
+      "triangles": 389309,
+      "batches": 81,
+      "bytes": 6763282,
+      "sha256": "8af4432279335dca94a3c000b1fd845b031958d57650ae57c645f7e9e74a2d20",
+      "sourceSha256": "5d79f673568964b1d94be72eef1658314814ff4eac38036c12ce337efff85804"
+    },
+    {
+      "file": "Pitt_Art_AtkPathB.glb",
+      "triangles": 365485,
+      "batches": 71,
+      "bytes": 6320665,
+      "sha256": "e99253adc2fc6e97d1a0ea2081a2e99c09199b27f906cb8d85a40f12ff4f754a",
+      "sourceSha256": "f51d76ddfd72e2bfef194945e534598e3f9ba3a9d0135e0ae3721281f80a1856"
+    },
+    {
+      "file": "Pitt_Art_AtkPathMid.glb",
+      "triangles": 133484,
+      "batches": 63,
+      "bytes": 2238510,
+      "sha256": "c36a31a10d016922412b04676120c23eefa8acc7aee0250808f58360c66a04ca",
+      "sourceSha256": "4ee8fb49f9efb4d36901f40b31eb311b6c89a4fe436ba7ec5cfa9c5fad671709"
+    },
+    {
+      "file": "Pitt_Art_AtkPathMidToA.glb",
+      "triangles": 71533,
+      "batches": 21,
+      "bytes": 1040006,
+      "sha256": "11aacf6d9ed487850f1890800278db6b4d63cd1b57b27e5fd61804c0363d592f",
+      "sourceSha256": "8e2bc01010c35575501c1a5f65a4461cbafd1d872884c07aa9599cbe0c70698e"
+    },
+    {
+      "file": "Pitt_Art_AtkSpawn.glb",
+      "triangles": 232077,
+      "batches": 51,
+      "bytes": 4322889,
+      "sha256": "4d6f692a38f15b0eb3dff7f11ce7410c7be0ba3b15bd5a9f69343825d8027a2f",
+      "sourceSha256": "cd9b7c031e3b32f7f0300cd6254922febfba1b83a279021e41516c37b6cb136a"
+    },
+    {
+      "file": "Pitt_Art_BSite.glb",
+      "triangles": 176468,
+      "batches": 55,
+      "bytes": 2825593,
+      "sha256": "760875d24fc6122b6d969b1589adc97dd890d776d8d7b91671319824601a142c",
+      "sourceSha256": "051f3c81fd51b097c6a5ab2231b84e2c79c1d71a61943e5495623d287659ff92"
+    },
+    {
+      "file": "Pitt_Art_DefPathA.glb",
+      "triangles": 214659,
+      "batches": 41,
+      "bytes": 3689313,
+      "sha256": "9ae2a7dee2e03ffdf981bb5f97f958eca8b91b212004f111ea040627bf4fa14a",
+      "sourceSha256": "0f5a40ce17b3f477f6eba369be0627c52a6f60b6b402bb0a762f4bc4b67d9650"
+    },
+    {
+      "file": "Pitt_Art_DefPathB.glb",
+      "triangles": 232275,
+      "batches": 45,
+      "bytes": 3877949,
+      "sha256": "b93a90351b95644ba86af7108c34a23131d3c4b2d7ab61b17be62adbafb5ca1d",
+      "sourceSha256": "8ccbf849534f58ff96fae4e31f6693ffeddbdd6edc04a9729f7f43f4651158e7"
+    },
+    {
+      "file": "Pitt_Art_DefSpawn.glb",
+      "triangles": 275377,
+      "batches": 31,
+      "bytes": 4237616,
+      "sha256": "63716427b6bc0f7b06e294ad0bc29ea84f55704cad33f3ef7599b3afb77e3046",
+      "sourceSha256": "bf610085639efb052fd407e0035fb1495045edb586a0b5d81f28b7bf5f3bb6ce"
+    },
+    {
+      "file": "Pitt_Art_Mid.glb",
+      "triangles": 233104,
+      "batches": 36,
+      "bytes": 4035689,
+      "sha256": "f92487a2423dac050687c68a958faa6a5a90a20784fabc52b2775b510333c1ec",
+      "sourceSha256": "c4b2453e960403921dd000aa4875354d7188360c707f0f1df1aadcca220a380d"
+    },
+    {
+      "file": "Pitt_Art_Signage.glb",
+      "triangles": 1312,
+      "batches": 21,
+      "bytes": 20910,
+      "sha256": "a93dacda60c540a44bfbed308e3b6aa985ffe6446de51f4d0c322b0376f5e6c1",
+      "sourceSha256": "eb754b129ddbe1166bd2d5c5d6ff3b57df682fcf9e9c12441f08e6ea434708d1"
+    }
+  ],
+  "omitted": []
+}

@@ -1,0 +1,110 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Juliett_ASite.glb",
+      "triangles": 161849,
+      "batches": 34,
+      "bytes": 2183009,
+      "sha256": "c345a44705e308c57112c466cb81b075009179727defa7f83e9b499361d65f1e",
+      "sourceSha256": "7cf574c36fe5e3376859815d5feb27a33bc62f0fd4f943ac6bf03422d15d9e7a"
+    },
+    {
+      "file": "Juliett_Art_AtkPathA.glb",
+      "triangles": 143807,
+      "batches": 28,
+      "bytes": 2664589,
+      "sha256": "95ed63cc78b38a1e1fef6432837281dab09b14f4a268afcd4468c1314cf47411",
+      "sourceSha256": "c39117b0baa141578d7e2b1c705b88f3b6dfe5504a97d2cbb3a327093d519734"
+    },
+    {
+      "file": "Juliett_Art_AtkPathB.glb",
+      "triangles": 148854,
+      "batches": 53,
+      "bytes": 2690144,
+      "sha256": "989ddb053e2082da8e351651057c9a970f6b07326e695a019054bc77e765b6bb",
+      "sourceSha256": "45df5db9574e7af2be812a53254312ebeab26e7331306fdd1776dbe448f29fff"
+    },
+    {
+      "file": "Juliett_Art_AtkPathB_Interior.glb",
+      "triangles": 29366,
+      "batches": 23,
+      "bytes": 389990,
+      "sha256": "1c01402414a86d17830a04c0db7ee8da439511b028b836ec97c021f890056db9",
+      "sourceSha256": "cf34bd6e944c25423bfbe27e5e5a145804ce5eef2fa93935f98fdc7695d97724"
+    },
+    {
+      "file": "Juliett_Art_AtkPathToDefA.glb",
+      "triangles": 55215,
+      "batches": 39,
+      "bytes": 1146215,
+      "sha256": "5ca5b93f9c0be7d90066ee484c1d1139d81686ed508c40534054ac80cdf5c448",
+      "sourceSha256": "6ea6fb8eb225588ad38b68c180ccc25b911d858bfddafa75d561d3f6390696a9"
+    },
+    {
+      "file": "Juliett_Art_AtkSpawn.glb",
+      "triangles": 189441,
+      "batches": 52,
+      "bytes": 3071468,
+      "sha256": "6645c2fc284b3fa9ee1f9faea441f4f18a28aba09e0771c0384690728e94c5c1",
+      "sourceSha256": "ffb0f4fe9cf9fe8b6ff5f490030850562554879b0ed09685413539467becec83"
+    },
+    {
+      "file": "Juliett_Art_BSite.glb",
+      "triangles": 50777,
+      "batches": 40,
+      "bytes": 855121,
+      "sha256": "14b4e2e83e9dace69fe8e8dc002ece1645c5b95e001f97142b8e813c1fdc3905",
+      "sourceSha256": "fbf0597e2513b2e35a0f467640393c3d63621bb06adfb5c61bb1d79d89ae9a31"
+    },
+    {
+      "file": "Juliett_Art_ConnectorToB.glb",
+      "triangles": 107145,
+      "batches": 42,
+      "bytes": 1420454,
+      "sha256": "c2e58f70f7c16ef5589978b3cde936fa722d9e1fd1354082a9eceef1b202c5dd",
+      "sourceSha256": "5804396d3399cdd8f487fb2fc4a8395a329983e97798f6eb0cd8b3dd0f13d890"
+    },
+    {
+      "file": "Juliett_Art_DefPathA.glb",
+      "triangles": 90957,
+      "batches": 33,
+      "bytes": 1424389,
+      "sha256": "d804a361cacc2cd7addfe2e7abccf82415553cb8ad54da6c4e8a9fb476ae8a21",
+      "sourceSha256": "0a5c580821f880cf5d038a9d3e95e90146e6e25b9c31f064fc051bad318ffd49"
+    },
+    {
+      "file": "Juliett_Art_DefPathB.glb",
+      "triangles": 89965,
+      "batches": 28,
+      "bytes": 1337760,
+      "sha256": "416f041b0819a31efdb67b4bac7106d15e133684b04425c3055210f65fd20d3f",
+      "sourceSha256": "3d40d54ab61c0c452555886e882c9c051f9962bc13fe5be0bfa3db3ef2bd1b7e"
+    },
+    {
+      "file": "Juliett_Art_DefSpawn.glb",
+      "triangles": 190360,
+      "batches": 45,
+      "bytes": 2875787,
+      "sha256": "fbe6cea00d2afdba653c206d0c13e13ab8d5bd74dbfbdf4aca1a2da602d675e2",
+      "sourceSha256": "4fb7250d159d57c0fa2f4c8dd2f3cd4e47182955ca20e070406e230e2e07b201"
+    },
+    {
+      "file": "Juliett_Art_MantisStore.glb",
+      "triangles": 96778,
+      "batches": 18,
+      "bytes": 1433200,
+      "sha256": "e9996c19d8d3bd121fef0b87d1afdb65c3663557c1db782c191c6e5d34655b1f",
+      "sourceSha256": "7c182701176055672c67691b24a8ca3c13a7d1bd3bafa0c4e8a0c972771886ff"
+    },
+    {
+      "file": "Juliett_Art_Mid.glb",
+      "triangles": 349795,
+      "batches": 57,
+      "bytes": 6933199,
+      "sha256": "ee03f8fba17f119528f5713e53da5f98f0048fec8642569ae1f4bd329df3cbc1",
+      "sourceSha256": "cfdef9a607de1354a6ef3bf16101542a6ee20f4a33ac8a78bf9456bee0b2ebc4"
+    }
+  ],
+  "omitted": []
+}

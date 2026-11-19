@@ -2,17 +2,28 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-let sharedWorldPromise;
+const worldPromises = new Map();
+const releaseIds = Object.freeze(['ascent-full','abyss','bind','breeze','corrode','fracture','haven','icebox','lotus','pearl','split','summit','sunset']);
 
 // Server adapter for the same exact triangle/capsule module that browsers use.
-async function loadAscentWorld() {
-  if (sharedWorldPromise) return sharedWorldPromise;
-  sharedWorldPromise = (async () => {
+async function loadAscentWorld(id = 'ascent-b') {
+  if (id!=='ascent-b'&&!releaseIds.includes(id)) throw Error('Unknown map world: ' + id);
+  if (worldPromises.has(id)) return worldPromises.get(id);
+  const promise = (async () => {
     const { buildAscentCollision, AscentWalker } = await import('../src/ascent-collision.mjs');
     const { Vector3, Box3 } = await import('three');
-    const world = buildAscentCollision(fs.readFileSync(path.join(__dirname, '../assets/maps/ascent-b.glb')));
-    function safePoint(x, z, yaw) {
-      const floor = world.floorAt(x, z, 4, 9);
+    const full = id !== 'ascent-b', dir = path.join(__dirname, '../assets/maps',id), assetBase='/assets/maps/'+id;
+    const metadata = full&&id!=='ascent-full' ? JSON.parse(fs.readFileSync(path.join(dir,'map.json'),'utf8')) : null;
+    const assets = full ? JSON.parse(fs.readFileSync(path.join(dir,'levels.json'),'utf8')) : null;
+    if (full) {
+      if (!assets.levels.length || (id==='ascent-full'&&assets.levels.length!==10)) throw Error('Incomplete map art manifest: '+id);
+      for (const part of assets.levels) if (fs.statSync(path.join(dir,part.file+'.gz')).size !== part.bytes) throw Error('Incomplete Ascent art: '+part.file);
+    }
+    const world = full
+      ? (await import('../src/ascent-full-collision.mjs')).buildAscentFullCollision(JSON.parse(fs.readFileSync(path.join(dir,'collision.json'),'utf8')))
+      : buildAscentCollision(fs.readFileSync(path.join(__dirname, '../assets/maps/ascent-b.glb')));
+    function safePoint(x, z, yaw, expectedY) {
+      const floor = world.floorAt(x, z, expectedY === undefined ? 4 : expectedY+.4, expectedY === undefined ? 9 : .8);
       if (!floor) throw Error(`Ascent spawn has no source floor: ${x}, ${z}`);
       const walker = new AscentWalker(world, [x, floor.position.y, z]);
       for (let i = 0; i < 30; i++) walker.update({ x: 0, z: 0 }, 1 / 60);
@@ -20,17 +31,32 @@ async function loadAscentWorld() {
       if (walker.fellOut || !walker.grounded || Math.hypot(p.x - x, p.z - z) > 0.25) throw Error(`Ascent spawn is not stable: ${x}, ${z}`);
       return { x: p.x, y: p.y, z: p.z, yaw };
     }
-    const spawns = {
+    const cluster = (x,z,y,yaw) => [[0,0],[1.3,0],[-1.3,0],[.65,1.3],[-.65,1.3]].map(([dx,dz])=>safePoint(x+dx,z+dz,yaw,y));
+    const spawns = metadata?.spawns ?? (full ? {
+      attack: cluster(50.5,60.4,-1.85,-Math.PI/2),
+      defend: cluster(-47.45,41.05,-.8,Math.PI/2),
+    } : {
       attack: [[-23.6, -50], [-24.6, -50], [-25.6, -50], [-23.6, -51.2], [-24.6, -51.2]].map(([x, z]) => safePoint(x, z, -0.174533)),
       defend: [[-5.7, -95], [-6.9, -95], [-8.1, -95], [-9.3, -95], [-10.5, -95]].map(([x, z]) => safePoint(x, z, -2.4))
-    };
-    const site = safePoint(-32, -66, 0), bbox = world.geometry.boundingBox;
+    });
+    const bbox = world.geometry.boundingBox;
+    const sites = metadata?.sites ?? (full ? [
+      {id:'A',...safePoint(-16.26,-.54,0,1.2),radius:6,area:[-24.5,-10.5,-10.5,5.6],heightTolerance:.55},
+      {id:'B',...safePoint(-26,87,0,-4.8),radius:6,area:[-36.5,-17.5,84.5,92.5],heightTolerance:.55},
+    ] : [{id:'B',...safePoint(-32,-66,0),radius:8}]);
     const map = {
-      id: 'ascent-b', name: 'Ascent B · source geometry', collision: 'triangle', assetUrl: '/assets/maps/ascent-b.glb',
-      description: 'Original B geometry excerpt with exact capsule and ray collisions. Missing source floor gaps are preserved; not the full Ascent map.',
-      boxes: [], sites: [{ id: 'B', x: site.x, y: site.y, z: site.z, radius: 8 }], spawns,
+      id, name: metadata?.name ?? (full?'Ascent':'Ascent B'), title:metadata?.title ?? (full?'亚海悬城':'亚海悬城 · B 区旧版'), collision: full ? 'volumes' : 'triangle',
+      ...(full ? {
+        collisionUrl:assetBase+'/collision.json',
+        levels:assets.levels.map(p=>({url:assetBase+'/'+p.file,triangles:p.triangles,bytes:p.bytes})),
+        minimap:metadata?.minimap ?? {url:'/assets/ui/ascent-minimap.png',xOffset:.463895,zOffset:.146242,scale:.007},
+        splash:metadata?.splash ?? '/assets/ui/ascent-splash.png',
+        lighting:metadata?.lighting,
+      } : {assetUrl:'/assets/maps/ascent-b.glb'}),
+      description: full ? 'Release map geometry with rebuilt materials and shared gameplay collision.' : 'Original B geometry excerpt with exact capsule and ray collisions.',
+      boxes: [], sites, spawns,
       bounds: { minX: bbox.min.x, maxX: bbox.max.x, minZ: bbox.min.z, maxZ: bbox.max.z },
-      minY: bbox.min.y, maxY: bbox.max.y, triangleCount: world.stats.triangleCount
+      minY: bbox.min.y, maxY: bbox.max.y, triangleCount: full ? assets.levels.reduce((n,p)=>n+p.triangles,0) : world.stats.triangleCount
     };
     function barrierHit(walker, box) {
       const closestX = Math.max(box.x - box.w / 2, Math.min(box.x + box.w / 2, walker.capsule.start.x));
@@ -81,6 +107,7 @@ async function loadAscentWorld() {
       updraft(p, vy) { p.walker.velocity.y = vy; p.walker.grounded = false; p.vy = vy; p.grounded = false; },
       boxIntersectsSource(box) {
         const bounds = new Box3(new Vector3(box.x - box.w / 2 + 0.02, box.y - box.h / 2 + 0.05, box.z - box.d / 2 + 0.02), new Vector3(box.x + box.w / 2 - 0.02, box.y + box.h / 2 - 0.02, box.z + box.d / 2 - 0.02));
+        if (world.boxIntersects) return world.boxIntersects(bounds);
         const probe = { intersectsBox: b => b.intersectsBox(bounds) };
         const triangles = world.octree.getCapsuleTriangles(probe, []);
         return triangles.some(t => bounds.intersectsTriangle(t));
@@ -88,8 +115,9 @@ async function loadAscentWorld() {
       dispose() { world.dispose(); }
     };
     return adapter;
-  })().catch(error => { sharedWorldPromise = undefined; throw error; });
-  return sharedWorldPromise;
+  })().catch(error => { worldPromises.delete(id); throw error; });
+  worldPromises.set(id,promise);
+  return promise;
 }
 
-module.exports = { loadAscentWorld };
+module.exports = { loadAscentWorld, releaseIds };

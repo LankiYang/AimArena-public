@@ -5,7 +5,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { WebSocketServer, WebSocket } = require('ws');
 const { MAP } = require('./shared/world.cjs');
-const { loadAscentWorld } = require('./shared/ascent-world.cjs');
+const { loadAscentWorld, releaseIds } = require('./shared/ascent-world.cjs');
+const { isInPlantZone } = require('./src/plant-zone.mjs');
+const { botMode, loadNavigation, botDeployment, updateBot } = require('./shared/bots.cjs');
 
 const WEAPONS = {
   classic: { name: 'CLASSIC', price: 0, magazine: 12, reserve: 36, damage: 26, head: 78, interval: 190, reloadMs: 1750, range: 65 },
@@ -56,39 +58,54 @@ function createGameServer(options = {}) {
   const now = options.now || Date.now;
   const rooms = new Map();
   const clients = new Set();
-  const ascentWorld = options.ascentWorld || null;
-  const worlds = new Map([[MAP.id, MAP], ...(ascentWorld ? [['ascent-b', ascentWorld.map]] : [])]);
+  const adapters = new Map([options.ascentWorld,options.ascentFullWorld,...(options.releaseWorlds||[])].filter(Boolean).map(a=>[a.map.id,a]));
+  const worlds = new Map([...(options.boxWorlds||[]).map(map=>[map.id,map]), ...[...adapters].map(([id,a])=>[id,a.map])]);
+  const defaultMapId = worlds.has('ascent-full') ? 'ascent-full' : worlds.keys().next().value;
+  const catalog=[...worlds.values()].map(({id,name,title,splash,sites,collision})=>({id,name,title,splash,sites:sites.map(s=>s.id),release:collision==='volumes'}));
+  const compressedLevels=new Set([...worlds.values()].flatMap(map=>map.levels?.map(level=>level.url)??[]));
   let nextId = 0, tick = 0;
   const server = http.createServer((req, res) => {
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405, { allow: 'GET, HEAD' }); res.end('Method not allowed'); return; }
     const parsedUrl = new URL(req.url, 'http://localhost'), pathname = parsedUrl.pathname;
+    if(pathname==='/maps.json'){
+      res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});
+      res.end(JSON.stringify(catalog));return;
+    }
     if (pathname === '/world.json') {
-      const map = worlds.get(parsedUrl.searchParams.get('map') || MAP.id);
+      const map = worlds.get(parsedUrl.searchParams.get('map') || defaultMapId);
       res.writeHead(map ? 200 : 404, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }); res.end(JSON.stringify(map || { error: 'MAP_UNAVAILABLE' })); return;
     }
-    if (pathname === '/health') { res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' }); res.end(JSON.stringify({ ok: true, rooms: rooms.size, players: [...rooms.values()].reduce((n, r) => n + r.players.size, 0), tick })); return; }
+    if (pathname === '/ascent-preview.html') {
+      res.writeHead(302, { location: '/?map=ascent-full', 'cache-control': 'no-store' }); res.end(); return;
+    }
+    if (pathname === '/health') {
+      const players=[...rooms.values()].flatMap(r=>[...r.players.values()]);
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ ok:true, rooms:rooms.size, players:players.filter(p=>!p.bot).length, bots:players.filter(p=>p.bot).length, botSupport:1, tick })); return;
+    }
     let decoded;
     try { decoded = decodeURIComponent(pathname); } catch { res.writeHead(400); res.end(); return; }
     const publicPath = decoded === '/' ? '/index.html' : decoded;
-    const allowed = ['/index.html', '/showcase.html', '/ascent-preview.html', '/style.css'].includes(publicPath) ||
+    const allowed = ['/index.html', '/showcase.html', '/style.css'].includes(publicPath) ||
       ['/src/', '/assets/', '/node_modules/three/build/', '/node_modules/three/examples/jsm/'].some(prefix => publicPath.startsWith(prefix));
-    const file = path.resolve(root, '.' + publicPath);
+    const compressed = compressedLevels.has(publicPath);
+    const file = path.resolve(root, '.' + publicPath + (compressed ? '.gz' : ''));
     if (!allowed || !file.startsWith(root + path.sep) || /[\\]/.test(decoded) || /(?:^|\/)\.[^/]*(?:\/|$)/.test(decoded)) { res.writeHead(403); res.end('Forbidden'); return; }
     const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.glb': 'model/gltf-binary', '.gltf': 'model/gltf+json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.svg': 'image/svg+xml', '.wasm': 'application/wasm' };
     fs.stat(file, (err, stat) => {
       if (err || !stat.isFile()) { res.writeHead(404); res.end('Not found'); return; }
-      res.writeHead(200, { 'content-type': mime[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': 'no-cache', 'x-content-type-options': 'nosniff' });
+      res.writeHead(200, { 'content-type': mime[path.extname(publicPath).toLowerCase()] || 'application/octet-stream', 'content-length':stat.size, 'cache-control': 'no-cache', 'x-content-type-options': 'nosniff', ...(compressed ? {'content-encoding':'gzip'} : {}) });
       if (req.method === 'HEAD') { res.end(); return; }
       fs.createReadStream(file).pipe(res);
     });
   });
   const wss = new WebSocketServer({ server, maxPayload: 16384, perMessageDeflate: false });
-  function send(ws, data) { if (ws.readyState === WebSocket.OPEN && ws.bufferedAmount < 2e6) ws.send(JSON.stringify(data)); }
+  function send(ws, data) { if (ws?.readyState === WebSocket.OPEN && ws.bufferedAmount < 2e6) ws.send(JSON.stringify(data)); }
   function error(ws, code, message) { send(ws, { type: 'error', code, message }); }
   function broadcast(r, data) { for (const p of r.players.values()) send(p.ws, data); }
   function event(r, name, data = {}) { broadcast(r, { type: 'event', event: name, serverTime: now(), ...data }); }
-  function newRoom(id, mapId = MAP.id) {
-    const r = { id, mapId, map: worlds.get(mapId), ascent: mapId === 'ascent-b' ? ascentWorld : null, players: new Map(), phase: 'waiting', phaseEndsAt: 0, round: 0, score: { attack: 0, defend: 0 }, smokes: [], barriers: [], slows: [], bomb: null, lastResult: null };
+  function newRoom(id, mapId, mode, botNav) {
+    const r = { id, mapId, map: worlds.get(mapId), ascent: adapters.get(mapId) || null, botMode:mode, botNav, players: new Map(), phase: 'waiting', phaseEndsAt: 0, round: 0, score: { attack: 0, defend: 0 }, smokes: [], barriers: [], slows: [], bomb: null, lastResult: null };
     rooms.set(id, r); return r;
   }
   function presentTeams(r) { return new Set([...r.players.values()].map(p => p.team)).size === 2; }
@@ -98,13 +115,30 @@ function createGameServer(options = {}) {
     Object.assign(p, spawn, { hp: 100, alive: true, pitch: 0, crouch: false, vy: 0, grounded: true, speed: 5.2, armor: 0, hasBomb: false, input: null, history: [], interacting: null, lastFire: 0, abilityCooldowns: { smoke: 0, updraft: 0, dash: 0, wall: 0, slow: 0, heal: 0 } });
     equip(p, p.weapon || 'phantom');
     if (p.room.ascent) p.room.ascent.attach(p, spawn);
+    if(p.bot)botDeployment(p);
+  }
+  function fillBotSeats(r) {
+    if(!r.botMode)return;
+    for(const team of ['attack','defend']){
+      const seated=[...r.players.values()].filter(p=>p.team===team);
+      const used=new Set(seated.filter(p=>p.bot).map(p=>p.botSlot));
+      for(let i=seated.length;i<5;i++){
+        const id='b'+(++nextId).toString(36), botSlot=[0,1,2,3,4].find(slot=>!used.has(slot));
+        used.add(botSlot);
+        const p={id,name:'BOT '+(team==='attack'?'A':'D')+(botSlot+1),team,agent:botSlot%2?'sage':'jett',room:r,bot:true,botSlot,weapon:'phantom',credits:8000,kills:0,deaths:0,ackSeq:0};
+        resetPlayer(p,i);
+        r.players.set(id,p);
+      }
+    }
   }
   function beginBuy(r) {
+    fillBotSeats(r);
     if (!presentTeams(r)) return;
-    r.round++; r.phase = 'buy'; r.phaseEndsAt = now() + duration.buy; r.smokes = []; r.barriers = []; r.slows = []; r.lastResult = null;
+    r.round++; r.phase = 'buy'; r.phaseEndsAt = now() + (r.botMode?Math.min(duration.buy,6500):duration.buy); r.smokes = []; r.barriers = []; r.slows = []; r.lastResult = null;
     const counts = { attack: 0, defend: 0 };
     for (const p of r.players.values()) resetPlayer(p, counts[p.team]++);
-    const carrier = [...r.players.values()].find(p => p.team === 'attack'); carrier.hasBomb = true;
+    const carrier = [...r.players.values()].filter(p=>p.team==='attack').sort((a,b)=>r.botMode?Number(!!b.bot)-Number(!!a.bot):0)[0];
+    carrier.hasBomb = true;
     r.bomb = { state: 'carried', carrierId: carrier.id, x: carrier.x, y: carrier.y, z: carrier.z, site: null, progress: 0, endsAt: 0, interactorId: null };
     event(r, 'roundStart', { round: r.round, phase: 'buy' });
   }
@@ -130,32 +164,42 @@ function createGameServer(options = {}) {
     if (r.bomb?.interactorId === p.id) { r.bomb.interactorId = null; r.bomb.progress = 0; if (r.bomb.state === 'planting') r.bomb.state = 'carried'; if (r.bomb.state === 'defusing') r.bomb.state = 'planted'; }
   }
   function publicPlayer(p) {
-    return { id: p.id, name: p.name, team: p.team, agent: p.agent, x: p.x, y: p.y, z: p.z, vy: p.vy || 0, grounded: !!p.grounded, speed: p.speed || 5.2, yaw: p.yaw, pitch: p.pitch, crouch: p.crouch, hp: p.hp, armor: p.armor, alive: p.alive, weapon: p.weapon, ammo: p.ammo, reserve: p.reserve, credits: p.credits, reloading: p.reloading, abilityCooldowns: p.abilityCooldowns, hasBomb: p.hasBomb, ackSeq: p.ackSeq };
+    return { id: p.id, name: p.name, bot:!!p.bot, team: p.team, agent: p.agent, x: p.x, y: p.y, z: p.z, vy: p.vy || 0, grounded: !!p.grounded, speed: p.speed || 5.2, yaw: p.yaw, pitch: p.pitch, crouch: p.crouch, hp: p.hp, armor: p.armor, alive: p.alive, weapon: p.weapon, ammo: p.ammo, reserve: p.reserve, credits: p.credits, reloading: p.reloading, abilityCooldowns: p.abilityCooldowns, hasBomb: p.hasBomb, ackSeq: p.ackSeq };
   }
   function snapshot(r) {
-    const base = { type: 'snapshot', serverTime: now(), tick, room: r.id, mapId: r.mapId, phase: r.phase, phaseEndsAt: r.phaseEndsAt, round: r.round, score: r.score, players: [...r.players.values()].map(publicPlayer), bomb: r.bomb, smokes: r.smokes, barriers: r.barriers, slows: r.slows, lastResult: r.lastResult };
+    const base = { type: 'snapshot', serverTime: now(), tick, room: r.id, mapId: r.mapId, botMode:r.botMode, phase: r.phase, phaseEndsAt: r.phaseEndsAt, round: r.round, score: r.score, players: [...r.players.values()].map(publicPlayer), bomb: r.bomb, smokes: r.smokes, barriers: r.barriers, slows: r.slows, lastResult: r.lastResult };
     for (const p of r.players.values()) send(p.ws, { ...base, selfId: p.id, ackSeq: p.ackSeq });
   }
   function join(ws, m) {
     if (ws.player) return error(ws, 'ALREADY_JOINED', 'Already in a room');
     const roomId = clean(m.room || 'public', 24).replace(/[^\p{L}\p{N}_-]/gu, '') || 'public';
     let r = rooms.get(roomId);
-    const requestedMap = m.map || m.mapId || r?.mapId || MAP.id;
+    const requestedMap = m.map || m.mapId || r?.mapId || defaultMapId;
     if (!worlds.has(requestedMap)) return error(ws, 'MAP_UNAVAILABLE', 'This map is not available on the server');
     if (r && r.mapId !== requestedMap) return error(ws, 'MAP_MISMATCH', 'This room is locked to map ' + r.mapId);
-    if (r?.players.size >= 10) return error(ws, 'ROOM_FULL', 'Room is full (10 players)');
+    const mode=m.botMode===undefined&&r?r.botMode:botMode(m.botMode);
+    if (r && r.botMode!==mode) return error(ws, 'MODE_MISMATCH', 'This room uses a different match mode');
+    if (r && [...r.players.values()].filter(p=>!p.bot).length>=10) return error(ws, 'ROOM_FULL', 'Room is full (10 players)');
     if (!r && rooms.size >= 32) return error(ws, 'SERVER_BUSY', 'Room limit reached; please try again later');
-    r ||= newRoom(roomId, requestedMap);
-    const teams = { attack: 0, defend: 0 }; for (const p of r.players.values()) teams[p.team]++;
+    const nav=r?.botNav??(mode?loadNavigation(adapters.get(requestedMap)):null);
+    if(mode&&!nav)return error(ws,'BOT_UNAVAILABLE','This map has no bot navigation');
+    r ||= newRoom(roomId, requestedMap, mode, nav);
+    const teams = { attack: 0, defend: 0 }; for (const p of r.players.values()) if(!p.bot)teams[p.team]++;
     let team = ['attack', 'defend'].includes(m.team) ? m.team : teams.attack <= teams.defend ? 'attack' : 'defend';
     if (teams[team] >= 5) team = team === 'attack' ? 'defend' : 'attack';
     const p = { id: 'p' + (++nextId).toString(36), ws, room: r, name: clean(m.name || 'AGENT', 16), team, agent: String(m.agent || '').toLowerCase() === 'sage' ? 'sage' : 'jett', weapon: 'phantom', credits: 8000, ackSeq: -1, inputSeq: -1, lastInputAt: 0, kills: 0, deaths: 0 };
-    resetPlayer(p, teams[team]);
+    const teammates=[...r.players.values()].filter(other=>other.team===team);
+    const replaced=teammates.length>=5?(teammates.findLast(other=>other.bot&&!other.alive)
+      ??teammates.findLast(other=>other.bot&&!other.hasBomb&&!other.interacting)
+      ??teammates.findLast(other=>other.bot)):null;
+    if(replaced){cancelInteract(r,replaced);dropBomb(r,replaced);r.players.delete(replaced.id);event(r,'left',{playerId:replaced.id,name:replaced.name});}
+    const spawnIndex=replaced?r.map.spawns[team].indexOf(replaced.spawn):teammates.length;
+    resetPlayer(p,Math.max(0,spawnIndex));
     if (r.phase === 'live' || r.phase === 'end') p.alive = false;
     ws.player = p; r.players.set(p.id, p);
-    send(ws, { type: 'welcome', selfId: p.id, room: r.id, map: r.mapId, mapId: r.mapId, world: r.map, serverTime: now(), weapons: { phantom: WEAPONS.phantom } });
+    send(ws, { type: 'welcome', selfId: p.id, room: r.id, map: r.mapId, mapId: r.mapId, botMode:r.botMode, world: r.map, serverTime: now(), weapons: { phantom: WEAPONS.phantom } });
     event(r, 'joined', { playerId: p.id, name: p.name, team: p.team });
-    if (r.phase === 'waiting' && presentTeams(r)) beginBuy(r);
+    if (r.phase === 'waiting' && (r.botMode||presentTeams(r))) beginBuy(r);
     snapshot(r);
   }
   function fire(p, m) {
@@ -252,7 +296,7 @@ function createGameServer(options = {}) {
     const bomb = r.bomb;
     if (p.team === 'attack' && bomb.state === 'dropped' && dist2(p, bomb) < 2 && Math.abs(p.y - bomb.y) < 2) { bomb.state = 'carried'; bomb.carrierId = p.id; p.hasBomb = true; event(r, 'pickup', { playerId: p.id }); return; }
     if (p.team === 'attack' && p.hasBomb && bomb.state === 'carried') {
-      const site = r.map.sites.find(s => dist2(p, s) <= s.radius && Math.abs(p.y - (s.y || 0)) < 2.5);
+      const site = r.map.sites.find(s => isInPlantZone(p, s));
       if (!site) return error(p.ws, 'PLANT_SITE', 'Carry the spike into site A or B');
       if (r.ascent && (!p.grounded || !r.ascent.floorAt(p.x, p.z, p.y + 0.5, 1))) return error(p.ws, 'NO_SURFACE', 'Plant only on a real source floor');
       bomb.state = 'planting'; bomb.interactorId = p.id; bomb.site = site.id;
@@ -262,6 +306,13 @@ function createGameServer(options = {}) {
       p.interacting = { action: 'defuse', start: now(), x: p.x, y: p.y, z: p.z }; event(r, 'defuseStart', { playerId: p.id });
     }
   }
+  function reload(p) {
+    const w=WEAPONS[p.weapon];
+    if(p.alive&&!p.reloading&&p.reserve>0&&p.ammo<w.magazine){
+      p.reloading=now()+w.reloadMs;event(p.room,'reload',{playerId:p.id,endsAt:p.reloading});
+    }
+  }
+  const botActions={fire,interact,reload,rayBox,random:options.random||Math.random};
   function handle(ws, m) {
     if (!m || typeof m !== 'object') return;
     if (m.type === 'ping') { send(ws, { type: 'pong', clientTime: m.clientTime, serverTime: now() }); return; }
@@ -273,9 +324,8 @@ function createGameServer(options = {}) {
       p.inputSeq = m.seq; p.lastInputAt = now();
       p.input = { seq: m.seq, moveX: clamp(m.moveX, -1, 1), moveZ: clamp(m.moveZ, -1, 1), yaw: m.yaw % (Math.PI * 2), pitch: clamp(m.pitch, -1.5, 1.5), jump: !!m.jump, walk: !!m.walk, crouch: !!m.crouch };
     } else if (m.type === 'fire') fire(p, m);
-    else if (m.type === 'reload') {
-      const w = WEAPONS[p.weapon]; if (p.alive && !p.reloading && p.reserve > 0 && p.ammo < w.magazine) { p.reloading = now() + w.reloadMs; event(r, 'reload', { playerId: p.id, endsAt: p.reloading }); }
-    } else if (m.type === 'buy') {
+    else if (m.type === 'reload') reload(p);
+    else if (m.type === 'buy') {
       if (!['buy', 'waiting'].includes(r.phase) || !p.alive) return error(ws, 'BUY_PHASE', 'Purchases are available during the buy phase');
       if (m.weapon === 'armor') { if (p.armor >= 50) return; if (p.credits < 1000) return error(ws, 'CREDITS', 'Not enough credits'); p.credits -= 1000; p.armor = 50; }
       else { const w = m.weapon === 'phantom' && Object.hasOwn(WEAPONS, m.weapon) ? WEAPONS[m.weapon] : null; if (!w) return error(ws, 'WEAPON', 'Only Phantom and armor are available in this slice'); if (p.credits < w.price) return error(ws, 'CREDITS', 'Not enough credits'); p.credits -= w.price; equip(p, m.weapon); }
@@ -298,7 +348,7 @@ function createGameServer(options = {}) {
     ws.on('close', () => {
       clients.delete(ws); const p = ws.player; if (!p) return;
       const r = p.room; cancelInteract(r, p); dropBomb(r, p); r.players.delete(p.id); event(r, 'left', { playerId: p.id, name: p.name });
-      if (!r.players.size) rooms.delete(r.id);
+      if (![...r.players.values()].some(other=>!other.bot)) rooms.delete(r.id);
       else if (!presentTeams(r)) { r.phase = 'waiting'; r.phaseEndsAt = 0; r.bomb = null; for (const other of r.players.values()) { other.alive = true; other.hp = 100; other.hasBomb = false; } }
       else checkElimination(r);
     });
@@ -306,14 +356,15 @@ function createGameServer(options = {}) {
   function update(dt) {
     const time = now(); tick++;
     for (const r of rooms.values()) {
-      if (r.phase === 'buy' && time >= r.phaseEndsAt) { r.phase = 'live'; r.phaseEndsAt = time + duration.live; event(r, 'live', { round: r.round }); }
-      if (r.phase === 'end' && time >= r.phaseEndsAt) { if (presentTeams(r)) beginBuy(r); else r.phase = 'waiting'; }
+      if (r.phase === 'buy' && time >= r.phaseEndsAt) { r.phase = 'live'; r.liveAt=time; r.phaseEndsAt = time + duration.live; event(r, 'live', { round: r.round }); }
+      if (r.phase === 'end' && time >= r.phaseEndsAt) { if (r.botMode||presentTeams(r)) beginBuy(r); else r.phase = 'waiting'; }
       r.smokes = r.smokes.filter(s => s.endsAt > time);
       r.barriers = r.barriers.filter(b => b.hp > 0 && b.endsAt > time);
       r.slows = r.slows.filter(s => s.endsAt > time);
       for (const p of r.players.values()) {
         if (p.reloading && time >= p.reloading) { const amount = Math.min(WEAPONS[p.weapon].magazine - p.ammo, p.reserve); p.ammo += amount; p.reserve -= amount; p.reloading = 0; }
         if (!p.alive) continue;
+        if (p.bot) updateBot(p,time,dt,botActions);
         const input = p.input && time - p.lastInputAt < 250 ? p.input : null;
         if (r.ascent) {
           if (input) { p.yaw = input.yaw; p.pitch = input.pitch; p.ackSeq = input.seq; }
@@ -325,7 +376,7 @@ function createGameServer(options = {}) {
           r.ascent.step(p, direction, dt, { jump: !!input?.jump && r.phase !== 'end', crouch: !!input?.crouch, speed });
           if (input?.jump) input.jump = false;
           if (r.phase === 'buy' && Math.hypot(p.x - p.spawn.x, p.z - p.spawn.z) > 4) { p.walker.capsule.copy(before); const foot = p.walker.getFoot(); p.x = foot.x; p.y = foot.y; p.z = foot.z; }
-          if (p.fellReset) { p.fellReset = false; cancelInteract(r, p); event(r, 'sourceGapReset', { playerId: p.id, x: p.x, y: p.y, z: p.z }); }
+          if (p.fellReset) { p.fellReset = false; cancelInteract(r, p); if(p.bot)botDeployment(p); event(r, 'sourceGapReset', { playerId: p.id, x: p.x, y: p.y, z: p.z }); }
         } else {
         if (input && time - p.lastInputAt < 250) {
           p.yaw = input.yaw; p.pitch = input.pitch; if (input.crouch || !overlapsWorld(p.x, p.z, p.y, false, r.barriers, r.map)) p.crouch = input.crouch; p.ackSeq = input.seq;
@@ -373,17 +424,50 @@ function createGameServer(options = {}) {
   const timer = setInterval(() => { const time = now(); update(clamp((time - previous) / 1000, 0, 0.05)); previous = time; }, 1000 / 60);
   const heartbeat = setInterval(() => { for (const ws of clients) { if (!ws.alive) ws.terminate(); else { ws.alive = false; ws.ping(); } } }, 15000);
   async function close() { clearInterval(timer); clearInterval(heartbeat); for (const ws of clients) ws.terminate(); await new Promise(resolve => wss.close(resolve)); if (server.listening) await new Promise(resolve => server.close(resolve)); }
-  return { server, wss, rooms, close, update, listen: (port = 3000, host = '0.0.0.0') => new Promise(resolve => server.listen(port, host, () => resolve(server.address()))) };
+  function listen(port=3000,host='0.0.0.0') {
+    return new Promise((resolve,reject)=>{
+      const onError=err=>{server.off('listening',onListen);reject(err);};
+      const onListen=()=>{server.off('error',onError);resolve(server.address());};
+      server.once('error',onError);server.once('listening',onListen);server.listen(port,host);
+    });
+  }
+  return { server, wss, rooms, close, update, listen };
 }
 
 if (require.main === module) {
   (async () => {
-    console.log('Loading Ascent B exact triangle world…');
-    const ascentWorld = await loadAscentWorld();
-    const game = createGameServer({ ascentWorld });
-    const address = await game.listen(Number(process.env.PORT || 3000));
-    console.log(`Tactical PVP: http://localhost:${address.port} — Ascent B + study. Real players only. ${ascentWorld.stats.triangleCount} exact source triangles.`);
+    const open = process.platform==='win32' && process.argv.includes('--open');
+    const port = Number(process.env.PORT || 3000);
+    if (!Number.isInteger(port) || port<1 || port>65535) throw Error('Invalid PORT');
+    const openBrowser = p => {
+      const child=require('node:child_process').spawn('cmd.exe',['/c','start','','http://localhost:'+p],{windowsHide:true,stdio:'ignore'});
+      child.on('error',error=>console.error(error.message));child.unref();
+    };
+    async function existing(p) {
+      try {
+        const response=await fetch('http://localhost:'+p+'/maps.json',{signal:AbortSignal.timeout(1500)});
+        if(!response.ok)return false;
+        const maps=await response.json();
+        if(maps.length!==releaseIds.length||!maps.every((map,i)=>map.release&&map.id===releaseIds[i]))return false;
+        const health=await fetch('http://localhost:'+p+'/health',{signal:AbortSignal.timeout(1500)});
+        return health.ok&&(await health.json()).botSupport===1;
+      } catch {return false;}
+    }
+    const candidates=open&&!process.env.PORT?[port,3001,3002,3003,3004,3005]:[port];
+    if(open)for(const candidate of candidates)if(await existing(candidate)){openBrowser(candidate);return;}
+    console.log('Loading release maps…');
+    const releaseWorlds=await Promise.all(releaseIds.map(loadAscentWorld));
+    const game=createGameServer({releaseWorlds});
+    let address;
+    for(const candidate of candidates){
+      try{address=await game.listen(candidate);break;}
+      catch(error){
+        if(error.code!=='EADDRINUSE'||candidate===candidates.at(-1)){await game.close();throw error;}
+      }
+    }
+    console.log(`Tactical PVP: http://localhost:${address.port} - ${releaseWorlds.length} release maps.`);
     for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => game.close().then(() => process.exit(0)));
+    if (open) openBrowser(address.port);
   })().catch(error => { console.error(error); process.exitCode = 1; });
 }
 module.exports = { createGameServer, loadAscentWorld, WEAPONS, rayBox, overlapsWorld, movePlayer, MAP };

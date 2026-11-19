@@ -1,0 +1,102 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Plummet_Art_ALink.glb",
+      "triangles": 331037,
+      "batches": 21,
+      "bytes": 6036543,
+      "sha256": "e44dc68baa7da672e268cac147f7f7373065c91958bdbd1dab75fcf2c9b588f6",
+      "sourceSha256": "d984e9949538feeb9ee36a61c2b29be34f52d6d0adba75ab8f376cf9801f3618"
+    },
+    {
+      "file": "Plummet_Art_ASite.glb",
+      "triangles": 267758,
+      "batches": 45,
+      "bytes": 5123585,
+      "sha256": "47b4ecd31115191aad1ef79921167cdd4e781726099e402d6283d71c833beb38",
+      "sourceSha256": "4a566f21eb305589c57f9e6166316c8f63c099d7140066f6814871665517c405"
+    },
+    {
+      "file": "Plummet_Art_AtkPathA.glb",
+      "triangles": 687788,
+      "batches": 63,
+      "bytes": 11983029,
+      "sha256": "11897cc325d37e93f4b3ce747f1c854f1f10de88d2a1b0158cba31687321f48b",
+      "sourceSha256": "1c64f27fe248034132a32a55accb9612cfa68befbfa31fb7a13a02455b90d309"
+    },
+    {
+      "file": "Plummet_Art_AtkPathB.glb",
+      "triangles": 313814,
+      "batches": 57,
+      "bytes": 4708406,
+      "sha256": "397a5b8d1c94b2d1e64217f32e46e7dfc1567488682ac05f778ac2aca203d409",
+      "sourceSha256": "cf084a8aff3693fa26abb3b73b2b9581dcd2acdd679e811e952c7ce9233ae31d"
+    },
+    {
+      "file": "Plummet_Art_AtkSpawn.glb",
+      "triangles": 536379,
+      "batches": 55,
+      "bytes": 9210176,
+      "sha256": "be507663c8b2587aa655ad9ce24ccba69ec7d5127ce6a2b05334db137eb8e508",
+      "sourceSha256": "d8eed9d4f27630191e8315a119fa84b17dd033dde8bc7d2a4289290f84a4d6df"
+    },
+    {
+      "file": "Plummet_Art_BLink.glb",
+      "triangles": 101677,
+      "batches": 17,
+      "bytes": 1298543,
+      "sha256": "c4fa83db438b6fb9f84e0163c179634e085a3635a73f8749cdf10cf7874a1769",
+      "sourceSha256": "bf65ef714a2795c9a0c8870551dbea1dfecb6088db10d2ae6537b412d4f90263"
+    },
+    {
+      "file": "Plummet_Art_BSite.glb",
+      "triangles": 150921,
+      "batches": 25,
+      "bytes": 2339241,
+      "sha256": "ea9c966bd20b11cf0c851fc2b879aa3271207fdcfe47a9e3d0aee791a4482398",
+      "sourceSha256": "55555bb14e5238507e925e3626c6bac6747b43092f11c9371ef06f350194ee1f"
+    },
+    {
+      "file": "Plummet_Art_BottomMid.glb",
+      "triangles": 117135,
+      "batches": 25,
+      "bytes": 1545458,
+      "sha256": "dea34b307d57fa8323ed43cacbb7121776ae9923eef02e661524156490785e15",
+      "sourceSha256": "1ad996c93b97c36900d29500852b8fda4abd9479d33d2624d35470d6c43e7e82"
+    },
+    {
+      "file": "Plummet_Art_DefPathA.glb",
+      "triangles": 211815,
+      "batches": 28,
+      "bytes": 3660446,
+      "sha256": "bbe2d326044c926c94c20ac3d19576e56755d3bc32a0289587d76f1c2f89b37b",
+      "sourceSha256": "44b8a6dbd33a0e75c1d043a03a9cb3cbf76f097a769f534a5bd6680b021c8229"
+    },
+    {
+      "file": "Plummet_Art_DefPathB.glb",
+      "triangles": 175111,
+      "batches": 35,
+      "bytes": 2546691,
+      "sha256": "be5391e784ee31ad05645bd35b85e96b4abf19cfafefa92d413336c0873a2b34",
+      "sourceSha256": "5c33686a57ee530d68aaf599c97ff3aea6958b43f8261df24dbec88e8990a9a7"
+    },
+    {
+      "file": "Plummet_Art_DefSpawn.glb",
+      "triangles": 284964,
+      "batches": 46,
+      "bytes": 3912212,
+      "sha256": "f905637e270ca47e84e54fc1aad6430c63d860d77c8027485b0f75c85b866891",
+      "sourceSha256": "7942f0bdf5abc87a3d560811106c5110eea5a1b276e2671fd7211a58cdc5e841"
+    },
+    {
+      "file": "Plummet_Art_TopMid.glb",
+      "triangles": 201235,
+      "batches": 48,
+      "bytes": 2764031,
+      "sha256": "82e646762002e705ba4f5109b19fb7f71d933da3fe5547f4334343bc5170577d",
+      "sourceSha256": "23b33608e0a4734d7af5f27833f2ed169db61f1bb39549b8411fbddedec237f0"
+    }
+  ],
+  "omitted": []
+}

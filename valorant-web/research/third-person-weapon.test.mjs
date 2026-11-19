@@ -98,6 +98,24 @@ for (const name of ['jett', 'sage']) {
     }
   });
 
+  test(`${name}: raised and lowered aim preserve the authored palm roll relative to the rifle`, () => {
+    attachment.restoreSupportHand(); controller.reset(); mixer.setTime(0);
+    const localPalm = () => attachment.root.getWorldQuaternion(new THREE.Quaternion()).invert()
+      .multiply(attachment.leftHand.getWorldQuaternion(new THREE.Quaternion()));
+    attachment.update();
+    const reference = localPalm();
+    for (const pitch of [-.65, -.25, .25, .65, 0]) {
+      attachment.restoreSupportHand();
+      controller.update(1 / 60, { aimPitch: pitch });
+      attachment.update({ pitch });
+      const { muzzle, stock } = attachment.anchors;
+      const direction = muzzle.getWorldPosition(new THREE.Vector3()).sub(stock.getWorldPosition(new THREE.Vector3())).normalize();
+      assert.ok(Math.abs(direction.y - Math.sin(pitch)) < 1e-5, 'the rifle aims opposite to the character pitch');
+      assert.ok(localPalm().angleTo(reference) < .001, 'support palm spins independently of the rifle');
+    }
+    attachment.restoreSupportHand(); controller.reset();
+  });
+
   test(`${name}: casting releases procedural left hand and disposal preserves shared weapon resources`, () => {
     controller.reset(); mixer.setTime(0);
     const before = rotations(model);

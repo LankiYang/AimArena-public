@@ -4,6 +4,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
 import { MotionController } from '../src/character-motion.js';
+import { angleDelta, RemotePose } from '../src/remote-pose.js';
+
+const { clips } = JSON.parse(fs.readFileSync(new URL('../assets/animations/bot-locomotion.json', import.meta.url), 'utf8'));
 
 // Parse the real assets without browser image APIs; geometry, skin weights,
 // hierarchy and animation tracks remain exactly those of the source GLBs.
@@ -200,7 +203,66 @@ for (const name of ['jett', 'sage']) {
     assert.equal(model.userData.proceduralMotion, undefined);
     assert.deepEqual(model.scale.toArray(), modelTransform.s.toArray());
   });
+
+  test(`${name}: imported locomotion plants and lifts alternating feet at game speed`, () => {
+    const { model, controller: oldController } = prepare(asset);
+    oldController.dispose();
+    const root = model.parent;
+    const bounds = new THREE.Box3().setFromObject(asset.scene);
+    const center = bounds.getCenter(new THREE.Vector3());
+    model.position.set(-center.x, -bounds.min.y, -center.z).multiplyScalar(model.scale.y);
+    const motion = new MotionController(model, { clips, root });
+    const rest = pose(model), lengths = boneDistances(motion);
+    const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(root.quaternion);
+    const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0));
+    assert.equal(motion.metadata.authoredAnimation, true);
+    for (const [speed, forward, strafe, dt] of [[2.55, 1, 0, 1 / 60], [5.2, 1, 0, 1 / 30], [2.55, -1, 0, 1 / 60], [2.55, 0, 1, 1 / 30], [2.55, 0, -1, 1 / 30]]) {
+      let previous, planted = 0;
+      const footLift = [0, 0];
+      for (let i = 0; i < Math.ceil(2.5 / dt); i++) {
+        root.position.addScaledVector(fwd, speed * dt * forward).addScaledVector(right, speed * dt * strafe);
+        motion.update(dt, { speed, distance: speed * dt, forward, strafe, grounded: true });
+        const toes = motion.legs.map(leg => leg.toe.getWorldPosition(new THREE.Vector3()));
+        const weights = motion.locomotion.feet.map(foot => foot.weight);
+        if (i > 15) toes.forEach((toe, j) => {
+          footLift[j] = Math.max(footLift[j], toe.y - root.position.y);
+          assert.ok(toe.y >= root.position.y - .02, `toe below floor at ${speed} m/s`);
+          if (weights[j] > .9 && previous.weights[j] > .9) {
+            const slide = Math.hypot(toe.x - previous.toes[j].x, toe.z - previous.toes[j].z);
+            if (slide < dt * speed * .35) planted++;
+          }
+        });
+        if (i % 25 === 0) boneDistances(motion).forEach((distance, j) => assert.ok(Math.abs(distance - lengths[j]) < 1e-6));
+        previous = { toes, weights };
+      }
+      assert.ok(footLift.every(lift => lift > .09), `swing was missing at ${speed} m/s`);
+      assert.ok(planted >= 4, `support feet slid at ${speed} m/s, forward ${forward}, strafe ${strafe}`);
+    }
+    for (let i = 0; i < 90; i++) motion.update(1 / 60, { speed: 0, distance: 0, shooting: i < 5 });
+    assertRestored(model, rest, 1e-6);
+  });
 }
+
+test('remote snapshots give a stable gait speed, shortest yaw transition and clean respawn', () => {
+  const remote = new RemotePose(), dt = .01;
+  const player = { bot: true, x: 0, y: 0, z: 0, yaw: 3.12, pitch: 0, grounded: true, alive: true };
+  let previous;
+  for (let ms = 0; ms <= 500; ms += 10) {
+    const stamp = ms - ms % 50;
+    player.x = stamp * .005;
+    if (ms >= 250) player.yaw = -3.1;
+    const pose = remote.update(player, stamp, ms, dt);
+    if (ms >= 120) assert.ok(Math.abs(pose.x - previous.x - .05) < 1e-8);
+    if (previous) assert.ok(Math.abs(angleDelta(previous.yaw, pose.yaw)) < .11);
+    previous = pose;
+  }
+  assert.ok(Math.abs(angleDelta(previous.yaw, player.yaw)) < .012);
+  remote.update({ ...player, alive: false }, 550, 550, dt);
+  const respawn = remote.update({ ...player, x: -20, yaw: 1 }, 600, 600, dt);
+  assert.equal(respawn.reset, true);
+  assert.equal(respawn.x, -20);
+  assert.equal(respawn.yaw, 1);
+});
 
 test('incomplete rigs remain intact and explicitly report missing locomotion joints', () => {
   const model = new THREE.Group(), bone = new THREE.Bone(); bone.name = 'Head_01'; model.add(bone);

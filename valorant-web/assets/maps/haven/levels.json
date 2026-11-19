@@ -1,0 +1,78 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Triad_Art_A.glb",
+      "triangles": 275778,
+      "batches": 53,
+      "bytes": 4490074,
+      "sha256": "2ca0f062d443a9e95125d4598e3de8f9c706d8df7b5d125d1aac0671694cce87",
+      "sourceSha256": "c2c6119ca7e66304b140c68bd20f23007949b29f1ba35830195f323139a94dde"
+    },
+    {
+      "file": "Triad_Art_Atk.glb",
+      "triangles": 84184,
+      "batches": 26,
+      "bytes": 1789947,
+      "sha256": "443616f17d4bf6183ffcc3f6461c76b8cf5b3be5305936cabd82008fb984d05b",
+      "sourceSha256": "810ff683548b96ec45c7c466cae33065050b973583484bc5157ebd7ba80caecd"
+    },
+    {
+      "file": "Triad_Art_AtkPathA.glb",
+      "triangles": 463784,
+      "batches": 54,
+      "bytes": 8003047,
+      "sha256": "d8185e8d601ad29b1fd5ffa2ed55e52fb7f5c1f2ea035b6b8766dc5326fee54b",
+      "sourceSha256": "a250f664d5d7674948ac5bc6639ae035e190f57100c37d9960c887875c514174"
+    },
+    {
+      "file": "Triad_Art_AtkPathB.glb",
+      "triangles": 368082,
+      "batches": 64,
+      "bytes": 6024852,
+      "sha256": "44c2e2064bdb8ae2660c3a13daec691bba24769069888f00568fa6844d778b3e",
+      "sourceSha256": "597bede08ebd81b8827ab69d3065631d5bf104efd17d503e5688b35632330e90"
+    },
+    {
+      "file": "Triad_Art_AtkPathC.glb",
+      "triangles": 187611,
+      "batches": 40,
+      "bytes": 3719846,
+      "sha256": "e94e273b24582c79d7e98a8903e79d9536b9b2aa54993d2cd7c6aa7c50e2fc64",
+      "sourceSha256": "04d4a846aae7c001e5cc8fbefe54ad1269abc91ec10cff14ccf1e4236b73f52e"
+    },
+    {
+      "file": "Triad_Art_B.glb",
+      "triangles": 254302,
+      "batches": 27,
+      "bytes": 3173300,
+      "sha256": "4958bca93cbe614f2504271b12acf0fa92cf4aed1ad8bd915b8e03a4e37b046f",
+      "sourceSha256": "8d169f32566e7aea39f69be606d46c199d58d2479df21a94fcc8ad6ee7058edd"
+    },
+    {
+      "file": "Triad_Art_Basalt.glb",
+      "triangles": 550191,
+      "batches": 50,
+      "bytes": 9579320,
+      "sha256": "8e1c91b124555b78a329a425c5fb44e04265dfaea7b20e0ff69d3f355f8371be",
+      "sourceSha256": "f366095a778ddf8c4ee3bded1c7f09ada007be5538adbaa2beba7670e4d2675e"
+    },
+    {
+      "file": "Triad_Art_C.glb",
+      "triangles": 121733,
+      "batches": 39,
+      "bytes": 1982764,
+      "sha256": "7c420ba97cb9a0a36f4271cf21dbd3bb3c77bce6bf61a4154bed8b4efffcacdf",
+      "sourceSha256": "bf1683ce927dc7df0228775bbbe44dc2728d40ddfe1b4f369524c52b9f775fef"
+    },
+    {
+      "file": "Triad_Art_Def.glb",
+      "triangles": 299699,
+      "batches": 74,
+      "bytes": 5182262,
+      "sha256": "e43caa93dbd01534521182c3844e44d9abdba170e1b2ef115469dffca4327fe5",
+      "sourceSha256": "8caed8c68923cbce370d365746c4b1ad20493045c55ca2d2a6010fbfbd52e2b9"
+    }
+  ],
+  "omitted": []
+}

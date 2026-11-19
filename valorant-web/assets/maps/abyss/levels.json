@@ -1,0 +1,102 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Infinity_Art_ASite.glb",
+      "triangles": 106588,
+      "batches": 25,
+      "bytes": 1413225,
+      "sha256": "45a4cc8120128d8b03c4cf2d2a5c8bfa0ed25dade972053c27c25be493efbda9",
+      "sourceSha256": "68f439184384f3896c213829a156831a1e31383b7925c652545ea41350b86a4a"
+    },
+    {
+      "file": "Infinity_Art_AtkPathA.glb",
+      "triangles": 88324,
+      "batches": 22,
+      "bytes": 1305529,
+      "sha256": "6be3911306369965590bd9a638ff68824944afc5f08feee67f66ff8bb9ce85d5",
+      "sourceSha256": "b073e94b866cd914c81490bd6b18d9e18ada62aa4da89977545c2da132d46862"
+    },
+    {
+      "file": "Infinity_Art_AtkPathB.glb",
+      "triangles": 329034,
+      "batches": 65,
+      "bytes": 6046916,
+      "sha256": "8bcd7889b76c560d75b58e6ac35e3bdbbf9415f92ce61a6b444b765945b6dac3",
+      "sourceSha256": "d0577408137bf16103eaa140bf86f044ef550a5744b281a9cb0a9d7b9b4be51d"
+    },
+    {
+      "file": "Infinity_Art_AtkSpawn.glb",
+      "triangles": 348039,
+      "batches": 74,
+      "bytes": 7537994,
+      "sha256": "6157a4574e65e359936f44d468eac5d6b53ad16980fac09acf28d82b4010084f",
+      "sourceSha256": "888d6f79cade778670cf3e024740baecdb8c83f9e06403a5fdedb2f7534410b9"
+    },
+    {
+      "file": "Infinity_Art_BSite.glb",
+      "triangles": 294253,
+      "batches": 52,
+      "bytes": 5531503,
+      "sha256": "7c8b32d735979246f014017e8a8672f6c8be182289765261f891d4dcddea1bef",
+      "sourceSha256": "ef4f3292931baa3388be19cb1dfc106d98d4376fac20b3890dda06d3cc1726f0"
+    },
+    {
+      "file": "Infinity_Art_DefPathA.glb",
+      "triangles": 151001,
+      "batches": 35,
+      "bytes": 2100727,
+      "sha256": "5713c4a00eba1de4dbbe47facd4f86aebcce83b5b1d31cf948c27fdd61336eb6",
+      "sourceSha256": "cc456aa8ea90111e40dc67e93c365e452eb5bbf50f4efe92de6969599a2e19c3"
+    },
+    {
+      "file": "Infinity_Art_DefPathB.glb",
+      "triangles": 333650,
+      "batches": 33,
+      "bytes": 6509092,
+      "sha256": "5ec14fa72338b77c03ebcb12fca35c5832051fee7d551680094cbf7cee60090d",
+      "sourceSha256": "4b71f316ea3a1f2dfc03ea468a57ef346947bcd4d908c75d5ca38f04bae66288"
+    },
+    {
+      "file": "Infinity_Art_DefSpawn.glb",
+      "triangles": 192163,
+      "batches": 69,
+      "bytes": 3930353,
+      "sha256": "346959e6e6a650df6e890b1b9a6e4138cf6085075ce843d03a58c3e92ddc825c",
+      "sourceSha256": "818836f176f2ccdee3303f780cde009dc94855786ddce497663067b01cb3a47f"
+    },
+    {
+      "file": "Infinity_Art_Mid.glb",
+      "triangles": 186428,
+      "batches": 50,
+      "bytes": 2165313,
+      "sha256": "c1ec2c1ad7976d5d285a66eb10fb6e3be6a01979749ec59824e95d54a7951c74",
+      "sourceSha256": "d12cf3d8729f56d795b7a0baeb1b5a4554d169386133163ea706a57897ad44b3"
+    },
+    {
+      "file": "Infinity_Art_MidAtk.glb",
+      "triangles": 40993,
+      "batches": 33,
+      "bytes": 463118,
+      "sha256": "3940f9b91f451300f7d9587e90023a16a535dee1455610d545b0e72b3df91cb3",
+      "sourceSha256": "a1dfdc4ce409c3de2bfa010752ea873d4bb4aa3e4a4adcd4ef7eda776600a1a0"
+    },
+    {
+      "file": "Infinity_Art_MidDef.glb",
+      "triangles": 55157,
+      "batches": 17,
+      "bytes": 873295,
+      "sha256": "7f3508976635306fcea20b1047e3c48eaabbfe42bbcc17dd47afad4de576f349",
+      "sourceSha256": "0674caba0eef059f5d2508d7d12e56233e1d29d4aad9f5f35fad61a34291cc30"
+    },
+    {
+      "file": "Infinity_Art_Signs.glb",
+      "triangles": 132,
+      "batches": 20,
+      "bytes": 6409,
+      "sha256": "579dce254f8aa484c9c853fecc84c80e73b5bee5961d35eaef2132040958d496",
+      "sourceSha256": "0553fd9b4d592a7fdd8322edae1bf9850144ddd19a9564e88a6bd214d51c4672"
+    }
+  ],
+  "omitted": []
+}

@@ -1,0 +1,103 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Canyon_Asite.glb",
+      "triangles": 171687,
+      "batches": 56,
+      "bytes": 2489544,
+      "sha256": "6ce02e3b85996eb193b31eb8bcee70ddc0f605b3e2df52ba1db2def65a734435",
+      "sourceSha256": "b93ebfaa70090754f2170242e24b4ace9b5bf73b9df4d3fab68c3e49bae6c41e"
+    },
+    {
+      "file": "Canyon_AtkPathToASite.glb",
+      "triangles": 115113,
+      "batches": 55,
+      "bytes": 1736879,
+      "sha256": "20d8000e7e03f123c6e96aaed7918e23f73a87195a827a14e819cce118d1c191",
+      "sourceSha256": "50019a75b2a759e86cfdef6cc6f950bdf571e7e92020677456f88ac3eaa40c1b"
+    },
+    {
+      "file": "Canyon_AtkPathToBSite.glb",
+      "triangles": 235632,
+      "batches": 41,
+      "bytes": 4948558,
+      "sha256": "d4a376e1421a88cf47e1ef350a906984a7188477cbb3323f8b1012caf076d193",
+      "sourceSha256": "d6bda65e9262ee6b986e1ff9ceb1d4497deea1ce4099ad9ce3ea3fb7cca64fc4"
+    },
+    {
+      "file": "Canyon_AtkSpawn.glb",
+      "triangles": 224981,
+      "batches": 43,
+      "bytes": 4359356,
+      "sha256": "5fb1f4961a992a3f1000e8ec025c1c4e5e7bd01245346ee76ed7c6386b4a986c",
+      "sourceSha256": "a11e4564f9ab21b8487d10304e81d5198a502f55ad9066f04ffedc2874fd7988"
+    },
+    {
+      "file": "Canyon_BSite.glb",
+      "triangles": 524764,
+      "batches": 54,
+      "bytes": 10066184,
+      "sha256": "b007a5a962b3dad59b2f59161244d0bb2cfd53d5650799175423bc326aeb5b78",
+      "sourceSha256": "9c6efd52a1aa5bab4965f7168babfc7dfe59986c8b96fe246420a38d422bacd6"
+    },
+    {
+      "file": "Canyon_BSiteTunnel.glb",
+      "triangles": 50508,
+      "batches": 17,
+      "bytes": 782766,
+      "sha256": "79dbf7544c0cdb42f6ccd2df004dd2b8fb585281cfa41434e16f93904aa59d20",
+      "sourceSha256": "f5a47231267ff3302dbd8f23eb4de5a79faa22b6a043b627cbeb42cdb14dc5ab"
+    },
+    {
+      "file": "Canyon_BackPath.glb",
+      "triangles": 78182,
+      "batches": 17,
+      "bytes": 1656352,
+      "sha256": "e9e487480a648656e4e34f31acbbd3a6438db7610a0a4cb100927dc59d436ce6",
+      "sourceSha256": "c9defcb7cc7daecedd3fe8d4c94cbb7c21a596424d68d40992b41234d962dc62"
+    },
+    {
+      "file": "Canyon_BackPathToB.glb",
+      "triangles": 280927,
+      "batches": 85,
+      "bytes": 6094974,
+      "sha256": "38c4db6115d59d74b049c0517e51b0ef4fa89ba7412a2efabcd5b3a1f49e261b",
+      "sourceSha256": "23ca51ac86207e19de6d18e1d8372e11a147cf432fcd977f148a25814ff596f5"
+    },
+    {
+      "file": "Canyon_BackPathtoA.glb",
+      "triangles": 145865,
+      "batches": 42,
+      "bytes": 2921727,
+      "sha256": "0cf6622c051bd5651141270b3452a1b237aca82c4e9ab9fdb661afc2c8da7d52",
+      "sourceSha256": "0536fea8bde3eae28de2ab7b0da551b7c9e853cac5041e6aee2d14f4399b1131"
+    },
+    {
+      "file": "Canyon_Mid.glb",
+      "triangles": 244302,
+      "batches": 38,
+      "bytes": 4357373,
+      "sha256": "02b3d2a67c8a660f01fe6873ad4cad2fefdc83dd6c921f9deaf7ef07f4dc8c44",
+      "sourceSha256": "19035a8b0fb9602758ff1e0a3c239dd3e3d02fa4b378f7d29dabfdf11e10d7fb"
+    },
+    {
+      "file": "Canyon_MidCollider.glb",
+      "triangles": 208477,
+      "batches": 44,
+      "bytes": 3474898,
+      "sha256": "1db87d5cadc2d5f19d188dcd11a8061f186d76af5f9bc1d854bf922ce1517dd6",
+      "sourceSha256": "d28c049da6c6fecb1919d780c7974d0980c47110e2b7e160614c1e7b66fcc0fe"
+    }
+  ],
+  "omitted": [
+    {
+      "level": "Canyon_APathNoMid",
+      "reason": "nonplayable scenery or prototype"
+    },
+    {
+      "level": "Canyon_ASidePath",
+      "reason": "nonplayable scenery or prototype"
+    }
+  ]
+}

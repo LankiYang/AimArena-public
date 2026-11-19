@@ -1,0 +1,126 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Jam_ArtDefPathCExterior.glb",
+      "triangles": 112701,
+      "batches": 44,
+      "bytes": 2709049,
+      "sha256": "d901b2082ad96ee59fd2ca28a757833f0b2e119ee2d40500ccb0839f0104be9e",
+      "sourceSha256": "1866fd1fa4f1d9fbe91d8e9f307600bbb6d9a4f01a6cff676e39da45687d1858"
+    },
+    {
+      "file": "Jam_Art_ASite.glb",
+      "triangles": 232794,
+      "batches": 34,
+      "bytes": 5163152,
+      "sha256": "ee5ed8bbb780fac0090360a7665af5d1f3701eaa8e77c15dfc66fa80a382a83a",
+      "sourceSha256": "87951330b3263b1f2bb34233e1f9875102897be6f98fb745142f8c2da9e15101"
+    },
+    {
+      "file": "Jam_Art_AtkPathA.glb",
+      "triangles": 178470,
+      "batches": 39,
+      "bytes": 4046770,
+      "sha256": "0f68c06fb5df7d4966a6c49f9791e756d7bf739a8bb4bc993037af700155d233",
+      "sourceSha256": "9f57d2f0b4289a4d546bebcbff7690a45dd39ed19774bb12844a8729d19c6324"
+    },
+    {
+      "file": "Jam_Art_AtkPathB.glb",
+      "triangles": 119399,
+      "batches": 19,
+      "bytes": 2029307,
+      "sha256": "8113decd098ca9f41704be5aac1adda0a5c6878362f494a2457f5564ca49ab6b",
+      "sourceSha256": "dd349b683ec272784dd2df7192c455d70cbaa9cda4935179c039fade402cac38"
+    },
+    {
+      "file": "Jam_Art_AtkPathC.glb",
+      "triangles": 290721,
+      "batches": 69,
+      "bytes": 6994679,
+      "sha256": "63fb1a5dabbfe6014de28bd76dd174b6d8c7206c5230abd80d9607867a8c07d1",
+      "sourceSha256": "c431b0a2bd602bf103da3d04815002954e9183701611cd4ea9b8e1c1b99372be"
+    },
+    {
+      "file": "Jam_Art_AtkSpawn.glb",
+      "triangles": 328485,
+      "batches": 41,
+      "bytes": 7162249,
+      "sha256": "e93bfc6255c5a247cb134cf5abdc2fa6cbab28fbbda0f0ea2265a8470954a773",
+      "sourceSha256": "c6d850342fe5603b2713406e1a6f47863f091a5b3c35a693ed77e0e7d68da364"
+    },
+    {
+      "file": "Jam_Art_BSite.glb",
+      "triangles": 185112,
+      "batches": 30,
+      "bytes": 3671747,
+      "sha256": "c48dbd307a0f7aa991e185a9cd343a1e47262699cce8777374c82813b07b7df5",
+      "sourceSha256": "75b15bbd67d96988a8f56db00c1576f43ce248b9e623873018359cc537cf2281"
+    },
+    {
+      "file": "Jam_Art_CBConnector.glb",
+      "triangles": 71333,
+      "batches": 14,
+      "bytes": 1421765,
+      "sha256": "a48e27505587b3cd060c630a0c84a8ec4e27ad04143e41530d1fd049a8a05f31",
+      "sourceSha256": "27cd3821855955d2daf61ca4554a526e03ed36ffeea8f271a3948774f3f129cb"
+    },
+    {
+      "file": "Jam_Art_CSite.glb",
+      "triangles": 213869,
+      "batches": 30,
+      "bytes": 4718359,
+      "sha256": "a0305c4b8baaf8d55c681ef6f703a4b3911ab193f5dd84161ea1b3c5704aca0f",
+      "sourceSha256": "ae9caac5f5b321e93628d79ac84b9a0945081b29e84c44e9baf472619cf1b4cf"
+    },
+    {
+      "file": "Jam_Art_DefPathA.glb",
+      "triangles": 134647,
+      "batches": 31,
+      "bytes": 2350468,
+      "sha256": "e65c283ae922f4ddc85ec7c3db0ea5502f4d2f613b2848b0d573599e9444aba8",
+      "sourceSha256": "19fb6e6f7019b983738a3b6886aa257e20be9e10132506ba00ab31c9302acb10"
+    },
+    {
+      "file": "Jam_Art_DefPathB.glb",
+      "triangles": 72181,
+      "batches": 21,
+      "bytes": 1494936,
+      "sha256": "ccc48ee35ef53b339a9873eb1dface2a24b73fcc65fb0d8ef7250c5d2b7544e9",
+      "sourceSha256": "db09efa764913cc4ef16031fb4bce0c40aec7edf4457909d76721973cb8ecac4"
+    },
+    {
+      "file": "Jam_Art_DefPathC.glb",
+      "triangles": 106324,
+      "batches": 24,
+      "bytes": 2056681,
+      "sha256": "a641c74583ca150febf25107a8c09201929ac7228a265712dd6c74ded8165370",
+      "sourceSha256": "921b02b692bb6f8001090310bd76fd454f22114f6fffb9e5feb48d42c73ead4e"
+    },
+    {
+      "file": "Jam_Art_DefSpawn.glb",
+      "triangles": 159561,
+      "batches": 50,
+      "bytes": 3182723,
+      "sha256": "0967c0968bb457f77d1a07aeb44526e2c118681c9393f17eabf40181abda70cc",
+      "sourceSha256": "29349c8666d3cd3cfecc64108bb7136acbb211b4b2bd405e334f9ffc6a426770"
+    },
+    {
+      "file": "Jam_Art_DoorBakeRooms.glb",
+      "triangles": 7860,
+      "batches": 14,
+      "bytes": 154603,
+      "sha256": "fe2a3c1a441ee529332d1335317a6c7355a76699c050d297b4cff904b2a05a23",
+      "sourceSha256": "6dfab6664ccc803c3ffe1726e1c089aa55e1d4c883560ec47479eda65ce37a9f"
+    },
+    {
+      "file": "Jam_Changes_2023.glb",
+      "triangles": 652,
+      "batches": 19,
+      "bytes": 10995,
+      "sha256": "bede5138ce676d4d95398a1d5f9c6966d344688cfae279dddcaffa6dfc302d3e",
+      "sourceSha256": "87105b72eda6b7a5a421afc78de16f7a86aba61aefb18f253f2452ed65ead4f6"
+    }
+  ],
+  "omitted": []
+}

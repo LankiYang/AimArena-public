@@ -1,0 +1,126 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Duality_Art_A.glb",
+      "triangles": 91612,
+      "batches": 32,
+      "bytes": 1630640,
+      "sha256": "2f2204b682b39e3ce2650e3d7770d1c1b54884feed8e372405a363f6c3ccee2e",
+      "sourceSha256": "8ad5606c733a712d8935b43b699d667fd60986b86e22a0364e3e272865d95dd7"
+    },
+    {
+      "file": "Duality_Art_Atk.glb",
+      "triangles": 170415,
+      "batches": 35,
+      "bytes": 3571835,
+      "sha256": "a105167963e1855494776cfa171b4bb3b852f26d85d45a4c5f4e436781f87e73",
+      "sourceSha256": "d596851b16e4be4a72db8c5ba57074fe367ff651933ff89f213d2f758cbd4dac"
+    },
+    {
+      "file": "Duality_Art_AtkPathA.glb",
+      "triangles": 131104,
+      "batches": 35,
+      "bytes": 2115788,
+      "sha256": "aacd6834646ccf920a3f70b92a8a1e573ea3ff0bf61731c337f16c5e2796088c",
+      "sourceSha256": "378118bae7123e35c4ff467aae0a7b89ccb95ce3f286a6b4eef58149cfa013db"
+    },
+    {
+      "file": "Duality_Art_AtkPathB.glb",
+      "triangles": 327529,
+      "batches": 62,
+      "bytes": 5633061,
+      "sha256": "1b49fbfa91af052b79b3d5a8c23efe82243c29febef93b1de08381738184a057",
+      "sourceSha256": "e4bd641edc9402d9ba229b5006238b87ec557b392644f60cc7b42f29fd01c45c"
+    },
+    {
+      "file": "Duality_Art_B.glb",
+      "triangles": 77445,
+      "batches": 37,
+      "bytes": 1041882,
+      "sha256": "75461a64c6268a4a2b9662c3e801ff8b881b75ea52fb464e260fe668e31f9f19",
+      "sourceSha256": "6affa8b5f63f7bab0fb6558cb4ca87ab4e844d9e19584ac40d8b2e2916c73b7a"
+    },
+    {
+      "file": "Duality_Art_BathHouse.glb",
+      "triangles": 78311,
+      "batches": 34,
+      "bytes": 1197832,
+      "sha256": "1401aae583ff32560cec475f9873b5b9c87806232dbdebba82daae04446c45cf",
+      "sourceSha256": "8e88eac7dc6a2c70f122a4690b2aeab0f717741e195a6603a1904fcec5f57d73"
+    },
+    {
+      "file": "Duality_Art_Def.glb",
+      "triangles": 117254,
+      "batches": 33,
+      "bytes": 1906658,
+      "sha256": "0fc87c6d86ababdc3b0ce2c2a9f97b2b236986caf9d0b4f2fcee9ca6e6d76ac6",
+      "sourceSha256": "fc59a299a3f5956192d7ec39cb82961d2ff2fcbdcd595348dcaada1c15eab556"
+    },
+    {
+      "file": "Duality_Art_DefPathA.glb",
+      "triangles": 64332,
+      "batches": 23,
+      "bytes": 855192,
+      "sha256": "dee17ad526cf513bf9042b9dba3f7b93d2c1d397c0e854b214639bef7f18835a",
+      "sourceSha256": "fb051771902b4af2a082cab03db2fb93fef124d4ea130a47954a10ae9e099e2f"
+    },
+    {
+      "file": "Duality_Art_DefPathB.glb",
+      "triangles": 56972,
+      "batches": 26,
+      "bytes": 786739,
+      "sha256": "c2d0b400a7fe5bf47766da3e34514f0e4c3c1ae1c1d1a0b4ec759c95e1ba1ad7",
+      "sourceSha256": "4f6bc482ea21af1627e84d23c0edb462554355330dc31562ad60da76e11582f1"
+    },
+    {
+      "file": "Duality_Art_Lantern.glb",
+      "triangles": 114961,
+      "batches": 24,
+      "bytes": 1769448,
+      "sha256": "ffed897ed333b5d7d4f8aef264fd92d7cce5e6c9aa3438b3909d732dbbbd80b3",
+      "sourceSha256": "3f193814207d4b56e00150d89e885e01a7aa1e201d84abcd80cc385d28e35a90"
+    },
+    {
+      "file": "Duality_Art_MIdPathB.glb",
+      "triangles": 122693,
+      "batches": 44,
+      "bytes": 1910591,
+      "sha256": "701c6837cfe931fb21e2a68dcd649e595352e383c2f5b481f049377d36bc79c0",
+      "sourceSha256": "b51d4d2cc1dc46cb3cdeced21375c6612c16962657d4ccb95a365238232f84e8"
+    },
+    {
+      "file": "Duality_Art_Mid.glb",
+      "triangles": 261531,
+      "batches": 76,
+      "bytes": 4116018,
+      "sha256": "4cddb4dcc5dc9a4bbadf51073af88f44def68295962fdd02a1b7b63ffa68795e",
+      "sourceSha256": "132ffe8d5074b834a8a25f834a8558e3426db6f39c41da012d1f2a885679e444"
+    },
+    {
+      "file": "Duality_Art_MidPathA.glb",
+      "triangles": 250951,
+      "batches": 48,
+      "bytes": 4112635,
+      "sha256": "f6439fe3a84656ef788cb0e957a7983c783828942d3949792957a7c02f4022d1",
+      "sourceSha256": "2cf12412f53947779b65f75304862641c3d1dc42170cf0c33d433322e0c176bd"
+    },
+    {
+      "file": "Duality_Art_Signage.glb",
+      "triangles": 12441,
+      "batches": 42,
+      "bytes": 221824,
+      "sha256": "2a50426c5e8df92e6473a71f3b0da9f3f2731bf11fb194e6ed13b41cae6a1c53",
+      "sourceSha256": "f41340bb72ca0cd6f698a461b83175f29fe452b28ccbcc727a7a67b9fb5c8e2b"
+    },
+    {
+      "file": "Duality_Art_TPArrivalRooms.glb",
+      "triangles": 22341,
+      "batches": 24,
+      "bytes": 308381,
+      "sha256": "c8d2d71d0629c2a91639b24ad5101e161d85c65dc393b02145a608fc1924e575",
+      "sourceSha256": "bd7e9e5c5fe1d654076185b0edb75114886208a78074d4844ef411bb2ef4235c"
+    }
+  ],
+  "omitted": []
+}

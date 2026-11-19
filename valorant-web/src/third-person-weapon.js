@@ -16,10 +16,10 @@ const sameQuaternion = (a, b) => {
 
 /**
  * Attach the actual RES Phantom geometry to an imported character's right hand.
- * Call update() after the character mixer and MotionController have updated.
- * update({casting,pitch,visible,correctLeftHand}) optionally releases the left
- * hand during casts and adds an aim pitch in radians. This is a procedural grip
- * alignment, not an imported weapon/character animation.
+ * Restore the previous support pose before updating the character animation,
+ * then call update() to reapply the grip to the new pose.
+ * update({casting,pitch,visible,correctLeftHand,supportWeight}) sets aim pitch
+ * (positive up) and controls how strongly the support hand follows the rifle.
  */
 export function attachThirdPersonWeapon(model, source) {
   const sourceModel = source?.scene || source;
@@ -85,17 +85,27 @@ export function attachThirdPersonWeapon(model, source) {
   forwardLocal.y = 0;
   if (forwardLocal.lengthSq() < 0.001) forwardLocal.set(0, 0, 1);
   forwardLocal.normalize();
+  const aimFrame = (forward, right) => new THREE.Quaternion().setFromRotationMatrix(
+    new THREE.Matrix4().makeBasis(right, new THREE.Vector3().crossVectors(forward, right).normalize(), forward)
+  );
+  const aimUp = new THREE.Vector3(0, 1, 0).applyQuaternion(modelQ);
+  const aimForward = forwardLocal.clone().applyQuaternion(modelQ);
+  const aimRight = new THREE.Vector3().crossVectors(aimUp, aimForward).normalize();
+  // Keep the authored palm angle in rifle space, including the roll about
+  // the handguard. The old wrist angle was taken from the animated torso.
+  const palmInRifle = leftChain ? aimFrame(aimForward, aimRight).invert()
+    .multiply(left.hand.getWorldQuaternion(new THREE.Quaternion())) : null;
+  const socketInPalm = left.socket?.parent === left.hand ? left.socket.position.clone() : null;
   const handRecords = leftChain ? [left.shoulder, left.elbow, left.hand].map(bone => ({ bone, base: bone.quaternion.clone(), output: bone.quaternion.clone(), applied: false })) : [];
   gripBone.add(frame);
   let disposed = false;
 
-  function captureHands() {
+  function restoreSupportHand() {
     for (const record of handRecords) {
       if (record.applied && sameQuaternion(record.bone.quaternion, record.output)) record.bone.quaternion.copy(record.base);
       else record.base.copy(record.bone.quaternion);
       record.applied = false;
     }
-    model.updateWorldMatrix(true, true);
   }
 
   function aimBone(bone, child, target) {
@@ -109,18 +119,21 @@ export function attachThirdPersonWeapon(model, source) {
     bone.updateWorldMatrix(false, true);
   }
 
-  function correctSupportHand(up, right, forward) {
+  function correctSupportHand(up, right, forward, rifleQ, weight) {
     if (!leftChain) return;
     const a = left.shoulder.getWorldPosition(new THREE.Vector3());
     const b = left.elbow.getWorldPosition(new THREE.Vector3());
     const c = left.hand.getWorldPosition(new THREE.Vector3());
     const upper = a.distanceTo(b), lower = b.distanceTo(c);
     if (upper < 1e-6 || lower < 1e-6) return;
-    const holdQ = left.hand.getWorldQuaternion(new THREE.Quaternion());
+    const holdQ = rifleQ.clone().multiply(palmInRifle);
     // Preserve the character's palm/fingers, and move its true WeaponPoint to
     // the underside of the handguard rather than putting the wrist in it.
     const target = support.getWorldPosition(new THREE.Vector3());
-    if (left.socket?.parent === left.hand) target.sub(left.socket.getWorldPosition(new THREE.Vector3()).sub(c));
+    if (socketInPalm) {
+      const offset = socketInPalm.clone().multiply(left.hand.getWorldScale(new THREE.Vector3())).applyQuaternion(holdQ);
+      target.sub(offset);
+    }
     const direction = target.clone().sub(a);
     if (direction.lengthSq() < 1e-10) return;
     const distance = THREE.MathUtils.clamp(direction.length(), Math.abs(upper - lower) + 0.0001, (upper + lower) * 0.994);
@@ -134,21 +147,24 @@ export function attachThirdPersonWeapon(model, source) {
     aimBone(left.shoulder, left.elbow, elbowTarget);
     aimBone(left.elbow, left.hand, reachable);
     left.hand.quaternion.copy(left.hand.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(holdQ)).normalize();
-    left.hand.updateWorldMatrix(false, true);
+    if (weight < 1) {
+      for (const { bone, base } of handRecords) bone.quaternion.slerp(base, 1 - weight).normalize();
+    }
+    left.shoulder.updateWorldMatrix(false, true);
     for (const record of handRecords) { record.output.copy(record.bone.quaternion); record.applied = true; }
   }
 
   function update(options = {}) {
     if (disposed) return api;
     if (typeof options !== 'object' || options === null) options = {};
-    captureHands();
+    restoreSupportHand();
+    model.updateWorldMatrix(true, true);
     const characterQ = model.getWorldQuaternion(new THREE.Quaternion());
     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(characterQ).normalize();
     const forward = forwardLocal.clone().applyQuaternion(characterQ).normalize();
     const right = new THREE.Vector3().crossVectors(up, forward).normalize();
-    if (Number.isFinite(options.pitch)) forward.applyAxisAngle(right, THREE.MathUtils.clamp(options.pitch, -1.2, 1.2));
-    const correctedUp = new THREE.Vector3().crossVectors(forward, right).normalize();
-    const desired = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, correctedUp, forward));
+    if (Number.isFinite(options.pitch)) forward.applyAxisAngle(right, -THREE.MathUtils.clamp(options.pitch, -1.2, 1.2));
+    const desired = aimFrame(forward, right);
     const parentQ = gripBone.getWorldQuaternion(new THREE.Quaternion());
     frame.quaternion.copy(parentQ.invert().multiply(desired)).normalize();
     const scale = gripBone.getWorldScale(new THREE.Vector3());
@@ -156,13 +172,17 @@ export function attachThirdPersonWeapon(model, source) {
     frame.position.set(0, 0, 0);
     frame.visible = options.visible !== false;
     frame.updateWorldMatrix(false, true);
-    if (!options.casting && options.correctLeftHand !== false && frame.visible) correctSupportHand(up, right, forward);
+    const supportWeight = THREE.MathUtils.clamp(options.supportWeight ?? (options.casting ? 0 : 1), 0, 1);
+    if (supportWeight > 0 && options.correctLeftHand !== false && frame.visible) {
+      const rifleUp = new THREE.Vector3().crossVectors(forward, right).normalize();
+      correctSupportHand(rifleUp, right, forward, desired, supportWeight);
+    }
     return api;
   }
 
   function dispose() {
     if (disposed) return;
-    captureHands();
+    restoreSupportHand();
     frame.removeFromParent();
     // The batch factory owns cloned buffers/materials and preserves the source.
     resource.dispose();
@@ -173,7 +193,7 @@ export function attachThirdPersonWeapon(model, source) {
     root: frame, weapon, gripBone, rightHand, leftHand: left.hand,
     anchors: { grip, muzzle, support, stock },
     metadata: Object.freeze({ kind: 'procedural-weapon-grip', sourceGeometry: 'RES Phantom', normalizedLengthMetres: 0.91, sourceLongAxis: sourceAxis, sourceMuzzleDirection: sourceAxis === 'x' ? '-X' : '+Z', originalMeshCount: resource.stats.sourceMeshes, renderMeshCount: meshCount, triangles: resource.stats.triangles, authoredAnimation: false }),
-    update, dispose
+    restoreSupportHand, update, dispose
   };
   frame.userData.thirdPersonWeapon = api.metadata;
   update();

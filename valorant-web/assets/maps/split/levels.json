@@ -1,0 +1,126 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Bonsai_Art_A.glb",
+      "triangles": 199592,
+      "batches": 43,
+      "bytes": 3915862,
+      "sha256": "32387ea15adf1e199928cda0a2550880fe61fe79a738b616c461dc0e9ce4e43e",
+      "sourceSha256": "b51350c890a873b3c0a1896fbd67bf76acbf58527d9fce6427b3f3b720f0baed"
+    },
+    {
+      "file": "Bonsai_Art_ATower.glb",
+      "triangles": 26215,
+      "batches": 28,
+      "bytes": 405362,
+      "sha256": "369f81dcbc682d3a701d83461d212ae151bb8b588d9a68e74c35f55962519710",
+      "sourceSha256": "f9ca456b73afd9425d5a32226aa5398884ef640e1f0699311bd02c3925e86555"
+    },
+    {
+      "file": "Bonsai_Art_AtkPathA.glb",
+      "triangles": 305356,
+      "batches": 51,
+      "bytes": 6775948,
+      "sha256": "28a734dd4e936eb89fcb6dfa78348062d654bd7c1f7f3ee348fe82a0e844854f",
+      "sourceSha256": "e1380c8feebf71755d326789651803376532e1270a9013111c4fb54a4a1baa11"
+    },
+    {
+      "file": "Bonsai_Art_AtkPathB.glb",
+      "triangles": 191047,
+      "batches": 53,
+      "bytes": 3160428,
+      "sha256": "1ada2e8be312e7059b8617a8ddbe4b8f8cbf79c1d46321f8418b32b0ab5b353e",
+      "sourceSha256": "40687dc9042abc9abef3641a430f2fbce34eebef4ef795b8ceff0b1e33636a98"
+    },
+    {
+      "file": "Bonsai_Art_AtkSpawn.glb",
+      "triangles": 109842,
+      "batches": 34,
+      "bytes": 2053663,
+      "sha256": "4b0943288c513a71efc56030300ab565b3757221b3413dceaaa72fccf78dbff1",
+      "sourceSha256": "08dea43db3239c663b95b5ef40d18fcf4ac05dc883a9b9ca7595d8163da34207"
+    },
+    {
+      "file": "Bonsai_Art_B.glb",
+      "triangles": 213468,
+      "batches": 44,
+      "bytes": 3280083,
+      "sha256": "ac43af461b991c015c685eb3962d8aa83b89e53187d8bc5470125c31e5393455",
+      "sourceSha256": "d970ae5246531b3919e6ee473f96aedd723c231c038c9120faafb9a94703e61e"
+    },
+    {
+      "file": "Bonsai_Art_BTower.glb",
+      "triangles": 313139,
+      "batches": 43,
+      "bytes": 4725142,
+      "sha256": "38aeb08e40f4e30caee029f6743e7c518e5744957e5ed5aaae6a38caa64904ac",
+      "sourceSha256": "85c8e4dd6ad2621ab6a35ba8d3a5fb850618bd6825279f374e3972cb7ca0ff1e"
+    },
+    {
+      "file": "Bonsai_Art_DefPathA.glb",
+      "triangles": 53346,
+      "batches": 23,
+      "bytes": 1212598,
+      "sha256": "038eb08203c1b76a4a34ccc7065cc3286a49e4b1b222d99dd7b839323756c580",
+      "sourceSha256": "612437230856633e04c2c8d6600d9e4a37eafd5b7491f6252ebb59c362f4d4b1"
+    },
+    {
+      "file": "Bonsai_Art_DefPathB.glb",
+      "triangles": 252269,
+      "batches": 66,
+      "bytes": 4269340,
+      "sha256": "1cc910939b740c9b10ab6736e11bd811151175082a9c9b1e624f6eca1838a528",
+      "sourceSha256": "a880e0b545f70bf0ada1b314bc133981d0e5ab17b9dba87f17cc8dbd1c3de8bd"
+    },
+    {
+      "file": "Bonsai_Art_DefSpawn.glb",
+      "triangles": 191624,
+      "batches": 194,
+      "bytes": 3568110,
+      "sha256": "4b2a9720ca1ce7916dc652746498733227330ec5972e40deb45c6a6fc4b55ead",
+      "sourceSha256": "d4a3131a394bc6f0d6f4b44963cf74108f210eb2d9d4ee6127f22bd35ff23879"
+    },
+    {
+      "file": "Bonsai_Art_HappyStore.glb",
+      "triangles": 59045,
+      "batches": 11,
+      "bytes": 923876,
+      "sha256": "f699fdd6cfa7e84934a0ec231ddeb503d4fa6c0a16b1852384480ffe63ee45f1",
+      "sourceSha256": "6af187327bf74e5c1aef78ab869534533c078ac3c1663e74b364115c6942eecb"
+    },
+    {
+      "file": "Bonsai_Art_Mid.glb",
+      "triangles": 259443,
+      "batches": 52,
+      "bytes": 3932407,
+      "sha256": "87409ee2ecb21909f0cbf40cdb21745c6dd2b0130dd00eba9da69855b6ef51e5",
+      "sourceSha256": "486d1e018b62053cba608f6ceead14bf7c73b0cebd5e25bdf562502f3754c0d2"
+    },
+    {
+      "file": "Bonsai_Art_MidConstruction.glb",
+      "triangles": 75321,
+      "batches": 29,
+      "bytes": 1103854,
+      "sha256": "137aeed004c4b114bd5fb2766f3f61599a2de9ede837504f13c368c29dfea787",
+      "sourceSha256": "9c7479835c2ec26f07225d259ae428d13be289135017582db623da0a3d9d7b73"
+    },
+    {
+      "file": "Bonsai_Art_MidVent.glb",
+      "triangles": 93875,
+      "batches": 11,
+      "bytes": 1121977,
+      "sha256": "8d7c2e98f220c7d0966ab8d45752c3c42159a0f3faf32a3b70acb1f36513728c",
+      "sourceSha256": "670f9dd6fe335573de188feb3eff7371f99519fdebd013d4bbfcb858cf1445ce"
+    },
+    {
+      "file": "Bonsai_Art_Sewer.glb",
+      "triangles": 90887,
+      "batches": 26,
+      "bytes": 1231506,
+      "sha256": "225f3b583e99bc234cc0c2e1fc83628b749ded0563f3c7773eddf7362fbfac0c",
+      "sourceSha256": "7f837447c401f5876704157ab57481bbb36aef7ed1d9c047e99ed8615c7f5af0"
+    }
+  ],
+  "omitted": []
+}

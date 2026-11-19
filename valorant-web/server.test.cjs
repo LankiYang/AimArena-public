@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createGameServer, loadAscentWorld, rayBox, overlapsWorld, MAP } = require('./server.cjs');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const createStudyServer = options => createGameServer({boxWorlds:[MAP], ...options});
 
 async function connect(url, join) {
   const ws = new WebSocket(url), messages = [];
@@ -35,7 +36,7 @@ test('map has traversable gates, body collision and shared sites', () => {
 });
 
 test('two real WebSocket clients: authoritative movement, buy, skills, blocked shots, kill and next round', async t => {
-  const game = createGameServer({ readyMs: 70, durations: { buy: 5000, live: 20000, end: 250 } });
+  const game = createStudyServer({ readyMs: 70, durations: { buy: 5000, live: 20000, end: 250 } });
   t.after(() => game.close()); const address = await game.listen(0, '127.0.0.1');
   const url = `ws://127.0.0.1:${address.port}`;
   const a = await connect(url, { name: 'ATTACK', room: 'integration', team: 'attack', agent: 'jett' });
@@ -82,13 +83,20 @@ test('two real WebSocket clients: authoritative movement, buy, skills, blocked s
 });
 
 test('two real WebSocket clients: plant hold, cancellation, defuse and explosion win', async t => {
-  const game = createGameServer({ readyMs: 40, durations: { buy: 5000, live: 20000, end: 150, plant: 130, defuse: 150, bomb: 700 } });
+  let frozenNow;
+  const game = createStudyServer({ now:()=>frozenNow??Date.now(), readyMs: 40, durations: { buy: 5000, live: 20000, end: 150, plant: 130, defuse: 150, bomb: 700 } });
   t.after(() => game.close()); const address = await game.listen(0, '127.0.0.1'), url = `ws://127.0.0.1:${address.port}`;
   const a = await connect(url, { name: 'A', room: 'bomb', team: 'attack', agent: 'jett' }); const b = await connect(url, { name: 'B', room: 'bomb', team: 'defend', agent: 'sage' });
   const room = game.rooms.get('bomb'), pa = room.players.get(a.welcome.selfId), pb = room.players.get(b.welcome.selfId);
   a.send({ type: 'ready' }); await a.wait(m => m.type === 'snapshot' && m.phase === 'live');
   Object.assign(pa, { x: -25, z: -11, input: null }); Object.assign(pb, { x: -27, z: -11, input: null });
-  await a.command({ type: 'interact', action: 'start' }, m => m.type === 'event' && m.event === 'plantStart'); a.send({ type: 'interact', action: 'stop' }); await delay(40); assert.equal(room.bomb.state, 'carried');
+  frozenNow=Date.now();
+  await a.command({ type: 'interact', action: 'start' }, m => m.type === 'event' && m.event === 'plantStart');
+  assert.equal(room.bomb.state,'planting');
+  a.send({ type: 'interact', action: 'stop' });
+  await a.command({ type: 'ping', clientTime: 1 }, m => m.type === 'pong' && m.clientTime === 1);
+  assert.equal(room.bomb.state, 'carried');
+  frozenNow=undefined;
   await a.command({ type: 'interact', action: 'start' }, m => m.type === 'event' && m.event === 'plantStart'); await a.wait(m => m.type === 'event' && m.event === 'plant'); assert.equal(room.bomb.state, 'planted'); assert.equal(pa.hasBomb, false);
   await b.command({ type: 'interact', action: 'start' }, m => m.type === 'event' && m.event === 'defuseStart'); await b.wait(m => m.type === 'event' && m.event === 'defuse'); assert.equal(room.score.defend, 1); assert.equal(room.lastResult.reason, 'defused');
   await a.wait(m => m.type === 'snapshot' && m.phase === 'buy' && m.round === 2); a.send({ type: 'ready' }); const after = a.messages.length; await a.wait(m => m.type === 'snapshot' && m.phase === 'live' && m.round === 2, after);
@@ -97,7 +105,7 @@ test('two real WebSocket clients: plant hold, cancellation, defuse and explosion
 });
 
 test('malformed and prototype-key purchases cannot corrupt state or stall another socket', async t => {
-  const game = createGameServer({ durations: { buy: 20000 } });
+  const game = createStudyServer({ durations: { buy: 20000 } });
   t.after(() => game.close()); const address = await game.listen(0, '127.0.0.1'), url = `ws://127.0.0.1:${address.port}`;
   const attacker = await connect(url, { name: '<script>bad</script>', room: 'adversarial', team: 'attack', agent: 'jett' });
   const other = await connect(url, { name: 'OTHER', room: 'adversarial', team: 'defend', agent: 'sage' });
@@ -129,7 +137,7 @@ test('malformed and prototype-key purchases cannot corrupt state or stall anothe
 });
 
 test('agent basics: Jett updraft, Sage slow, ice-wall collision and shooting blocks apart', async t => {
-  const game = createGameServer({ readyMs: 40, durations: { buy: 5000, live: 20000 } });
+  const game = createStudyServer({ readyMs: 40, durations: { buy: 5000, live: 20000 } });
   t.after(() => game.close()); const address = await game.listen(0, '127.0.0.1'), url = `ws://127.0.0.1:${address.port}`;
   const jett = await connect(url, { name: 'JETT', room: 'basics', team: 'attack', agent: 'jett' });
   const sage = await connect(url, { name: 'SAGE', room: 'basics', team: 'defend', agent: 'sage' });
@@ -157,7 +165,7 @@ test('agent basics: Jett updraft, Sage slow, ice-wall collision and shooting blo
 
 test('Ascent B: actual source floor, room map lock, precise socket movement/rays and one-site round', async t => {
   const ascentWorld = await loadAscentWorld();
-  const game = createGameServer({ ascentWorld, readyMs: 40, durations: { buy: 5000, live: 20000, plant: 120, defuse: 150, bomb: 1000 } });
+  const game = createStudyServer({ ascentWorld, readyMs: 40, durations: { buy: 5000, live: 20000, plant: 120, defuse: 150, bomb: 1000 } });
   t.after(() => game.close()); const address = await game.listen(0, '127.0.0.1'), url = `ws://127.0.0.1:${address.port}`;
   const a = await connect(url, { name: 'SOURCE-A', room: 'source', team: 'attack', agent: 'jett', map: 'ascent-b' });
   const b = await connect(url, { name: 'SOURCE-B', room: 'source', team: 'defend', agent: 'sage', map: 'ascent-b' });
@@ -181,4 +189,142 @@ test('Ascent B: actual source floor, room map lock, precise socket movement/rays
   await a.command({ type: 'interact', action: 'start' }, m => m.type === 'event' && m.event === 'plantStart'); await a.wait(m => m.type === 'event' && m.event === 'plant'); assert.ok(Math.abs(room.bomb.y - site.y) < 0.1, 'Spike must keep the real source floor height');
   await b.command({ type: 'interact', action: 'start' }, m => m.type === 'event' && m.event === 'defuseStart'); await b.wait(m => m.type === 'event' && m.event === 'roundEnd' && m.reason === 'defused'); assert.equal(room.score.defend, 1);
   const final = await b.wait(m => m.type === 'snapshot' && m.mapId === 'ascent-b' && m.phase === 'end'); assert.ok(final.players.every(p => Number.isFinite(p.vy) && Number.isFinite(p.speed) && typeof p.grounded === 'boolean'));
+});
+
+test('Ascent full: two sockets move on the release collision and play both sites', async t => {
+  const ascentFullWorld=await loadAscentWorld('ascent-full');
+  const game=createGameServer({ascentFullWorld,readyMs:35,durations:{buy:5000,live:20000,end:140,plant:120,defuse:130,bomb:1600}});
+  t.after(()=>game.close());
+  const {port}=await game.listen(0,'127.0.0.1'), base='http://127.0.0.1:'+port, url='ws://127.0.0.1:'+port;
+  const data=await (await fetch(base+'/world.json?map=ascent-full')).json();
+  const response=await fetch(base+data.levels[0].url);
+  assert.equal(response.headers.get('content-encoding'),'gzip');
+  assert.equal(Buffer.from(await response.arrayBuffer()).toString('ascii',0,4),'glTF');
+  const a=await connect(url,{name:'FULL-A',room:'full',team:'attack',map:data.id});
+  const b=await connect(url,{name:'FULL-B',room:'full',team:'defend',map:data.id});
+  assert.equal(a.welcome.mapId,'ascent-full');
+  assert.equal(b.welcome.world.spawns.defend.length,5);
+  assert.deepEqual(b.welcome.world.sites.map(s=>s.id),['A','B']);
+  const room=game.rooms.get('full'), pa=room.players.get(a.welcome.selfId), pb=room.players.get(b.welcome.selfId);
+  a.send({type:'ready'});
+  await a.wait(m=>m.type==='snapshot'&&m.phase==='live');
+  const x=pa.x, mark=b.messages.length;
+  a.send({type:'input',seq:1,moveX:-1,moveZ:0,yaw:-Math.PI/2,pitch:0});
+  await b.wait(m=>m.type==='snapshot'&&m.players.some(p=>p.id===pa.id&&p.x<x-.35),mark);
+  a.send({type:'input',seq:2,moveX:0,moveZ:0,yaw:-Math.PI/2,pitch:0});
+  assert.ok(pa.grounded);
+  const origin={x:pa.x,y:pa.y+1.62,z:pa.z}, wall=ascentFullWorld.raycast(origin,{x:-1,y:0,z:0});
+  assert.ok(wall&&wall.distance>0&&wall.distance<15);
+  const shot=await a.command({type:'fire',yaw:-Math.PI/2,pitch:0,shotId:'ascent-wall'},m=>m.type==='event'&&m.event==='shot'&&m.shotId==='ascent-wall');
+  assert.ok(Math.abs(shot.end.x-wall.position.x)<.03);
+  const set=(p,x,y,z)=>{Object.assign(p,{x,y,z,vy:0,input:null});ascentFullWorld.sync(p);};
+  for(const [i,site] of data.sites.entries()){
+    if(i){
+      await a.wait(m=>m.type==='snapshot'&&m.phase==='buy'&&m.round===2);
+      const index=a.messages.length;
+      a.send({type:'ready'});
+      await a.wait(m=>m.type==='snapshot'&&m.phase==='live'&&m.round===2,index);
+    }
+    set(pa,site.x,site.y,site.z);set(pb,site.x-.9,site.y,site.z);
+    await delay(65);
+    await a.command({type:'interact',action:'start'},m=>m.type==='event'&&m.event==='plantStart'&&m.site===site.id);
+    await a.wait(m=>m.type==='snapshot'&&m.round===i+1&&m.bomb?.state==='planted'&&m.bomb.site===site.id);
+    assert.ok(Math.abs(room.bomb.y-site.y)<.08);
+    const after=b.messages.length;
+    b.send({type:'interact',action:'start'});
+    await b.wait(m=>m.type==='event'&&m.event==='roundEnd'&&m.reason==='defused',after);
+  }
+  assert.equal(room.score.defend,2);
+});
+
+test('release catalog: all maps serve their art, support both teams and play every site', {timeout: 60000}, async t => {
+  const { releaseIds }=require('./shared/ascent-world.cjs');
+  const { AscentWalker }=await import('./src/ascent-collision.mjs');
+  const releaseWorlds=await Promise.all(releaseIds.map(loadAscentWorld));
+  const game=createGameServer({releaseWorlds,readyMs:20,durations:{buy:5000,live:15000,plant:45,defuse:50,bomb:2000,end:100}});
+  t.after(()=>game.close());
+  const {port}=await game.listen(0,'127.0.0.1'),base='http://127.0.0.1:'+port,socket='ws://127.0.0.1:'+port;
+  const maps=await (await fetch(base+'/maps.json')).json();
+  assert.deepEqual(maps.map(m=>m.id),releaseIds);
+  assert.equal((await (await fetch(base+'/world.json')).json()).id,'ascent-full');
+  assert.equal((await fetch(base+'/world.json?map=missing')).status,404);
+  for(const id of ['ascent-study','ascent-b']){
+    const response=await fetch(base+'/world.json?map='+id);
+    assert.equal(response.status,404,id);
+    assert.equal((await response.json()).error,'MAP_UNAVAILABLE',id);
+    const ws=new WebSocket(socket);
+    try{
+      await new Promise((resolve,reject)=>{ws.addEventListener('open',resolve,{once:true});ws.addEventListener('error',reject,{once:true});});
+      const first=new Promise(resolve=>ws.addEventListener('message',e=>resolve(JSON.parse(e.data)),{once:true}));
+      ws.send(JSON.stringify({type:'join',room:'retired',map:id}));
+      assert.equal((await first).code,'MAP_UNAVAILABLE',id);
+      assert.equal(game.rooms.has('retired'),false);
+    }finally{ws.close();}
+  }
+  const preview=await fetch(base+'/ascent-preview.html',{redirect:'manual'});
+  assert.equal(preview.status,302);
+  assert.equal(preview.headers.get('location'),'/?map=ascent-full');
+  const defaultClient=await connect(socket,{room:'default-map',team:'attack'});
+  try{assert.equal(defaultClient.welcome.mapId,'ascent-full');}finally{defaultClient.ws.close();}
+  for(const adapter of releaseWorlds){
+    const {map,world}=adapter, {id}=map, roomId='release-'+id.slice(0,7);
+    const data=await (await fetch(base+'/world.json?map='+id)).json();
+    assert.deepEqual(data,JSON.parse(JSON.stringify(map)));
+    const meta=maps.find(m=>m.id===id);
+    const sites=['haven','lotus'].includes(id)?['A','B','C']:['A','B'];
+    assert.deepEqual(meta.sites,sites);
+    await Promise.all([...map.levels.map(l=>[l.url,'model/gltf-binary',l.bytes]),[map.splash,'image/png'],[map.minimap.url,'image/png'],[map.collisionUrl,'application/json; charset=utf-8']].map(async ([url,mime,bytes])=>{
+      const response=await fetch(base+url,{method:'HEAD'});
+      assert.equal(response.status,200,url);
+      assert.equal(response.headers.get('content-type'),mime,url);
+      if(bytes){assert.equal(response.headers.get('content-encoding'),'gzip',url);assert.equal(Number(response.headers.get('content-length')),bytes,url);}
+    }));
+    const {levelStatus,gzipMagic}=await fetch(base+map.levels[0].url).then(async r=>({levelStatus:r.status,gzipMagic:Buffer.from(await r.arrayBuffer()).toString('ascii',0,4)}));
+    assert.equal(levelStatus,200,id);assert.equal(gzipMagic,'glTF',id);
+    for(const team of ['attack','defend']){
+      assert.equal(map.spawns[team].length,5,id);
+      for(const point of map.spawns[team]){
+        const walker=new AscentWalker(world,[point.x,point.y,point.z]);
+        for(let i=0;i<60;i++)walker.update({x:0,z:0},1/60);
+        const p=walker.getFoot();
+        assert.ok(walker.grounded&&!walker.fellOut&&Math.hypot(p.x-point.x,p.y-point.y,p.z-point.z)<.15,id+' unstable '+team+' spawn '+JSON.stringify(point));
+      }
+      const point=map.spawns[team][0], distance=Array.from({length:16},(_,i)=>{
+        const yaw=i*Math.PI/8,walker=new AscentWalker(world,[point.x,point.y,point.z]);
+        for(let f=0;f<75&&!walker.fellOut;f++)walker.update({x:Math.sin(yaw),z:Math.cos(yaw)},1/60);
+        const p=walker.getFoot();
+        return walker.grounded&&!walker.fellOut?Math.hypot(p.x-point.x,p.z-point.z):0;
+      });
+      assert.ok(Math.max(...distance)>2.5,id+' no walking exit from '+team+' spawn');
+    }
+    const a=await connect(socket,{room:roomId,team:'attack',map:id});
+    const b=await connect(socket,{room:roomId,team:'defend',map:id});
+    try{
+      assert.equal(a.welcome.mapId,id);assert.equal(b.welcome.mapId,id);
+      const wrong=new WebSocket(socket);
+      try{
+        await new Promise((resolve,reject)=>{wrong.addEventListener('open',resolve,{once:true});wrong.addEventListener('error',reject,{once:true});});
+        const message=new Promise(resolve=>wrong.addEventListener('message',e=>resolve(JSON.parse(e.data)),{once:true}));
+        wrong.send(JSON.stringify({type:'join',room:roomId,map:releaseIds.find(other=>other!==id)}));
+        assert.equal((await message).code,'MAP_MISMATCH',id);
+      }finally{wrong.close();}
+      const room=game.rooms.get(roomId),pa=room.players.get(a.welcome.selfId),pb=room.players.get(b.welcome.selfId);
+      for(const [i,site] of map.sites.entries()){
+        await a.wait(m=>m.type==='snapshot'&&m.phase==='buy'&&m.round===i+1);
+        a.send({type:'ready'});
+        await a.wait(m=>m.type==='snapshot'&&m.phase==='live'&&m.round===i+1);
+        // Site fixtures isolate gameplay rules from spawn-to-site navigation.
+        for(const p of [pa,pb]){Object.assign(p,{x:site.x,y:site.y,z:site.z,vy:0,input:null});adapter.sync(p);}
+        await delay(55);
+        assert.ok(pa.grounded&&pb.grounded,id+' '+site.id+' floor');
+        await a.command({type:'interact',action:'start'},m=>m.type==='event'&&m.event==='plantStart'&&m.site===site.id);
+        await b.wait(m=>m.type==='snapshot'&&m.round===i+1&&m.bomb?.state==='planted'&&m.bomb.site===site.id);
+        assert.ok(Math.abs(room.bomb.y-site.y)<.1,id+' '+site.id+' device height');
+        await b.command({type:'interact',action:'start'},m=>m.type==='event'&&m.event==='defuseStart');
+        await a.wait(m=>m.type==='snapshot'&&m.phase==='end'&&m.round===i+1&&m.lastResult?.reason==='defused');
+      }
+      assert.equal(room.score.defend,sites.length,id);
+      console.log(id+': '+map.levels.length+' GLBs, 10 stable spawns, '+sites.length+' sites tested over two sockets');
+    }finally{a.ws.close();b.ws.close();}
+  }
 });

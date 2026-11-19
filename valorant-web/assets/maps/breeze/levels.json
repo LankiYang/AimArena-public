@@ -1,0 +1,110 @@
+{
+  "source": "https://github.com/Pyromesis/CA-VAL-AIM/releases/tag/maps",
+  "levels": [
+    {
+      "file": "Foxtrot_Art_A.glb",
+      "triangles": 203898,
+      "batches": 89,
+      "bytes": 3448102,
+      "sha256": "8e54bb390bab5e5b67955d49a0a2b4b85a75c7e9080a89974e8c37223fa14f22",
+      "sourceSha256": "07832f7c5ed4549598166977fb3618edd05d66988623e83dee7acd9e086eaa38"
+    },
+    {
+      "file": "Foxtrot_Art_A_Tunnel.glb",
+      "triangles": 63667,
+      "batches": 20,
+      "bytes": 1009461,
+      "sha256": "86c3b970513c454d04b91a16aa803d28dd29fd493814a1f8dc6ecaade6c7d78f",
+      "sourceSha256": "71205778db8f42e4aba3dcb8badbba9ad81bb58bb500c7b9696e2bf8ed2c0a29"
+    },
+    {
+      "file": "Foxtrot_Art_AtkPath_A.glb",
+      "triangles": 446166,
+      "batches": 58,
+      "bytes": 9483653,
+      "sha256": "b5147ff242bda94b583bdc6033efb8e196c110eaefcd91d38681414b3effc760",
+      "sourceSha256": "5cf7d1a4967140cad14a7e10c396650f1676504cba214a5fc3bf9cffc3718a87"
+    },
+    {
+      "file": "Foxtrot_Art_AtkPath_B.glb",
+      "triangles": 141241,
+      "batches": 38,
+      "bytes": 2682139,
+      "sha256": "14c728af268fdbb28274ef44ee16117f09507ba2bd9c3e940354319d79d4bb24",
+      "sourceSha256": "cf166883a10f6fa07c55c3d34ce79d43d2cf9e22a77b97d3d5fec30e351f7099"
+    },
+    {
+      "file": "Foxtrot_Art_AtkSpawn.glb",
+      "triangles": 330283,
+      "batches": 53,
+      "bytes": 7086017,
+      "sha256": "6603aacacf777987258876e452d4b2925c392345f2f592d068221a298791e541",
+      "sourceSha256": "af440e2a04e17709a4f01e0ee8a8cacaba688fe5589f36518002588e7ef99b72"
+    },
+    {
+      "file": "Foxtrot_Art_B.glb",
+      "triangles": 265015,
+      "batches": 56,
+      "bytes": 4726787,
+      "sha256": "87a13ffe9749bcbf1931cc76a92160ff9b2e4a3e65284394e6efc24ce458881b",
+      "sourceSha256": "d9865232425d45d242db6801ab7b98cdf76c1161daa07a162a4facc095a16dec"
+    },
+    {
+      "file": "Foxtrot_Art_DefPath_B.glb",
+      "triangles": 92427,
+      "batches": 39,
+      "bytes": 1826752,
+      "sha256": "f0f933ec9473d8630d39b8f8e0cf9c90ad578743f74f19e0d0e68a5620991950",
+      "sourceSha256": "ec3f8573c6cd6398dfe5e997209bf79af536de52690df60f5b05c6a3ad59b046"
+    },
+    {
+      "file": "Foxtrot_Art_DefPath_Mid.glb",
+      "triangles": 40830,
+      "batches": 19,
+      "bytes": 617235,
+      "sha256": "ea340a55d69be97ace18255c71c94d494198e455454f357e8c3d671b546425db",
+      "sourceSha256": "3e67bbed13a6ddb69f3be74d7c0bde3f7441efbcdde5f29191222a3fd334c201"
+    },
+    {
+      "file": "Foxtrot_Art_DefSpawn.glb",
+      "triangles": 173220,
+      "batches": 50,
+      "bytes": 3393715,
+      "sha256": "b379f598ddea02bc86927b0f83d0b714ab0da593a4f71b90a5c178b27d8de670",
+      "sourceSha256": "ca3402daa5f14e2c66d1c69e8a2f6263765f0f8e326abc55ba144af34007729e"
+    },
+    {
+      "file": "Foxtrot_Art_Mid.glb",
+      "triangles": 170013,
+      "batches": 43,
+      "bytes": 3633188,
+      "sha256": "129d62e286886c41733d203e3aef0cac620f3fb5dfafd6b6caee72853bee16b4",
+      "sourceSha256": "2cb330d3646c33ef62a232a0ebbe995895d702c776cc2abbd90e2613ce31252f"
+    },
+    {
+      "file": "Foxtrot_Art_MidLower.glb",
+      "triangles": 256597,
+      "batches": 45,
+      "bytes": 4511615,
+      "sha256": "cfd300b7f87fac420f9644a50c8a7dc5ffbd4a49de4a655b8633ee425d779732",
+      "sourceSha256": "2cbd423d0a38ce287b127e331d2cb36ca5f01ffb424cfc6cb743ebe82ca816c8"
+    },
+    {
+      "file": "Foxtrot_Art_MidUpper.glb",
+      "triangles": 155439,
+      "batches": 31,
+      "bytes": 2915009,
+      "sha256": "b71b57b9a62593d67f22e504db21447601b190c8abb1c5f9c0d4ab3e39817035",
+      "sourceSha256": "c016cad27f4e986f7f01f0eaab926e2978b050f26b2792f889eb4081a7d0702c"
+    },
+    {
+      "file": "Foxtrot_Art_Workshop.glb",
+      "triangles": 54702,
+      "batches": 20,
+      "bytes": 907480,
+      "sha256": "0d35081dfa039b857727d994629d5dd2de5992734d7456ccf07f6fb533408976",
+      "sourceSha256": "19f7820ba525344688e61791e38aa984c135231bcc1ecd6437efafa68012cdf7"
+    }
+  ],
+  "omitted": []
+}

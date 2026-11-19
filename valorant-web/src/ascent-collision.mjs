@@ -137,12 +137,29 @@ export class AscentWalker {
     this.velocity.x = input.x * speed; this.velocity.z = input.z * speed;
     const steps = Math.max(1, Math.ceil((this.velocity.length() + 25 * dt) * dt / (this.radius * .35))), subdt = dt / steps;
     for (let s = 0; s < steps; s++) {
+      const stepHeight = this.world.stepHeight, wasGrounded = this.grounded;
+      if (stepHeight && wasGrounded && input.lengthSq()) {
+        const foot = this.getFoot(), x = foot.x + this.velocity.x * subdt, z = foot.z + this.velocity.z * subdt;
+        const step = this.world.floorAt(x,z,foot.y+stepHeight,stepHeight+.32,this.radius*.93);
+        if (step && step.position.y > foot.y + .002) {
+          const dy = step.position.y - foot.y + .001, moved = this.capsule.clone();
+          moved.translate(new THREE.Vector3(x-foot.x,dy,z-foot.z));
+          if (!this.world.octree.capsuleIntersect(moved)) this.capsule.translate(new THREE.Vector3(0,dy,0));
+        }
+      }
       this.velocity.y -= 25 * subdt; this.capsule.translate(this.velocity.clone().multiplyScalar(subdt)); this.grounded = false;
       for (let iteration = 0; iteration < 4; iteration++) {
         const result = this.world.octree.capsuleIntersect(this.capsule); if (!result || result.depth < 1e-7) break;
         if (result.normal.y > .55) this.grounded = true;
         this.capsule.translate(result.normal.clone().multiplyScalar(result.depth + 1e-5));
         const into = this.velocity.dot(result.normal); if (into < 0) this.velocity.addScaledVector(result.normal, -into);
+      }
+      if (stepHeight && wasGrounded && !this.grounded && this.velocity.y <= 0) {
+        const foot = this.getFoot(), floor = this.world.floorAt(foot.x,foot.z,foot.y,.32);
+        if (floor) {
+          this.capsule.translate(new THREE.Vector3(0,floor.position.y-foot.y+.00001,0));
+          this.grounded = true; this.velocity.y = 0;
+        }
       }
     }
     this.fellOut = this.capsule.start.y < this.world.geometry.boundingBox.min.y - 8;

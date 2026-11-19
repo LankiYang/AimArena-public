@@ -5,10 +5,18 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { FPSFirstPersonRig } from './fps-first-person-rig.js';
 import { MotionController } from './character-motion.js';
+import { RemotePose } from './remote-pose.js';
 import { attachThirdPersonWeapon } from './third-person-weapon.js';
 import { loadAscentCollision } from './ascent-collision.mjs';
 
 const loader = new GLTFLoader();
+let locomotionRequest;
+function loadLocomotion(){
+  return locomotionRequest ??= fetch('/assets/animations/bot-locomotion.json').then(async response=>{
+    if(!response.ok)throw new Error('第三人称移动动画加载失败');
+    return (await response.json()).clips;
+  }).catch(error=>{locomotionRequest=null;throw error;});
+}
 const materials = new Map();
 const box = new THREE.BoxGeometry(1,1,1);
 const tmp = new THREE.Object3D();
@@ -31,21 +39,38 @@ export class ArenaScene {
     this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;this.renderer.shadowMap.autoUpdate=false;this.renderer.shadowMap.needsUpdate=true;
     this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.12;
     this.renderer.outputColorSpace=THREE.SRGBColorSpace;
-    if(map.id!=='ascent-b'){
+    if(!map.collision){
     this.scene.add(new THREE.HemisphereLight('#dceaff','#65625a',2.5));
     const sun=new THREE.DirectionalLight('#ffe1b0',4.5);sun.position.set(-32,48,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-60,right:60,top:50,bottom:-50,near:1,far:130});sun.shadow.normalBias=.06;sun.shadow.bias=-.0002;this.scene.add(sun);
     const fill=new THREE.DirectionalLight('#a9d6ff',.5);fill.position.set(30,12,-25);this.scene.add(fill);
     }
     this.static=new THREE.Group();this.scene.add(this.static);this.dynamic=new THREE.Group();this.scene.add(this.dynamic);
     this.players=new Map();this.effects=[];this.smokes=new Map();this.barriers=new Map();this.slows=new Map();this.assets={};this.viewRig=null;this.scene.add(this.camera);
-    if(map.id!=='ascent-b'){this.buildMap();this.buildSkyline();this.mergeStatic();}
-    this.ready=Promise.all([this.loadAssets(onProgress),map.id==='ascent-b'?this.loadOriginalMap(onProgress):Promise.resolve()]);
+    if(!map.collision){this.buildMap();this.buildSkyline();this.mergeStatic();}
+    if(map.collision==='volumes'){
+      let art=0,models=0;
+      this.ready=Promise.all([
+        this.loadAssets((p,label)=>{models=p;onProgress?.(art*.86+models*.14,label);}),
+        this.loadFullMap((p,label)=>{art=p;onProgress?.(art*.86+models*.14,label);}),
+      ]);
+    }else this.ready=Promise.all([this.loadAssets(onProgress),map.id==='ascent-b'?this.loadOriginalMap(onProgress):Promise.resolve()]);
     this.resizeHandler=()=>{this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.renderer.setSize(innerWidth,innerHeight);};addEventListener('resize',this.resizeHandler);
   }
   async loadOriginalMap(onProgress){
     onProgress?.(.05,'ASCENT B · 构建原始三角面碰撞…');this.exactWorld=await loadAscentCollision('/assets/maps/ascent-b.glb');const {buildAscentEnvironment}=await import('./ascent-environment.js');this.environment=buildAscentEnvironment(this.scene,this.exactWorld.geometry,{quality:this.quality||'medium'});await this.environment.ready;this.renderer.shadowMap.needsUpdate=true;onProgress?.(.95,'ASCENT B · 精确几何与重建材质就绪');
   }
-  setQuality(level){this.quality=level;this.renderer.setPixelRatio(Math.min(devicePixelRatio,level==='high'?1.65:level==='low'?.8:1.15));this.renderer.shadowMap.enabled=level!=='low';this.renderer.shadowMap.needsUpdate=true;if(this.environment?.sun){this.environment.sun.castShadow=level!=='low';this.environment.sun.shadow.needsUpdate=true;}this.renderer.setSize(innerWidth,innerHeight);}
+  async loadFullMap(onProgress){
+    const [{loadAscentFullCollision},{loadAscentFullEnvironment}]=await Promise.all([import('./ascent-full-collision.mjs'),import('./ascent-full-environment.js')]);
+    const [world,environment]=await Promise.all([
+      loadAscentFullCollision(this.map.collisionUrl),
+      loadAscentFullEnvironment(this.scene,this.map,(p,label)=>onProgress?.(p*.92,label)),
+    ]);
+    this.exactWorld=world;this.environment=environment;
+    environment.setQuality(this.quality||'medium');
+    this.renderer.shadowMap.needsUpdate=true;
+    onProgress?.(1,`${this.map.title} · 就绪`);
+  }
+  setQuality(level){this.quality=level;this.renderer.setPixelRatio(Math.min(devicePixelRatio,level==='high'?1.65:level==='low'?.8:1.15));this.renderer.shadowMap.enabled=level!=='low';this.renderer.shadowMap.needsUpdate=true;if(this.environment?.setQuality)this.environment.setQuality(level);else if(this.environment?.sun){this.environment.sun.castShadow=level!=='low';this.environment.sun.shadow.needsUpdate=true;}this.renderer.setSize(innerWidth,innerHeight);}
   dispose(){removeEventListener('resize',this.resizeHandler);this.viewRig?.dispose();this.exactWorld?.dispose();this.environment?.dispose();this.scene.traverse(o=>{o.geometry?.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m){for(const v of Object.values(m))if(v?.isTexture)v.dispose();m.dispose();}});});this.renderer.dispose();}
   mesh(geo,material,x,y,z,rotation=0,parent=this.static){const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.rotation.y=rotation;m.castShadow=m.receiveShadow=true;parent.add(m);return m;}
   block(x,y,z,w,h,d,color,rotation=0){const m=this.mesh(box,typeof color==='object'?color:mat(color),x,y,z,rotation);m.scale.set(w,h,d);return m;}
@@ -139,7 +164,8 @@ export class ArenaScene {
       ['viewModel','/assets/animations/fps-ak74m/scene.gltf','第一人称动作'],
     ];
     let done=0;
-    const results=await Promise.allSettled(tasks.map(async ([key,url,label])=>{
+    const clips=loadLocomotion().then(clips=>{this.locomotionClips=clips;});
+    const results=await Promise.allSettled([clips,...tasks.map(async ([key,url,label])=>{
       try{
         const gltf=await loader.loadAsync(url);
         if(key!=='rifle'&&key!=='viewModel')gltf.userData={bounds:new THREE.Box3().setFromObject(gltf.scene)};
@@ -150,35 +176,62 @@ export class ArenaScene {
         onProgress?.(++done/tasks.length,`${label} · 加载失败`);
         throw error;
       }
-    }));
+    })]);
     const failed=results.find(result=>result.status==='rejected');if(failed)throw failed.reason;
     this.viewRig=new FPSFirstPersonRig(this.assets.viewModel,this.camera);
   }
   createPlayer(p,selfTeam){
-    const root=new THREE.Group();root.position.set(p.x,p.y,p.z);this.dynamic.add(root);let model,mixer,walk,idle,motion;
-    const asset=this.assets[p.agent];if(asset){model=cloneSkeleton(asset.scene);model.updateMatrixWorld(true);const b=asset.userData.bounds.clone(),s=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());const sc=1.82/s.y;model.scale.setScalar(sc);model.position.set(-c.x*sc,-b.min.y*sc,-c.z*sc);model.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;o.frustumCulled=false;}});root.add(model);if(asset.animations.length){mixer=new THREE.AnimationMixer(model);idle=mixer.clipAction(asset.animations[0]);idle.play();const clip=asset.animations.find(a=>/walk|run/i.test(a.name));if(clip)walk=mixer.clipAction(clip);}}
-    if(model){mixer?.update(0);motion=new MotionController(model);}
+    const root=new THREE.Group();root.position.set(p.x,p.y,p.z);root.rotation.y=Math.PI-p.yaw;this.dynamic.add(root);
+    let model,motion;
+    const asset=this.assets[p.agent];
+    if(asset){
+      model=cloneSkeleton(asset.scene);
+      const b=asset.userData.bounds,s=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3()),sc=1.82/s.y;
+      model.scale.setScalar(sc);model.position.set(-c.x*sc,-b.min.y*sc,-c.z*sc);
+      model.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;o.frustumCulled=false;}});
+      root.add(model);
+      // Sample the authored two-handed pose once. The showcase loops move the
+      // hands and weapon relative to the chest even while standing still.
+      if(asset.animations.length){
+        const poseMixer=new THREE.AnimationMixer(model);
+        poseMixer.clipAction(asset.animations[0]).play();poseMixer.update(0);
+      }
+      motion=new MotionController(model,{clips:this.locomotionClips,root});
+    }
     // Missing production assets are never replaced by a box-shaped character.
     const badge=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTexture(p.name.slice(0,14),p.team===selfTeam?'#b8f3d9':'#ff8189'),depthTest:true,transparent:true}));badge.scale.set(1.4,.45,1);badge.position.y=2.15;root.add(badge);
     const shadow=new THREE.Mesh(new THREE.CircleGeometry(.4,24),new THREE.MeshBasicMaterial({color:'#18282c',transparent:true,opacity:.18,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;root.add(shadow);
     const weapon=model&&this.assets.rifle?attachThirdPersonWeapon(model,this.assets.rifle.scene):null;
-    const data={root,model,mixer,walk,idle,motion,weapon,target:p,old:{x:p.x,z:p.z},hp:p.hp,t:0,shotUntil:0,castUntil:0};this.players.set(p.id,data);return data;
+    const data={root,model,motion,weapon,pose:new RemotePose(),hp:p.hp,shotUntil:0,castUntil:0};this.players.set(p.id,data);return data;
   }
-  updatePlayers(players,selfId,selfTeam,dt){
-    const ids=new Set();for(const p of players){if(p.id===selfId)continue;ids.add(p.id);let d=this.players.get(p.id);if(!d)d=this.createPlayer(p,selfTeam);d.target=p;
-      const oldX=d.root.position.x,oldZ=d.root.position.z;d.root.position.lerp(new THREE.Vector3(p.x,p.y,p.z),Math.min(1,dt*14));d.root.rotation.y=-p.yaw+Math.PI;d.root.visible=p.alive;
-      const vx=(d.root.position.x-oldX)/Math.max(dt,.001),vz=(d.root.position.z-oldZ)/Math.max(dt,.001),speed=Math.min(12,Math.hypot(vx,vz));
-      if(p.hp<d.hp)d.motion?.triggerHit();d.hp=p.hp;d.mixer?.update(dt);d.motion?.update(dt,{speed,forward:vx*Math.sin(p.yaw)-vz*Math.cos(p.yaw),strafe:vx*Math.cos(p.yaw)+vz*Math.sin(p.yaw),grounded:p.grounded,crouch:p.crouch,shooting:performance.now()<d.shotUntil,casting:performance.now()<d.castUntil,time:performance.now()/1000});
-      d.weapon?.update({pitch:p.pitch,casting:performance.now()<d.castUntil,visible:p.alive});
+  updatePlayers(players,selfId,selfTeam,dt,serverTime,renderServerTime){
+    const now=performance.now();
+    const ids=new Set();for(const p of players){if(p.id===selfId)continue;ids.add(p.id);const d=this.players.get(p.id)||this.createPlayer(p,selfTeam);
+      const pose=d.pose.update(p,serverTime,renderServerTime,dt);
+      const dx=pose.reset?0:pose.x-d.root.position.x,dz=pose.reset?0:pose.z-d.root.position.z;
+      d.root.position.set(pose.x,pose.y,pose.z);d.root.rotation.y=Math.PI-pose.yaw;d.root.visible=p.alive;
+      // Unwind last frame's support-hand correction before applying actions.
+      // Otherwise it can become the base shoulder/elbow pose the next frame.
+      d.weapon?.restoreSupportHand();
+      if(pose.reset){d.motion?.reset();d.shotUntil=d.castUntil=0;}
+      if(p.hp<d.hp)d.motion?.triggerHit();d.hp=p.hp;
+      if(!p.alive)continue;
+      const distance=Math.hypot(dx,dz),invDt=1/Math.max(dt,.001),speed=Math.min(12,distance*invDt);
+      const shooting=now<d.shotUntil,casting=now<d.castUntil;
+      const sin=Math.sin(pose.yaw),cos=Math.cos(pose.yaw);
+      const aimPitch=THREE.MathUtils.clamp(pose.pitch,-.8,.8);
+      d.motion?.update(dt,{speed,distance,forward:(dx*sin-dz*cos)*invDt,strafe:(dx*cos+dz*sin)*invDt,grounded:pose.grounded,crouch:pose.crouch,shooting,casting,aimPitch,time:now/1000});
+      const supportWeight=1-THREE.MathUtils.smoothstep(d.motion?.castWeight??0,.10,.95);
+      d.weapon?.update({pitch:aimPitch,supportWeight,visible:true});
     }
-    for(const [id,p]of this.players)if(!ids.has(id)){p.motion?.dispose();p.weapon?.dispose();p.root.removeFromParent();this.players.delete(id);}
+    for(const [id,p]of this.players)if(!ids.has(id)){p.weapon?.dispose();p.motion?.dispose();p.root.removeFromParent();this.players.delete(id);}
   }
   playerAction(id,action){const p=this.players.get(id);if(!p)return;if(action==='shot'){p.shotUntil=performance.now()+100;p.motion?.triggerShot();}if(action==='ability')p.castUntil=performance.now()+700;}
   updateSmokes(list,dt){const ids=new Set();for(const s of list){ids.add(s.id);let m=this.smokes.get(s.id);if(!m){const group=new THREE.Group();const core=new THREE.Mesh(new THREE.SphereGeometry(s.radius,24,16),new THREE.MeshStandardMaterial({color:'#bdcfdb',transparent:true,opacity:.96,roughness:1,side:THREE.DoubleSide}));group.add(core);const halo=new THREE.Mesh(new THREE.SphereGeometry(s.radius*1.015,24,16),new THREE.MeshBasicMaterial({color:'#cbe7e9',wireframe:true,transparent:true,opacity:.07}));group.add(halo);this.scene.add(group);m=group;this.smokes.set(s.id,m);}m.position.set(s.x,s.y,s.z);m.rotation.y+=dt*.1;}for(const[id,m]of this.smokes)if(!ids.has(id)){m.removeFromParent();m.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});this.smokes.delete(id);}}
   updateAbilities(barriers,slows,dt){
     const barrierIds=new Set();for(const b of barriers){barrierIds.add(b.id);let g=this.barriers.get(b.id);if(!g){g=new THREE.Group();const ice=new THREE.MeshPhysicalMaterial({color:'#65dbce',emissive:'#246c70',emissiveIntensity:.25,roughness:.26,metalness:.08,transparent:true,opacity:.91,clearcoat:.7});const core=new THREE.Mesh(new RoundedBoxGeometry(b.w,b.h,b.d,2,.12),ice);core.castShadow=core.receiveShadow=true;g.add(core);const edge=new THREE.LineSegments(new THREE.EdgesGeometry(core.geometry,25),new THREE.LineBasicMaterial({color:'#bbfff2',transparent:true,opacity:.45}));g.add(edge);for(let n=0;n<6;n++){const shard=new THREE.Mesh(new THREE.OctahedronGeometry(.15+n%3*.05,0),new THREE.MeshStandardMaterial({color:'#a4f4df',emissive:'#54cbb6',emissiveIntensity:.2,roughness:.35}));shard.position.set(Math.sin(n*5)*b.w*.3,b.h*.5-.04,Math.cos(n*5)*b.d*.25);shard.scale.y=1.4;g.add(shard);}this.scene.add(g);this.barriers.set(b.id,g);}g.position.set(b.x,b.y,b.z);g.children[0].material.opacity=.55+.36*Math.max(0,b.hp)/400;}
     for(const[id,g]of this.barriers)if(!barrierIds.has(id)){g.removeFromParent();g.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});this.barriers.delete(id);}
-    const slowIds=new Set();for(const s of slows){slowIds.add(s.id);let g=this.slows.get(s.id);if(!g){g=new THREE.Group();const floor=new THREE.Mesh(new THREE.CircleGeometry(s.radius,48),new THREE.MeshStandardMaterial({color:'#7bd8ca',emissive:'#369d9f',emissiveIntensity:.3,transparent:true,opacity:.56,roughness:.3,depthWrite:false}));floor.rotation.x=-Math.PI/2;g.add(floor);for(let i=0;i<44;i++){const a=i*2.399,r=Math.sqrt(i/44)*s.radius*.96;const piece=new THREE.Mesh(new THREE.OctahedronGeometry(.12+(i%3)*.05,0),mat('#9be2d5',.3,.2));piece.scale.set(1.5,.3,1);piece.position.set(Math.cos(a)*r,.04,Math.sin(a)*r);piece.rotation.y=a;g.add(piece);}this.scene.add(g);this.slows.set(s.id,g);}g.position.set(s.x,.035,s.z);g.children[0].material.opacity=.48+Math.sin(performance.now()*.002)*.06;}
+    const slowIds=new Set();for(const s of slows){slowIds.add(s.id);let g=this.slows.get(s.id);if(!g){g=new THREE.Group();const floor=new THREE.Mesh(new THREE.CircleGeometry(s.radius,48),new THREE.MeshStandardMaterial({color:'#7bd8ca',emissive:'#369d9f',emissiveIntensity:.3,transparent:true,opacity:.56,roughness:.3,depthWrite:false}));floor.rotation.x=-Math.PI/2;g.add(floor);for(let i=0;i<44;i++){const a=i*2.399,r=Math.sqrt(i/44)*s.radius*.96;const piece=new THREE.Mesh(new THREE.OctahedronGeometry(.12+(i%3)*.05,0),mat('#9be2d5',.3,.2));piece.scale.set(1.5,.3,1);piece.position.set(Math.cos(a)*r,.04,Math.sin(a)*r);piece.rotation.y=a;g.add(piece);}this.scene.add(g);this.slows.set(s.id,g);}g.position.set(s.x,(s.y??0)+.035,s.z);g.children[0].material.opacity=.48+Math.sin(performance.now()*.002)*.06;}
     for(const[id,g]of this.slows)if(!slowIds.has(id)){g.removeFromParent();g.traverse(o=>{o.geometry?.dispose();if(![...materials.values()].includes(o.material))o.material?.dispose();});this.slows.delete(id);}
   }
   shot(from,to,color='#ffdaa3'){const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...from),new THREE.Vector3(...to)]);const line=new THREE.Line(g,new THREE.LineBasicMaterial({color,transparent:true,opacity:.8}));this.scene.add(line);this.effects.push({mesh:line,life:.09,max:.09});}
@@ -186,6 +239,7 @@ export class ArenaScene {
   update(dt,player,yaw,pitch,moving,reloadRemaining,walk=false){
     this.camera.position.set(player.x,player.y+(player.crouch?1.05:1.62),player.z);
     this.camera.rotation.set(pitch,-yaw,0);
+    if(this.environment?.updateLight?.(this.camera.position))this.renderer.shadowMap.needsUpdate=true;
     this.viewRig?.update(dt,{moving,walk,reloadRemaining,alive:player.alive});
     for(let i=this.effects.length-1;i>=0;i--){const e=this.effects[i];e.life-=dt;e.mesh.material.opacity=Math.max(0,e.life/e.max);if(e.life<=0){e.mesh.removeFromParent();e.mesh.geometry.dispose();e.mesh.material.dispose();this.effects.splice(i,1);}}
     this.renderer.render(this.scene,this.camera);

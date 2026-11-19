@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      ngraph.graph:
+        specifier: 20.1.2
+        version: 20.1.2
+      ngraph.path:
+        specifier: 1.6.1
+        version: 1.6.1
       three:
         specifier: 0.170.0
         version: 0.170.0
@@ -16,6 +22,15 @@ importers:
         version: 8.18.0
 
 packages:
+
+  ngraph.events@1.4.0:
+    resolution: {integrity: sha512-NeDGI4DSyjBNBRtA86222JoYietsmCXbs8CEB0dZ51Xeh4lhVl1y3wpWLumczvnha8sFQIW4E0vvVWwgmX2mGw==}
+
+  ngraph.graph@20.1.2:
+    resolution: {integrity: sha512-W/G3GBR3Y5UxMLHTUCPP9v+pbtpzwuAEIqP5oZV+9IwgxAIEZwh+Foc60iPc1idlnK7Zxu0p3puxAyNmDvBd0Q==}
+
+  ngraph.path@1.6.1:
+    resolution: {integrity: sha512-NiA52wAoRo/t36/1dBAZkXPeX+rQ1mn82bc9LSfnfywGY9TxH/jXw3x3fZ1mOCblyln26lHtfHHEzssjjyX+aw==}
 
   three@0.170.0:
     resolution: {integrity: sha512-FQK+LEpYc0fBD+J8g6oSEyyNzjp+Q7Ks1C568WWaoMRLW+TkNNWmenWeGgJjV105Gd+p/2ql1ZcjYvNiPZBhuQ==}
@@ -33,6 +48,14 @@ packages:
         optional: true
 
 snapshots:
+
+  ngraph.events@1.4.0: {}
+
+  ngraph.graph@20.1.2:
+    dependencies:
+      ngraph.events: 1.4.0
+
+  ngraph.path@1.6.1: {}
 
   three@0.170.0: {}
 
